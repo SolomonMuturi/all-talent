@@ -35,6 +35,7 @@ const ticketTiers = [
 
 const formSchema = z.object({
   fullName: z.string().nonempty({ message: 'Please enter your full name.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.'}),
   phoneNumber: z.string().regex(/^254\d{9}$/, 'Phone number must be in the format 254XXXXXXXXX.'),
   ticketTier: z.string().nonempty({ message: 'Please select a ticket tier.' }),
 });
@@ -49,6 +50,7 @@ export function TicketBookingForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: '',
+      email: '',
       phoneNumber: '254',
       ticketTier: '',
     },
@@ -68,7 +70,7 @@ export function TicketBookingForm() {
     setTimeout(() => {
       toast({
         title: 'Booking Confirmed!',
-        description: `Your ${values.ticketTier} ticket has been sent to ${values.phoneNumber}.`,
+        description: `Your ${values.ticketTier} ticket has been sent to ${values.email} and ${values.phoneNumber}.`,
       });
       setIsLoading(false);
       setIsBookingComplete(true);
@@ -83,7 +85,7 @@ export function TicketBookingForm() {
               <CheckCircle className="h-4 w-4" />
               <AlertTitle className="font-headline">Booking Successful!</AlertTitle>
               <AlertDescription>
-                Your e-ticket has been sent to your phone. Thank you for your purchase!
+                Your e-ticket has been sent to your phone and email. Thank you for your purchase!
               </AlertDescription>
               <Button onClick={() => setIsBookingComplete(false)} className="mt-4">Book Another Ticket</Button>
           </Alert>
@@ -109,6 +111,23 @@ export function TicketBookingForm() {
                         <FormControl>
                             <Input placeholder="e.g., Jane Doe" {...field} />
                         </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+
+                    <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                            <Input type="email" placeholder="e.g., jane.doe@example.com" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                            Your e-ticket will be sent to this email address.
+                        </FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
