@@ -70,19 +70,25 @@ export function IdCardGenerator() {
 
         <div className="flex justify-center">
           <div className={cn("border rounded-lg p-6 bg-muted/20 w-full max-w-sm shadow-md relative overflow-hidden", isExpiringSoon && "border-destructive")}>
-            <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-4">
-                    <Avatar className="h-20 w-20 border-2 border-primary">
-                        <AvatarImage src={selectedPerson.avatarUrl} alt={selectedPerson.name} />
-                        <AvatarFallback>{selectedPerson.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <h3 className="font-bold text-xl font-headline">{selectedPerson.name}</h3>
-                        <p className="text-muted-foreground">{selectedPerson.role}</p>
-                        <p className="text-sm text-primary font-semibold">UPID: TT-{String(selectedPerson.id.split('-')[1]).padStart(4, '0')}</p>
-                    </div>
+            <div className="flex justify-between items-start mb-6">
+                <div className="text-left text-xs text-muted-foreground">
+                    <p className="font-bold text-card-foreground">TalantaTrack Academy</p>
+                    <p>123 Football Lane, Nairobi, Kenya</p>
+                    <p>+254 700 000 000</p>
                 </div>
-                <Logo className="h-10 w-10" />
+                <Logo className="h-12 w-12" />
+            </div>
+
+            <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20 border-2 border-primary">
+                    <AvatarImage src={selectedPerson.avatarUrl} alt={selectedPerson.name} />
+                    <AvatarFallback>{selectedPerson.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <h3 className="font-bold text-xl font-headline">{selectedPerson.name}</h3>
+                    <p className="text-muted-foreground">{selectedPerson.role}</p>
+                    <p className="text-sm text-primary font-semibold">UPID: TT-{String(selectedPerson.id.split('-')[1]).padStart(4, '0')}</p>
+                </div>
             </div>
             
             <Separator className="my-4"/>
@@ -118,8 +124,6 @@ export function IdCardGenerator() {
             <p className="text-xs text-muted-foreground text-center mb-6">Scan for verification & access</p>
 
             <div className="text-center text-xs text-muted-foreground absolute bottom-2 left-0 right-0">
-                <p className="font-bold text-card-foreground">TalantaTrack Academy</p>
-                <p>123 Football Lane, Nairobi, Kenya | +254 700 000 000</p>
                 <p>If found, please return to the address above.</p>
             </div>
           </div>
