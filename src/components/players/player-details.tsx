@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -234,18 +234,50 @@ export function PlayerDetails({ player }: { player: Player }) {
           <TabsContent value="gps">
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">GPS Heatmap</CardTitle>
-                <CardDescription>Player movement analysis from last match.</CardDescription>
+                <CardTitle className="font-headline">GPS Performance Data</CardTitle>
+                <CardDescription>Player metrics from the last match.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Image 
-                    src="https://picsum.photos/seed/heatmap1/600/400" 
-                    alt="GPS Heatmap"
-                    width={600}
-                    height={400}
-                    className="rounded-lg object-cover w-full"
-                    data-ai-hint="football pitch heatmap"
-                />
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Max Speed</CardTitle>
+                        <Gauge className="h-5 w-5 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{player.gpsData.maxSpeed} km/h</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Distance Covered</CardTitle>
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{player.gpsData.distanceCovered} km</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Player Load</CardTitle>
+                        <Zap className="h-5 w-5 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{player.gpsData.playerLoad}</div>
+                    </CardContent>
+                  </Card>
+                </div>
+                <div>
+                    <h3 className="font-semibold mb-4">Movement Heatmap</h3>
+                    <Image 
+                        src="https://picsum.photos/seed/heatmap1/600/400" 
+                        alt="GPS Heatmap"
+                        width={600}
+                        height={400}
+                        className="rounded-lg object-cover w-full"
+                        data-ai-hint="football pitch heatmap"
+                    />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
