@@ -56,7 +56,7 @@ import { Logo } from '@/components/icons';
 import { Breadcrumb } from './breadcrumb';
 
 const navItems = [
-  { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
   { href: '/players', icon: Users, label: 'Players' },
   { href: '/standings', icon: BarChart, label: 'Standings' },
