@@ -51,6 +51,21 @@ const steps = [
 export function EnrollmentForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const { toast } = useToast();
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+  const [birthCertificate, setBirthCertificate] = useState<File | null>(null);
+  const [releaseLetter, setReleaseLetter] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: (file: File | null) => void, setPreview?: (preview: string | null) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFile(file);
+      if (setPreview) {
+        setPreview(URL.createObjectURL(file));
+      }
+    }
+  };
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(personalDetailsSchema),
@@ -79,7 +94,7 @@ export function EnrollmentForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep((step) => step - 1);
+      setCurrentStep((step) => step + 1);
     }
   };
 
@@ -211,7 +226,7 @@ export function EnrollmentForm() {
                                     <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> Birth Certificate</p>
                                     <p className="text-xs text-muted-foreground">PDF, PNG, JPG</p>
                                 </div>
-                                <Input id="birth-certificate" type="file" className="hidden" />
+                                <Input id="birth-certificate" type="file" className="hidden" onChange={(e) => handleFileChange(e, setBirthCertificate)} />
                             </label>
                         </div>
                         <div className="flex items-center justify-center w-full">
@@ -221,7 +236,7 @@ export function EnrollmentForm() {
                                     <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> Release Letter (Optional)</p>
                                     <p className="text-xs text-muted-foreground">PDF, PNG, JPG</p>
                                 </div>
-                                <Input id="release-letter" type="file" className="hidden" />
+                                <Input id="release-letter" type="file" className="hidden" onChange={(e) => handleFileChange(e, setReleaseLetter)} />
                             </label>
                         </div>
                     </div>
@@ -234,11 +249,15 @@ export function EnrollmentForm() {
                      <div className="flex items-center justify-center w-full">
                         <label htmlFor="profile-picture" className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/75">
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                <User className="w-12 h-12 mb-2 text-muted-foreground" />
+                                {profilePicturePreview ? (
+                                    <img src={profilePicturePreview} alt="Profile preview" className="w-24 h-24 rounded-full object-cover mb-2"/>
+                                ) : (
+                                    <User className="w-12 h-12 mb-2 text-muted-foreground" />
+                                )}
                                 <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> a profile picture</p>
                                 <p className="text-xs text-muted-foreground">PNG, JPG (MAX. 800x800px)</p>
                             </div>
-                            <Input id="profile-picture" type="file" className="hidden" accept="image/png, image/jpeg" />
+                            <Input id="profile-picture" type="file" className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, setProfilePicture, setProfilePicturePreview)} />
                         </label>
                     </div>
                 </div>
@@ -249,14 +268,20 @@ export function EnrollmentForm() {
                     <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
                         <h4 className="font-semibold">Personal Details</h4>
                         <p><strong>Name:</strong> {form.getValues().fullName}</p>
-                        <p><strong>Date of Birth:</strong> {format(form.getValues().dateOfBirth, "PPP")}</p>
+                        <p><strong>Date of Birth:</strong> {form.getValues().dateOfBirth ? format(form.getValues().dateOfBirth, "PPP") : 'N/A'}</p>
                         <p><strong>Position:</strong> {form.getValues().position}</p>
                         
                         <h4 className="font-semibold mt-4">Uploaded Documents</h4>
-                        <p className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground" /> birth_certificate.pdf</p>
+                        <p className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground" /> {birthCertificate?.name || 'No file selected'}</p>
+                        {releaseLetter && <p className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground" /> {releaseLetter.name}</p>}
+
 
                         <h4 className="font-semibold mt-4">Profile Picture</h4>
-                        <p>profile_picture.jpg</p>
+                        {profilePicturePreview ? (
+                           <img src={profilePicturePreview} alt="Profile preview" className="w-24 h-24 rounded-full object-cover"/>
+                        ) : (
+                           <p>No picture uploaded.</p>
+                        )}
 
                     </div>
                 </div>
@@ -281,3 +306,5 @@ export function EnrollmentForm() {
     </Card>
   );
 }
+
+    
