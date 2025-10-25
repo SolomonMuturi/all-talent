@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { IdCardGenerator } from "@/components/id-card/id-card-generator";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Users, AlertTriangle, Building } from "lucide-react";
@@ -20,12 +21,14 @@ export default function IdCardPage() {
       </div>
 
        <div className="grid gap-4 md:grid-cols-3">
-        <KpiCard
-            title="Total Active IDs"
-            value={String(totalIDs)}
-            icon={<Users className="size-5 text-muted-foreground" />}
-            description="Across players & staff"
-        />
+        <Link href="/players">
+            <KpiCard
+                title="Total Active IDs"
+                value={String(totalIDs)}
+                icon={<Users className="size-5 text-muted-foreground" />}
+                description="Across players & staff"
+            />
+        </Link>
         <KpiCard
             title="IDs Expiring Soon"
             value={String(expiringSoon)}
