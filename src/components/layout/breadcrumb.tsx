@@ -35,6 +35,8 @@ const Breadcrumb = () => {
         label = "BI Dashboard";
       } else if (segment === 'training-hub') {
         label = 'Training Hub';
+      } else if (segment === 'id-card') {
+        label = 'ID Card';
       }
       else if (!isNaN(parseInt(segment))) {
         // This is a dynamic segment for a player ID, so we skip it as the previous segment handled it.

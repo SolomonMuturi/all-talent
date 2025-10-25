@@ -23,6 +23,7 @@ import {
   UserCheck,
   GraduationCap,
   Bell,
+  ShieldCheck,
 } from 'lucide-react';
 
 import {
@@ -63,6 +64,7 @@ const navItems = [
   { href: '/id-card', icon: UserSquare, label: 'ID Card' },
   { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
   { href: '/inventory', icon: Boxes, label: 'Inventory' },
+  { href: '/compliance', icon: ShieldCheck, label: 'Compliance' },
   { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
   { href: '/reporting', icon: FileText, label: 'Reporting' },
   { href: '/fraud-detection', icon: ShieldAlert, label: 'Fraud Detection' },
