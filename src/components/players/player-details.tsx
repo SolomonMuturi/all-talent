@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -99,16 +99,29 @@ export function PlayerDetails({ player }: { player: Player }) {
           <TabsContent value="biometrics">
              <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-lg">Biometric Validation</CardTitle>
-                    <CardDescription>Last clock-in: 8:02 AM, Main Training Facility</CardDescription>
+                    <CardTitle className="font-headline text-lg flex items-center gap-2">
+                        <UserCheck className="text-primary" />
+                        Biometric Attendance
+                    </CardTitle>
+                    <CardDescription>Clock-In/Out via fingerprint/facial recognition for attendance verification.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-4 text-center">
-                    <Fingerprint className="w-20 h-20 text-primary" />
-                    <p className="text-sm text-muted-foreground">Use a registered scanner to validate player attendance and control facility access.</p>
-                    <Button className="w-full max-w-xs">
+                    <div className="flex gap-8">
+                        <div className="flex flex-col items-center gap-2">
+                            <Fingerprint className="w-20 h-20 text-primary" />
+                            <p className="text-sm font-medium">Fingerprint</p>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                            <Scan className="w-20 h-20 text-primary" />
+                            <p className="text-sm font-medium">Facial Scan</p>
+                        </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-4">Last clock-in: 8:02 AM, Main Training Facility</p>
+                    <Button className="w-full max-w-xs mt-2">
                         <Scan className="mr-2 h-4 w-4" />
-                        Initiate Manual Clock In / Out
+                        Initiate Manual Clock-In/Out
                     </Button>
+                    <p className="text-xs text-muted-foreground">Manual clock-in requires admin approval.</p>
                 </CardContent>
             </Card>
           </TabsContent>
