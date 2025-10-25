@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -38,6 +38,12 @@ const severityVariant = {
   Low: 'secondary',
   Medium: 'default',
   High: 'destructive',
+} as const;
+
+const rtpStatusVariant = {
+    'In Treatment': 'destructive',
+    'Cleared for Light Training': 'secondary',
+    'Cleared to Play': 'default'
 } as const;
 
 export function PlayerDetails({ player }: { player: Player }) {
@@ -84,12 +90,13 @@ export function PlayerDetails({ player }: { player: Player }) {
 
       <div className="md:col-span-2">
         <Tabs defaultValue="performance">
-          <TabsList className="mb-4 grid w-full grid-cols-5">
+          <TabsList className="mb-4 grid w-full grid-cols-6">
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="biometrics">Biometrics</TabsTrigger>
             <TabsTrigger value="gps">GPS Data</TabsTrigger>
             <TabsTrigger value="reports">Scouting</TabsTrigger>
             <TabsTrigger value="discipline">Discipline</TabsTrigger>
+            <TabsTrigger value="injuries">Injuries</TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance">
@@ -221,6 +228,61 @@ export function PlayerDetails({ player }: { player: Player }) {
                         </TableBody>
                     </Table>
                 </CardContent>
+            </Card>
+          </TabsContent>
+           <TabsContent value="injuries">
+            <Card>
+              <CardHeader className="flex flex-row items-center">
+                <div className="grid gap-2">
+                  <CardTitle className="font-headline flex items-center gap-2">
+                    <HeartPulse className="text-primary" />
+                    Injury Log &amp; RTP
+                  </CardTitle>
+                  <CardDescription>Record of all injuries and Return-to-Play status.</CardDescription>
+                </div>
+                <Button size="sm" className="ml-auto gap-1">
+                  <PlusCircle className="h-4 w-4" />
+                  Log Injury
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Injury</TableHead>
+                      <TableHead>Severity</TableHead>
+                      <TableHead>RTP Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {player.injuryLog.length > 0 ? (
+                      player.injuryLog.map((entry) => (
+                        <TableRow key={entry.id}>
+                          <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
+                          <TableCell>{entry.injury}</TableCell>
+                          <TableCell>
+                            <Badge variant={severityVariant[entry.severity]}>
+                              {entry.severity}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={rtpStatusVariant[entry.rtpStatus]}>
+                                {entry.rtpStatus}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center">
+                          No injuries recorded.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

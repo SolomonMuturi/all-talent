@@ -13,6 +13,7 @@ export type Player = {
     passing: number;
   };
   disciplinaryLog: DisciplinaryInfraction[];
+  injuryLog: Injury[];
 };
 
 export type DisciplinaryInfraction = {
@@ -21,6 +22,14 @@ export type DisciplinaryInfraction = {
   infraction: string;
   severity: 'Low' | 'Medium' | 'High';
   sanction: string;
+};
+
+export type Injury = {
+  id: number;
+  date: string;
+  injury: string;
+  severity: 'Low' | 'Medium' | 'High';
+  rtpStatus: 'In Treatment' | 'Cleared for Light Training' | 'Cleared to Play';
 };
 
 export type Transaction = {
@@ -57,6 +66,10 @@ export const players: Player[] = [
         { id: 1, date: '2024-06-20', infraction: 'Tardiness to practice', severity: 'Low', sanction: 'Warning' },
         { id: 2, date: '2024-07-05', infraction: 'Unsporting behaviour', severity: 'Medium', sanction: 'Benched for one half' },
     ],
+    injuryLog: [
+        { id: 1, date: '2024-05-15', injury: 'Right Ankle Sprain', severity: 'Medium', rtpStatus: 'Cleared to Play' },
+        { id: 2, date: '2024-03-02', injury: 'Mild Hamstring Strain', severity: 'Low', rtpStatus: 'Cleared to Play' },
+    ],
   },
   {
     id: 2,
@@ -68,6 +81,7 @@ export const players: Player[] = [
     attendance: 98,
     performanceMetrics: { speed: 82, stamina: 88, shooting: 75, passing: 91 },
     disciplinaryLog: [],
+    injuryLog: [],
   },
   {
     id: 3,
@@ -81,6 +95,9 @@ export const players: Player[] = [
     disciplinaryLog: [
         { id: 1, date: '2024-07-10', infraction: 'Missed team curfew', severity: 'High', sanction: '1 game suspension' },
     ],
+    injuryLog: [
+        { id: 1, date: '2024-06-10', injury: 'Left Knee Contusion', severity: 'Low', rtpStatus: 'Cleared for Light Training' },
+    ]
   },
   {
     id: 4,
@@ -92,6 +109,7 @@ export const players: Player[] = [
     attendance: 99,
     performanceMetrics: { speed: 70, stamina: 85, shooting: 50, passing: 65 },
     disciplinaryLog: [],
+    injuryLog: [],
   },
   {
     id: 5,
@@ -103,6 +121,7 @@ export const players: Player[] = [
     attendance: 93,
     performanceMetrics: { speed: 85, stamina: 80, shooting: 78, passing: 82 },
     disciplinaryLog: [],
+    injuryLog: [],
   },
   {
     id: 6,
@@ -114,6 +133,7 @@ export const players: Player[] = [
     attendance: 96,
     performanceMetrics: { speed: 90, stamina: 86, shooting: 88, passing: 80 },
     disciplinaryLog: [],
+    injuryLog: [],
   },
 ];
 
