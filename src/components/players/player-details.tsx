@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -139,13 +140,14 @@ export function PlayerDetails({ player }: { player: Player }) {
 
       <div className="md:col-span-2">
         <Tabs defaultValue="performance">
-          <TabsList className="mb-4 grid w-full grid-cols-6">
+          <TabsList className="mb-4 grid w-full grid-cols-7">
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="biometrics">Biometrics</TabsTrigger>
             <TabsTrigger value="gps">GPS Data</TabsTrigger>
             <TabsTrigger value="reports">Scouting</TabsTrigger>
             <TabsTrigger value="discipline">Discipline</TabsTrigger>
             <TabsTrigger value="injuries">Injuries</TabsTrigger>
+            <TabsTrigger value="achievements">Achievements</TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance">
@@ -414,6 +416,55 @@ export function PlayerDetails({ player }: { player: Player }) {
                   </TableBody>
                 </Table>
               </CardContent>
+            </Card>
+          </TabsContent>
+           <TabsContent value="achievements">
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center gap-2">
+                        <Trophy className="text-primary"/>
+                        Earned Certificates
+                    </CardTitle>
+                    <CardDescription>Certificates for completed training modules.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Module Name</TableHead>
+                                <TableHead>Date Awarded</TableHead>
+                                <TableHead className="text-right">Action</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {player.certificates.length > 0 ? (
+                                player.certificates.map((cert) => (
+                                    <TableRow key={cert.id}>
+                                        <TableCell className="font-medium flex items-center gap-2">
+                                            <Award className="h-4 w-4 text-muted-foreground" />
+                                            {cert.moduleName}
+                                        </TableCell>
+                                        <TableCell>{new Date(cert.date).toLocaleDateString()}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link href={`/achievements/certificate/${encodeURIComponent(player.name)}/${encodeURIComponent(cert.moduleName)}`}>
+                                                    View Certificate
+                                                    <ExternalLink className="ml-2 h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="h-24 text-center">
+                                        No certificates earned yet.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

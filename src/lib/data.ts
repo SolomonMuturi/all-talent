@@ -1,4 +1,5 @@
 
+
 export type Player = {
   id: number;
   name: string;
@@ -44,6 +45,13 @@ export type Player = {
   };
   disciplinaryLog: DisciplinaryInfraction[];
   injuryLog: Injury[];
+  certificates: Certificate[];
+};
+
+export type Certificate = {
+  id: string;
+  moduleName: string;
+  date: string;
 };
 
 export type DisciplinaryInfraction = {
@@ -163,6 +171,9 @@ export const players: Player[] = [
         { id: 1, date: '2024-05-15', injury: 'Right Ankle Sprain', severity: 'Medium', rtpStatus: 'Cleared to Play' },
         { id: 2, date: '2024-03-02', injury: 'Mild Hamstring Strain', severity: 'Low', rtpStatus: 'Cleared to Play' },
     ],
+    certificates: [
+        { id: 'cert-001', moduleName: 'Advanced Dribbling & Ball Control', date: '2024-06-01' },
+    ]
   },
   {
     id: 2,
@@ -186,6 +197,10 @@ export const players: Player[] = [
     },
     disciplinaryLog: [],
     injuryLog: [],
+    certificates: [
+        { id: 'cert-002', moduleName: 'Defensive Positioning Masterclass', date: '2024-07-15' },
+        { id: 'cert-003', moduleName: 'Tactical Awareness & Game Reading', date: '2024-05-20' },
+    ]
   },
   {
     id: 3,
@@ -212,7 +227,8 @@ export const players: Player[] = [
     ],
     injuryLog: [
         { id: 1, date: '2024-06-10', injury: 'Left Knee Contusion', severity: 'Low', rtpStatus: 'Cleared for Light Training' },
-    ]
+    ],
+    certificates: []
   },
   {
     id: 4,
@@ -236,6 +252,7 @@ export const players: Player[] = [
     },
     disciplinaryLog: [],
     injuryLog: [],
+    certificates: []
   },
   {
     id: 5,
@@ -259,6 +276,7 @@ export const players: Player[] = [
     },
     disciplinaryLog: [],
     injuryLog: [],
+    certificates: []
   },
   {
     id: 6,
@@ -282,6 +300,7 @@ export const players: Player[] = [
     },
     disciplinaryLog: [],
     injuryLog: [],
+    certificates: []
   },
 ];
 
