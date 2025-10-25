@@ -130,7 +130,7 @@ export function EventDetails({ event }: EventDetailsProps) {
             </div>
              <div className="mt-6 text-center">
                 <Button asChild>
-                    <Link href="/ticketing">
+                    <Link href="/book-ticket">
                         <Ticket className="mr-2 h-4 w-4" />
                         Book Tickets Now
                     </Link>

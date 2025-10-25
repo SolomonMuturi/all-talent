@@ -35,22 +35,21 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 
-const ticketTiers = [
+const initialTiers = [
   { name: 'VIP', price: 2000, sold: 50, total: 100 },
   { name: 'Regular', price: 500, sold: 350, total: 1000 },
   { name: 'Student', price: 200, sold: 150, total: 200 },
 ];
 
-const totalRevenue = ticketTiers.reduce(
-  (acc, tier) => acc + tier.price * tier.sold,
-  0
-);
-const totalTicketsSold = ticketTiers.reduce((acc, tier) => acc + tier.sold, 0);
-const totalCapacity = ticketTiers.reduce((acc, tier) => acc + tier.total, 0);
-
 export function TicketManagement() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [ticketTiers, setTicketTiers] = useState(initialTiers);
+  const [isTierDialogOpen, setTierDialogOpen] = useState(false);
+
+  const totalRevenue = ticketTiers.reduce((acc, tier) => acc + tier.price * tier.sold, 0);
+  const totalTicketsSold = ticketTiers.reduce((acc, tier) => acc + tier.sold, 0);
+  const totalCapacity = ticketTiers.reduce((acc, tier) => acc + tier.total, 0);
 
   const handleGenerateAndSend = () => {
     setIsGenerating(true);
@@ -62,6 +61,26 @@ export function TicketManagement() {
       setIsGenerating(false);
     }, 2000);
   };
+
+  const handleTierUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const updatedTiers = ticketTiers.map(tier => {
+      const newPrice = formData.get(`price-${tier.name}`);
+      const newTotal = formData.get(`total-${tier.name}`);
+      return {
+        ...tier,
+        price: newPrice ? Number(newPrice) : tier.price,
+        total: newTotal ? Number(newTotal) : tier.total,
+      };
+    });
+    setTicketTiers(updatedTiers);
+    toast({
+        title: "Ticket Tiers Updated",
+        description: "Pricing and availability have been successfully updated."
+    });
+    setTierDialogOpen(false);
+  }
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -104,7 +123,7 @@ export function TicketManagement() {
                     {totalCapacity.toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {((totalTicketsSold / totalCapacity) * 100).toFixed(1)}% of
+                    {totalCapacity > 0 ? ((totalTicketsSold / totalCapacity) * 100).toFixed(1) : 0}% of
                     capacity
                   </p>
                 </CardContent>
@@ -117,9 +136,9 @@ export function TicketManagement() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">125 / 550</div>
+                  <div className="text-2xl font-bold">125 / {totalTicketsSold}</div>
                   <p className="text-xs text-muted-foreground">
-                    22.7% of tickets scanned
+                    {totalTicketsSold > 0 ? ((125 / totalTicketsSold) * 100).toFixed(1) : 0}% of tickets scanned
                   </p>
                 </CardContent>
               </Card>
@@ -135,7 +154,8 @@ export function TicketManagement() {
                         {tier.sold} / {tier.total}
                       </span>
                     </div>
-                    <Progress value={(tier.sold / tier.total) * 100} />
+                    <Progress value={tier.total > 0 ? (tier.sold / tier.total) * 100 : 0} />
+                    {tier.sold >= tier.total && <p className='text-xs text-destructive font-medium mt-1'>Sold Out!</p>}
                   </div>
                 ))}
               </div>
@@ -247,39 +267,41 @@ export function TicketManagement() {
               {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <QrCode className="mr-2 h-4 w-4" />}
               {isGenerating ? 'Sending Tickets...' : 'Generate & Send Tickets'}
             </Button>
-            <Dialog>
+            <Dialog open={isTierDialogOpen} onOpenChange={setTierDialogOpen}>
                 <DialogTrigger asChild>
                     <Button variant="secondary" className="w-full">
                         Manage Ticket Tiers
                     </Button>
                 </DialogTrigger>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Manage Ticket Tiers</DialogTitle>
-                        <DialogDescription>
-                            Adjust pricing and availability for each ticket tier.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        {ticketTiers.map(tier => (
-                            <div key={tier.name} className="grid grid-cols-3 items-center gap-4 p-2 border rounded-lg">
-                                <Label htmlFor={`tier-name-${tier.name}`} className="font-semibold">{tier.name}</Label>
-                                <div className='col-span-2 grid grid-cols-2 gap-2'>
-                                  <div>
-                                    <Label htmlFor={`tier-price-${tier.name}`} className="text-xs text-muted-foreground">Price (KES)</Label>
-                                    <Input id={`tier-price-${tier.name}`} type="number" defaultValue={tier.price} />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor={`tier-total-${tier.name}`} className="text-xs text-muted-foreground">Total</Label>
-                                    <Input id={`tier-total-${tier.name}`} type="number" defaultValue={tier.total} />
-                                  </div>
+                    <form onSubmit={handleTierUpdate}>
+                        <DialogHeader>
+                            <DialogTitle>Manage Ticket Tiers</DialogTitle>
+                            <DialogDescription>
+                                Adjust pricing and availability for each ticket tier.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            {ticketTiers.map(tier => (
+                                <div key={tier.name} className="grid grid-cols-3 items-center gap-4 p-2 border rounded-lg">
+                                    <Label htmlFor={`price-${tier.name}`} className="font-semibold">{tier.name}</Label>
+                                    <div className='col-span-2 grid grid-cols-2 gap-2'>
+                                    <div>
+                                        <Label htmlFor={`price-${tier.name}`} className="text-xs text-muted-foreground">Price (KES)</Label>
+                                        <Input name={`price-${tier.name}`} id={`price-${tier.name}`} type="number" defaultValue={tier.price} />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor={`total-${tier.name}`} className="text-xs text-muted-foreground">Total</Label>
+                                        <Input name={`total-${tier.name}`} id={`total-${tier.name}`} type="number" defaultValue={tier.total} />
+                                    </div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit">Save Changes</Button>
-                    </DialogFooter>
+                            ))}
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit">Save Changes</Button>
+                        </DialogFooter>
+                    </form>
                 </DialogContent>
             </Dialog>
           </CardFooter>
