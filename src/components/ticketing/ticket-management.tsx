@@ -1,6 +1,7 @@
 'use client';
 
-import { BarChart, QrCode, Ticket, DollarSign, Users } from 'lucide-react';
+import { useState } from 'react';
+import { BarChart, QrCode, Ticket, DollarSign, Users, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,6 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Progress } from '@/components/ui/progress';
 import {
   Table,
@@ -21,6 +31,9 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
+import { useToast } from '@/hooks/use-toast';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
 
 const ticketTiers = [
   { name: 'VIP', price: 2000, sold: 50, total: 100 },
@@ -36,6 +49,20 @@ const totalTicketsSold = ticketTiers.reduce((acc, tier) => acc + tier.sold, 0);
 const totalCapacity = ticketTiers.reduce((acc, tier) => acc + tier.total, 0);
 
 export function TicketManagement() {
+  const { toast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerateAndSend = () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      toast({
+        title: "Tickets Sent!",
+        description: "All purchased e-tickets have been generated and sent to the buyers.",
+      });
+      setIsGenerating(false);
+    }, 2000);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <div className="lg:col-span-2 space-y-8">
@@ -216,13 +243,45 @@ export function TicketManagement() {
             </div>
           </CardContent>
           <CardFooter className="flex-col gap-2">
-             <Button className="w-full">
-              <QrCode className="mr-2 h-4 w-4" />
-              Generate & Send Tickets
+             <Button className="w-full" onClick={handleGenerateAndSend} disabled={isGenerating}>
+              {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <QrCode className="mr-2 h-4 w-4" />}
+              {isGenerating ? 'Sending Tickets...' : 'Generate & Send Tickets'}
             </Button>
-            <Button variant="secondary" className="w-full">
-              Manage Ticket Tiers
-            </Button>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="secondary" className="w-full">
+                        Manage Ticket Tiers
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Manage Ticket Tiers</DialogTitle>
+                        <DialogDescription>
+                            Adjust pricing and availability for each ticket tier.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        {ticketTiers.map(tier => (
+                            <div key={tier.name} className="grid grid-cols-3 items-center gap-4 p-2 border rounded-lg">
+                                <Label htmlFor={`tier-name-${tier.name}`} className="font-semibold">{tier.name}</Label>
+                                <div className='col-span-2 grid grid-cols-2 gap-2'>
+                                  <div>
+                                    <Label htmlFor={`tier-price-${tier.name}`} className="text-xs text-muted-foreground">Price (KES)</Label>
+                                    <Input id={`tier-price-${tier.name}`} type="number" defaultValue={tier.price} />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tier-total-${tier.name}`} className="text-xs text-muted-foreground">Total</Label>
+                                    <Input id={`tier-total-${tier.name}`} type="number" defaultValue={tier.total} />
+                                  </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Save Changes</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
           </CardFooter>
         </Card>
       </div>
