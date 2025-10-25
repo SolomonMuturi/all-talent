@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { players, teamMembers } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, Edit } from 'lucide-react';
+import { AlertCircle, Edit, UploadCloud } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { cn } from '@/lib/utils';
 import { Logo } from '../icons';
@@ -36,6 +36,14 @@ export function IdCardGenerator() {
   const [phone, setPhone] = useState('+254 700 000 000');
   const [email, setEmail] = useState('info@talentatrack.co.ke');
   const [website, setWebsite] = useState('www.talentatrack.co.ke');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setLogoUrl(URL.createObjectURL(file));
+    }
+  };
 
 
   const selectedPerson = allPersonnel.find(p => p.id === selectedPersonId) || allPersonnel[0];
@@ -90,7 +98,11 @@ export function IdCardGenerator() {
                                 <p>{email}</p>
                                 <p>{website}</p>
                             </div>
-                            <Logo className="h-12 w-12" />
+                           {logoUrl ? (
+                                <Image src={logoUrl} alt="Academy Logo" width={48} height={48} className="object-contain" />
+                            ) : (
+                                <Logo className="h-12 w-12" />
+                            )}
                         </div>
 
                         <div className="flex items-center gap-4">
@@ -155,6 +167,10 @@ export function IdCardGenerator() {
                     <CardDescription>Edit the details that appear on every ID card.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="logoUpload">Academy Logo</Label>
+                        <Input id="logoUpload" type="file" accept="image/*" onChange={handleLogoChange} className="text-xs" />
+                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="academyName">Academy Name</Label>
                         <Input id="academyName" value={academyName} onChange={(e) => setAcademyName(e.target.value)} />
