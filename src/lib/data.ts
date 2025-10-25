@@ -63,6 +63,15 @@ export type Equipment = {
   maintenanceDue?: string;
 };
 
+export type Consumable = {
+  id: string;
+  name: string;
+  category: 'Drinks' | 'Medical' | 'Snacks';
+  currentStock: number;
+  unit: string;
+  lowStockThreshold: number;
+};
+
 export const players: Player[] = [
   {
     id: 1,
@@ -179,4 +188,11 @@ export const equipment: Equipment[] = [
   { id: 'EQP-004', name: 'Ball Pump Machine', category: 'General', location: 'Storage Room A', status: 'Maintenance', maintenanceDue: '2024-08-01' },
   { id: 'EQP-005', name: 'Agility Ladders (x5)', category: 'Training Gear', assignedTo: 'John Omondi', location: 'Storage Room A', status: 'In Storage' },
   { id: 'EQP-006', name: 'GPS Vests (x20)', category: 'Performance Tracking', location: 'Charging Station', status: 'In Use' },
+];
+
+export const consumables: Consumable[] = [
+    { id: 'CON-001', name: 'Water Bottles', category: 'Drinks', currentStock: 80, unit: 'bottles', lowStockThreshold: 100 },
+    { id: 'CON-002', name: 'Energy Bars', category: 'Snacks', currentStock: 120, unit: 'bars', lowStockThreshold: 50 },
+    { id: 'CON-003', name: 'Athletic Tape', category: 'Medical', currentStock: 30, unit: 'rolls', lowStockThreshold: 20 },
+    { id: 'CON-004', name: 'Ice Packs (Instant)', category: 'Medical', currentStock: 15, unit: 'packs', lowStockThreshold: 20 },
 ];
