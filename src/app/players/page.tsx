@@ -17,6 +17,15 @@ export default function PlayersPage() {
   }, {} as Record<string, number>);
 
   const mostPopulousTeam = Object.entries(teamCounts).sort((a, b) => b[1] - a[1])[0][0];
+  
+  const playersByTeam = players.reduce((acc, player) => {
+    const team = player.team;
+    if (!acc[team]) {
+      acc[team] = [];
+    }
+    acc[team].push(player);
+    return acc;
+  }, {} as Record<string, typeof players>);
 
 
   return (
@@ -57,26 +66,31 @@ export default function PlayersPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {players.sort((a,b) => a.rank - b.rank).map((player) => (
-          <Link key={player.id} href={`/players/${player.id}`} passHref>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer text-center relative">
-               <Badge className="absolute top-2 right-2 flex gap-1 items-center" variant={player.rank === 1 ? 'default' : 'secondary'}>
-                  <Trophy className="h-3 w-3" />
-                  Rank #{player.rank}
-               </Badge>
-              <CardContent className="flex flex-col items-center p-6">
-                <Avatar className="h-20 w-20 mb-4">
-                  <AvatarImage src={player.avatarUrl} alt={player.name} data-ai-hint="athlete portrait"/>
-                  <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <p className="font-semibold">{player.name}</p>
-                <p className="text-sm text-muted-foreground">{player.position}</p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {Object.entries(playersByTeam).map(([team, teamPlayers]) => (
+        <div key={team}>
+          <h2 className="text-xl font-semibold tracking-tight font-headline mb-4">{team}</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {teamPlayers.sort((a,b) => a.rank - b.rank).map((player) => (
+              <Link key={player.id} href={`/players/${player.id}`} passHref>
+                <Card className="hover:bg-muted/50 transition-colors cursor-pointer text-center relative">
+                   <Badge className="absolute top-2 right-2 flex gap-1 items-center" variant={player.rank === 1 ? 'default' : 'secondary'}>
+                      <Trophy className="h-3 w-3" />
+                      Rank #{player.rank}
+                   </Badge>
+                  <CardContent className="flex flex-col items-center p-6">
+                    <Avatar className="h-20 w-20 mb-4">
+                      <AvatarImage src={player.avatarUrl} alt={player.name} data-ai-hint="athlete portrait"/>
+                      <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <p className="font-semibold">{player.name}</p>
+                    <p className="text-sm text-muted-foreground">{player.position}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
