@@ -30,6 +30,8 @@ export type TeamMember = {
   email: string;
   role: 'Admin' | 'Coach' | 'Finance' | 'Scout';
   avatarUrl: string;
+  hourlyRate: number;
+  hoursWorked: number;
 };
 
 export const players: Player[] = [
@@ -107,8 +109,8 @@ export const transactions: Transaction[] = [
 ];
 
 export const teamMembers: TeamMember[] = [
-  { id: 1, name: 'Esther Chepkoech', email: 'esther.c@talentatrack.co.ke', role: 'Admin', avatarUrl: 'https://picsum.photos/seed/a1/100/100' },
-  { id: 2, name: 'John Omondi', email: 'john.o@talentatrack.co.ke', role: 'Coach', avatarUrl: 'https://picsum.photos/seed/c1/100/100' },
-  { id: 3, name: 'Maria Njeri', email: 'maria.n@talentatrack.co.ke', role: 'Finance', avatarUrl: 'https://picsum.photos/seed/f1/100/100' },
-  { id: 4, name: 'Peter Kamau', email: 'peter.k@talentatrack.co.ke', role: 'Scout', avatarUrl: 'https://picsum.photos/seed/s1/100/100' },
+  { id: 1, name: 'Esther Chepkoech', email: 'esther.c@talentatrack.co.ke', role: 'Admin', avatarUrl: 'https://picsum.photos/seed/a1/100/100', hourlyRate: 50, hoursWorked: 160 },
+  { id: 2, name: 'John Omondi', email: 'john.o@talentatrack.co.ke', role: 'Coach', avatarUrl: 'https://picsum.photos/seed/c1/100/100', hourlyRate: 30, hoursWorked: 120 },
+  { id: 3, name: 'Maria Njeri', email: 'maria.n@talentatrack.co.ke', role: 'Finance', avatarUrl: 'https://picsum.photos/seed/f1/100/100', hourlyRate: 40, hoursWorked: 150 },
+  { id: 4, name: 'Peter Kamau', email: 'peter.k@talentatrack.co.ke', role: 'Scout', avatarUrl: 'https://picsum.photos/seed/s1/100/100', hourlyRate: 25, hoursWorked: 80 },
 ];
