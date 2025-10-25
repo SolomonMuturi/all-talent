@@ -1,6 +1,7 @@
 
 
 
+
 export type Player = {
   id: number;
   name: string;
@@ -133,15 +134,23 @@ export type AcademyEvent = {
     gameType: string;
     tournamentType: 'League' | 'Cup' | 'Friendly';
     teamCount: number;
+    lineup: {
+      formation: string;
+      squad: {
+        number: number;
+        name: string;
+        position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
+      }[];
+    }
   }
 };
 
 export const events: AcademyEvent[] = [
-    { 
-        id: 'evt-001', 
+    {
+        id: 'evt-001',
         title: 'Dar Youth Cup 2025',
         subtitle: 'U15 League Play-Offs',
-        date: new Date(2025, 9, 26), 
+        date: new Date(2025, 9, 26),
         category: 'Tournament',
         logoUrl: '/images/dar-youth-cup-logo.svg',
         details: {
@@ -151,13 +160,29 @@ export const events: AcademyEvent[] = [
             gameType: 'Football',
             tournamentType: 'Cup',
             teamCount: 4,
-        } 
+            lineup: {
+                formation: '4-3-3',
+                squad: [
+                    { number: 1, name: 'Fatima Omar', position: 'Goalkeeper' },
+                    { number: 2, name: 'Player A', position: 'Defender' },
+                    { number: 3, name: 'Samuel Kiprop', position: 'Defender' },
+                    { number: 4, name: 'Player B', position: 'Defender' },
+                    { number: 5, name: 'Player C', position: 'Defender' },
+                    { number: 6, name: 'Aisha Akinyi', position: 'Midfielder' },
+                    { number: 8, name: 'David Odhiambo', position: 'Midfielder' },
+                    { number: 10, name: 'Player D', position: 'Midfielder' },
+                    { number: 7, name: 'Player E', position: 'Forward' },
+                    { number: 9, name: 'Leo Wanjala', position: 'Forward' },
+                    { number: 11, name: 'Grace Mwende', position: 'Forward' },
+                ]
+            }
+        }
     },
-    { 
-        id: 'evt-002', 
+    {
+        id: 'evt-002',
         title: 'Nairobi Youth League',
         subtitle: 'U-19 Season Opener',
-        date: new Date(new Date().getFullYear(), 8, 15), 
+        date: new Date(new Date().getFullYear(), 8, 15),
         category: 'Match',
         logoUrl: '/images/nairobi-league-logo.svg',
          details: {
@@ -167,13 +192,29 @@ export const events: AcademyEvent[] = [
             gameType: 'Football',
             tournamentType: 'League',
             teamCount: 16,
+             lineup: {
+                formation: '4-4-2',
+                squad: [
+                    { number: 1, name: 'Fatima Omar', position: 'Goalkeeper' },
+                    { number: 2, name: 'Player A', position: 'Defender' },
+                    { number: 3, name: 'Samuel Kiprop', position: 'Defender' },
+                    { number: 4, name: 'Player B', position: 'Defender' },
+                    { number: 5, name: 'Player C', position: 'Defender' },
+                    { number: 6, name: 'Aisha Akinyi', position: 'Midfielder' },
+                    { number: 7, name: 'Player F', position: 'Midfielder'},
+                    { number: 8, name: 'David Odhiambo', position: 'Midfielder' },
+                    { number: 11, name: 'Player G', position: 'Midfielder'},
+                    { number: 9, name: 'Leo Wanjala', position: 'Forward' },
+                    { number: 10, name: 'Grace Mwende', position: 'Forward' },
+                ]
+            }
         }
     },
-    { 
-        id: 'evt-003', 
+    {
+        id: 'evt-003',
         title: 'TalantaTrack Annual Trials',
         subtitle: 'U15 & U17 Open Trials',
-        date: new Date(new Date().getFullYear(), 8, 20), 
+        date: new Date(new Date().getFullYear(), 8, 20),
         category: 'Trial',
         logoUrl: '/images/talentatrack-logo.svg',
          details: {
@@ -183,6 +224,22 @@ export const events: AcademyEvent[] = [
             gameType: 'Football',
             tournamentType: 'Friendly',
             teamCount: 32,
+             lineup: {
+                formation: '4-2-3-1',
+                squad: [
+                    { number: 1, name: 'Fatima Omar', position: 'Goalkeeper' },
+                    { number: 2, name: 'Player A', position: 'Defender' },
+                    { number: 3, name: 'Samuel Kiprop', position: 'Defender' },
+                    { number: 4, name: 'Player B', position: 'Defender' },
+                    { number: 5, name: 'Player C', position: 'Defender' },
+                    { number: 6, name: 'Player H', position: 'Midfielder'},
+                    { number: 8, name: 'Player I', position: 'Midfielder'},
+                    { number: 7, name: 'Aisha Akinyi', position: 'Midfielder' },
+                    { number: 10, name: 'David Odhiambo', position: 'Midfielder' },
+                    { number: 11, name: 'Grace Mwende', position: 'Midfielder'},
+                    { number: 9, name: 'Leo Wanjala', position: 'Forward' },
+                ]
+            }
         }
     },
 ];
@@ -389,3 +446,5 @@ export const consumables: Consumable[] = [
     { id: 'CON-003', name: 'Athletic Tape', category: 'Medical', currentStock: 30, unit: 'rolls', lowStockThreshold: 20 },
     { id: 'CON-004', name: 'Ice Packs (Instant)', category: 'Medical', currentStock: 15, unit: 'packs', lowStockThreshold: 20 },
 ];
+
+  

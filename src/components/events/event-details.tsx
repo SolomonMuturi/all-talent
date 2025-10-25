@@ -14,6 +14,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { AcademyEvent } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { TeamFormation } from './team-formation';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 interface EventDetailsProps {
   event: AcademyEvent;
@@ -108,20 +110,33 @@ export function EventDetails({ event }: EventDetailsProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {eventDetails.map((item) => (
-            <DetailItem
-              key={item.label}
-              icon={item.icon}
-              label={item.label}
-              value={item.value}
-            />
-          ))}
-        </div>
-        <div className="mt-6 text-center">
-            <Button variant="link">click to view Live Tournaments</Button>
-        </div>
+        <Tabs defaultValue="details">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="lineup">Starting Lineup</TabsTrigger>
+          </TabsList>
+          <TabsContent value="details" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {eventDetails.map((item) => (
+                <DetailItem
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  value={item.value}
+                />
+              ))}
+            </div>
+             <div className="mt-6 text-center">
+                <Button variant="link">click to view Live Tournaments</Button>
+            </div>
+          </TabsContent>
+          <TabsContent value="lineup" className="mt-4">
+            <TeamFormation lineup={details.lineup} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
 }
+
+  
