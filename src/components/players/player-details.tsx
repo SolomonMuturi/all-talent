@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,6 +14,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,6 +33,12 @@ const metricIcons = {
   shooting: <Dumbbell className="h-5 w-5 text-accent" />,
   passing: <Dumbbell className="h-5 w-5 text-accent" />,
 };
+
+const severityVariant = {
+  Low: 'secondary',
+  Medium: 'default',
+  High: 'destructive',
+} as const;
 
 export function PlayerDetails({ player }: { player: Player }) {
   const performanceData = Object.entries(player.performanceMetrics).map(([name, value]) => ({ name, value }));
@@ -69,11 +84,12 @@ export function PlayerDetails({ player }: { player: Player }) {
 
       <div className="md:col-span-2">
         <Tabs defaultValue="performance">
-          <TabsList className="mb-4 grid w-full grid-cols-4">
+          <TabsList className="mb-4 grid w-full grid-cols-5">
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="biometrics">Biometrics</TabsTrigger>
             <TabsTrigger value="gps">GPS Data</TabsTrigger>
             <TabsTrigger value="reports">Scouting</TabsTrigger>
+            <TabsTrigger value="discipline">Discipline</TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance">
@@ -153,6 +169,57 @@ export function PlayerDetails({ player }: { player: Player }) {
                     <p><strong>Strengths:</strong> Excellent field vision and precise long passes. Shows strong leadership qualities during high-pressure situations. Great work rate both offensively and defensively.</p>
                     <p><strong>Areas for Improvement:</strong> Needs to improve left-footed shots and decision-making in the final third. Can sometimes hold onto the ball for too long.</p>
                     <p><strong>Recommendation:</strong> Focus on drills that require quick one-two passes and shooting with the weaker foot. Recommended for one-on-one coaching for attacking decisions.</p>
+                </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="discipline">
+            <Card>
+                <CardHeader className="flex flex-row items-center">
+                    <div className="grid gap-2">
+                        <CardTitle className="font-headline flex items-center gap-2">
+                            <ShieldX className="text-primary"/>
+                            Disciplinary Log
+                        </CardTitle>
+                        <CardDescription>Record of all disciplinary infractions for this player.</CardDescription>
+                    </div>
+                    <Button size="sm" className="ml-auto gap-1">
+                        <PlusCircle className="h-4 w-4" />
+                        Log Infraction
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Infraction</TableHead>
+                                <TableHead>Severity</TableHead>
+                                <TableHead>Sanction</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {player.disciplinaryLog.length > 0 ? (
+                                player.disciplinaryLog.map((entry) => (
+                                    <TableRow key={entry.id}>
+                                        <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
+                                        <TableCell>{entry.infraction}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={severityVariant[entry.severity]}>
+                                                {entry.severity}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>{entry.sanction}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-24 text-center">
+                                        No disciplinary infractions recorded.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
           </TabsContent>

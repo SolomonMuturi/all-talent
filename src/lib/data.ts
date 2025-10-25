@@ -12,6 +12,15 @@ export type Player = {
     shooting: number;
     passing: number;
   };
+  disciplinaryLog: DisciplinaryInfraction[];
+};
+
+export type DisciplinaryInfraction = {
+  id: number;
+  date: string;
+  infraction: string;
+  severity: 'Low' | 'Medium' | 'High';
+  sanction: string;
 };
 
 export type Transaction = {
@@ -44,6 +53,10 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 95,
     performanceMetrics: { speed: 88, stamina: 92, shooting: 85, passing: 78 },
+    disciplinaryLog: [
+        { id: 1, date: '2024-06-20', infraction: 'Tardiness to practice', severity: 'Low', sanction: 'Warning' },
+        { id: 2, date: '2024-07-05', infraction: 'Unsporting behaviour', severity: 'Medium', sanction: 'Benched for one half' },
+    ],
   },
   {
     id: 2,
@@ -54,6 +67,7 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 98,
     performanceMetrics: { speed: 82, stamina: 88, shooting: 75, passing: 91 },
+    disciplinaryLog: [],
   },
   {
     id: 3,
@@ -64,6 +78,9 @@ export const players: Player[] = [
     team: 'U-19',
     attendance: 91,
     performanceMetrics: { speed: 80, stamina: 95, shooting: 60, passing: 75 },
+    disciplinaryLog: [
+        { id: 1, date: '2024-07-10', infraction: 'Missed team curfew', severity: 'High', sanction: '1 game suspension' },
+    ],
   },
   {
     id: 4,
@@ -74,6 +91,7 @@ export const players: Player[] = [
     team: 'U-19',
     attendance: 99,
     performanceMetrics: { speed: 70, stamina: 85, shooting: 50, passing: 65 },
+    disciplinaryLog: [],
   },
   {
     id: 5,
@@ -84,6 +102,7 @@ export const players: Player[] = [
     team: 'U-15',
     attendance: 93,
     performanceMetrics: { speed: 85, stamina: 80, shooting: 78, passing: 82 },
+    disciplinaryLog: [],
   },
   {
     id: 6,
@@ -94,6 +113,7 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 96,
     performanceMetrics: { speed: 90, stamina: 86, shooting: 88, passing: 80 },
+    disciplinaryLog: [],
   },
 ];
 
