@@ -7,11 +7,20 @@ import { Separator } from '@/components/ui/separator';
 import { players } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { cn } from '@/lib/utils';
 
 export function IdCardGenerator() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>(String(players[0].id));
 
   const selectedPlayer = players.find(p => p.id === parseInt(selectedPlayerId)) || players[0];
+
+  // Dummy logic for expiration
+  const issueDate = new Date('2024-01-01');
+  const expiryDate = new Date('2025-01-01');
+  const isExpiringSoon = new Date() > new Date(expiryDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+
 
   return (
     <Card>
@@ -35,9 +44,19 @@ export function IdCardGenerator() {
                 </SelectContent>
             </Select>
         </div>
+        
+        {isExpiringSoon && (
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Renewal Required</AlertTitle>
+                <AlertDescription>
+                    This player's ID card is expiring soon and requires renewal.
+                </AlertDescription>
+            </Alert>
+        )}
 
         <div className="flex justify-center">
-            <div className="border rounded-lg p-6 bg-muted/20 w-full max-w-sm shadow-md">
+            <div className={cn("border rounded-lg p-6 bg-muted/20 w-full max-w-sm shadow-md", isExpiringSoon && "border-destructive")}>
                 <div className="flex items-center gap-4 mb-4">
                     <Avatar className="h-20 w-20">
                         <AvatarImage src={selectedPlayer.avatarUrl} alt={selectedPlayer.name} />
@@ -61,11 +80,11 @@ export function IdCardGenerator() {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Issued</p>
-                  <p className="font-semibold">2024-01-01</p>
+                  <p className="font-semibold">{issueDate.toLocaleDateString()}</p>
                 </div>
-                <div className="text-right">
+                <div className={cn("text-right", isExpiringSoon && "text-destructive")}>
                   <p className="text-muted-foreground">Expires</p>
-                  <p className="font-semibold">2025-01-01</p>
+                  <p className="font-semibold">{expiryDate.toLocaleDateString()}</p>
                 </div>
               </div>
                <div className="flex justify-center my-4">
