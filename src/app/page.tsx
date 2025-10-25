@@ -26,20 +26,13 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           title="Total Revenue"
           value={`KES ${totalRevenue.toLocaleString()}`}
           change="+11.5%"
           icon={<Banknote className="size-5 text-muted-foreground" />}
           description="from last month"
-        />
-        <KpiCard
-          title="Players Enrolled"
-          value={String(activePlayers)}
-          change="+2"
-          icon={<Users className="size-5 text-muted-foreground" />}
-          description="since last week"
         />
         <KpiCard
           title="Cost Per Player"
@@ -62,6 +55,23 @@ export default function DashboardPage() {
           description="from last month"
         />
         <KpiCard
+          title="Players Enrolled"
+          value={String(activePlayers)}
+          change="+2"
+          icon={<Users className="size-5 text-muted-foreground" />}
+          description="since last week"
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <div className="col-span-1 lg:col-span-3">
+          <RevenueChart />
+        </div>
+        <div className="col-span-1 lg:col-span-2">
+          <RecentTransactions />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
           title="Attendance Rate"
           value="92.8%"
           change="-1.2%"
@@ -75,14 +85,6 @@ export default function DashboardPage() {
           icon={<ShieldAlert className="size-5 text-muted-foreground" />}
           description="in the last 24 hours"
         />
-      </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <div className="col-span-1 lg:col-span-3">
-          <RevenueChart />
-        </div>
-        <div className="col-span-1 lg:col-span-2">
-          <RecentTransactions />
-        </div>
       </div>
     </div>
   );
