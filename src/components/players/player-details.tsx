@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,10 +29,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const metricIcons = {
+  // Physical
   speed: <Footprints className="h-5 w-5 text-accent" />,
-  stamina: <Gauge className="h-5 w-5 text-accent" />,
-  shooting: <Dumbbell className="h-5 w-5 text-accent" />,
-  passing: <Dumbbell className="h-5 w-5 text-accent" />,
+  stamina: <HeartPulse className="h-5 w-5 text-accent" />,
+  strength: <Dumbbell className="h-5 w-5 text-accent" />,
+  
+  // Technical
+  dribbling: <Footprints className="h-5 w-5 text-primary" />,
+  shooting: <Target className="h-5 w-5 text-primary" />,
+  passing: <Users className="h-5 w-5 text-primary" />,
+
+  // Tactical
+  positioning: <BrainCircuit className="h-5 w-5 text-destructive" />,
+  'game-reading': <BrainCircuit className="h-5 w-5 text-destructive" />,
+  
+  // Psycho-Social
+  leadership: <Heart className="h-5 w-5 text-green-500" />,
+  teamwork: <Users className="h-5 w-5 text-green-500" />,
 };
 
 const severityVariant = {
@@ -48,8 +61,6 @@ const rtpStatusVariant = {
 } as const;
 
 export function PlayerDetails({ player }: { player: Player }) {
-  const performanceData = Object.entries(player.performanceMetrics).map(([name, value]) => ({ name, value }));
-
   const getDisciplineScoreColor = (score: number) => {
     if (score > 95) return 'text-green-500';
     if (score > 85) return 'text-yellow-500';
@@ -124,20 +135,70 @@ export function PlayerDetails({ player }: { player: Player }) {
           <TabsContent value="performance">
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Performance Metrics</CardTitle>
-                    <CardDescription>Key physical and technical attributes.</CardDescription>
+                    <CardTitle className="font-headline">Quarterly Skills Assessment</CardTitle>
+                    <CardDescription>Coach assessment across the 4 pillars of development.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {Object.entries(player.performanceMetrics).map(([key, value]) => (
-                        <div key={key} className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                {metricIcons[key as keyof typeof metricIcons]}
-                                <h4 className="capitalize font-medium">{key}</h4>
-                                <span className="ml-auto text-lg font-bold">{value}</span>
-                            </div>
-                            <Progress value={value} aria-label={`${key} score`} />
+                <CardContent className="space-y-6">
+                    <div>
+                        <h3 className="font-semibold mb-3 text-primary">Physical</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {Object.entries(player.performanceMetrics.physical).map(([key, value]) => (
+                                <div key={key} className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        {metricIcons[key as keyof typeof metricIcons]}
+                                        <h4 className="capitalize font-medium">{key}</h4>
+                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                    </div>
+                                    <Progress value={value} aria-label={`${key} score`} />
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
+                     <div>
+                        <h3 className="font-semibold mb-3 text-primary">Technical</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {Object.entries(player.performanceMetrics.technical).map(([key, value]) => (
+                                <div key={key} className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        {metricIcons[key as keyof typeof metricIcons]}
+                                        <h4 className="capitalize font-medium">{key}</h4>
+                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                    </div>
+                                    <Progress value={value} aria-label={`${key} score`} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                     <div>
+                        <h3 className="font-semibold mb-3 text-destructive">Tactical</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {Object.entries(player.performanceMetrics.tactical).map(([key, value]) => (
+                                <div key={key} className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        {metricIcons[key.replace(' ', '-') as keyof typeof metricIcons]}
+                                        <h4 className="capitalize font-medium">{key}</h4>
+                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                    </div>
+                                    <Progress value={value} aria-label={`${key} score`} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                     <div>
+                        <h3 className="font-semibold mb-3 text-green-500">Psycho-Social</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {Object.entries(player.performanceMetrics.psychoSocial).map(([key, value]) => (
+                                <div key={key} className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        {metricIcons[key as keyof typeof metricIcons]}
+                                        <h4 className="capitalize font-medium">{key}</h4>
+                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                    </div>
+                                    <Progress value={value} aria-label={`${key} score`} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
           </TabsContent>

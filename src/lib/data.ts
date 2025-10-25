@@ -8,10 +8,24 @@ export type Player = {
   attendance: number;
   disciplineScore: number;
   performanceMetrics: {
-    speed: number;
-    stamina: number;
-    shooting: number;
-    passing: number;
+    physical: {
+      speed: number;
+      stamina: number;
+      strength: number;
+    };
+    technical: {
+      dribbling: number;
+      shooting: number;
+      passing: number;
+    };
+    tactical: {
+      positioning: number;
+      'game reading': number;
+    };
+    psychoSocial: {
+      leadership: number;
+      teamwork: number;
+    };
   };
   disciplinaryLog: DisciplinaryInfraction[];
   injuryLog: Injury[];
@@ -82,7 +96,12 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 95,
     disciplineScore: 94,
-    performanceMetrics: { speed: 88, stamina: 92, shooting: 85, passing: 78 },
+    performanceMetrics: {
+      physical: { speed: 88, stamina: 92, strength: 75 },
+      technical: { dribbling: 85, shooting: 88, passing: 78 },
+      tactical: { positioning: 70, 'game reading': 75 },
+      psychoSocial: { leadership: 85, teamwork: 90 },
+    },
     disciplinaryLog: [
         { id: 1, date: '2024-06-20', infraction: 'Tardiness to practice', severity: 'Low', sanction: 'Warning' },
         { id: 2, date: '2024-07-05', infraction: 'Unsporting behaviour', severity: 'Medium', sanction: 'Benched for one half' },
@@ -101,7 +120,12 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 98,
     disciplineScore: 100,
-    performanceMetrics: { speed: 82, stamina: 88, shooting: 75, passing: 91 },
+    performanceMetrics: {
+      physical: { speed: 82, stamina: 88, strength: 68 },
+      technical: { dribbling: 90, shooting: 75, passing: 91 },
+      tactical: { positioning: 85, 'game reading': 88 },
+      psychoSocial: { leadership: 80, teamwork: 95 },
+    },
     disciplinaryLog: [],
     injuryLog: [],
   },
@@ -114,7 +138,12 @@ export const players: Player[] = [
     team: 'U-19',
     attendance: 91,
     disciplineScore: 90,
-    performanceMetrics: { speed: 80, stamina: 95, shooting: 60, passing: 75 },
+    performanceMetrics: {
+      physical: { speed: 80, stamina: 95, strength: 85 },
+      technical: { dribbling: 70, shooting: 60, passing: 75 },
+      tactical: { positioning: 90, 'game reading': 82 },
+      psychoSocial: { leadership: 75, teamwork: 88 },
+    },
     disciplinaryLog: [
         { id: 1, date: '2024-07-10', infraction: 'Missed team curfew', severity: 'High', sanction: '1 game suspension' },
     ],
@@ -131,7 +160,12 @@ export const players: Player[] = [
     team: 'U-19',
     attendance: 99,
     disciplineScore: 100,
-    performanceMetrics: { speed: 70, stamina: 85, shooting: 50, passing: 65 },
+    performanceMetrics: {
+      physical: { speed: 70, stamina: 85, strength: 80 },
+      technical: { dribbling: 50, shooting: 55, passing: 65 },
+      tactical: { positioning: 92, 'game reading': 85 },
+      psychoSocial: { leadership: 88, teamwork: 92 },
+    },
     disciplinaryLog: [],
     injuryLog: [],
   },
@@ -144,7 +178,12 @@ export const players: Player[] = [
     team: 'U-15',
     attendance: 93,
     disciplineScore: 100,
-    performanceMetrics: { speed: 85, stamina: 80, shooting: 78, passing: 82 },
+    performanceMetrics: {
+      physical: { speed: 85, stamina: 80, strength: 72 },
+      technical: { dribbling: 82, shooting: 78, passing: 82 },
+      tactical: { positioning: 75, 'game reading': 78 },
+      psychoSocial: { leadership: 70, teamwork: 85 },
+    },
     disciplinaryLog: [],
     injuryLog: [],
   },
@@ -157,7 +196,12 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 96,
     disciplineScore: 100,
-    performanceMetrics: { speed: 90, stamina: 86, shooting: 88, passing: 80 },
+    performanceMetrics: {
+      physical: { speed: 90, stamina: 86, strength: 78 },
+      technical: { dribbling: 88, shooting: 90, passing: 80 },
+      tactical: { positioning: 80, 'game reading': 84 },
+      psychoSocial: { leadership: 82, teamwork: 88 },
+    },
     disciplinaryLog: [],
     injuryLog: [],
   },
