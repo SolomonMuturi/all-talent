@@ -8,6 +8,7 @@ export type Player = {
   attendance: number;
   disciplineScore: number;
   rank: number;
+  highlights: string[];
   gpsData: {
     maxSpeed: number; // km/h
     distanceCovered: number; // km
@@ -103,6 +104,7 @@ export const players: Player[] = [
     attendance: 95,
     disciplineScore: 94,
     rank: 3,
+    highlights: ['Top Scorer', 'High Speed', 'Leadership'],
     gpsData: { maxSpeed: 32.5, distanceCovered: 9.8, playerLoad: 250 },
     performanceMetrics: {
       physical: { speed: 88, stamina: 92, strength: 75 },
@@ -129,6 +131,7 @@ export const players: Player[] = [
     attendance: 98,
     disciplineScore: 100,
     rank: 1,
+    highlights: ['Top Passing Accuracy', 'Excellent Game Reading', 'High Stamina'],
     gpsData: { maxSpeed: 29.1, distanceCovered: 11.2, playerLoad: 280 },
     performanceMetrics: {
       physical: { speed: 82, stamina: 88, strength: 68 },
@@ -149,6 +152,7 @@ export const players: Player[] = [
     attendance: 91,
     disciplineScore: 90,
     rank: 5,
+    highlights: ['Top Defender', 'High Strength', 'Teamwork'],
     gpsData: { maxSpeed: 30.5, distanceCovered: 8.5, playerLoad: 230 },
     performanceMetrics: {
       physical: { speed: 80, stamina: 95, strength: 85 },
@@ -173,6 +177,7 @@ export const players: Player[] = [
     attendance: 99,
     disciplineScore: 100,
     rank: 2,
+    highlights: ['Top Goalkeeper', 'High Attendance', 'Leadership'],
     gpsData: { maxSpeed: 18.2, distanceCovered: 4.1, playerLoad: 150 },
     performanceMetrics: {
       physical: { speed: 70, stamina: 85, strength: 80 },
@@ -193,6 +198,7 @@ export const players: Player[] = [
     attendance: 93,
     disciplineScore: 100,
     rank: 4,
+    highlights: ['Excellent Dribbling', 'High Speed', 'Teamwork'],
     gpsData: { maxSpeed: 28.9, distanceCovered: 10.5, playerLoad: 265 },
     performanceMetrics: {
       physical: { speed: 85, stamina: 80, strength: 72 },
@@ -213,6 +219,7 @@ export const players: Player[] = [
     attendance: 96,
     disciplineScore: 100,
     rank: 2,
+    highlights: ['Top Shooting Accuracy', 'High Speed', 'Teamwork'],
     gpsData: { maxSpeed: 33.1, distanceCovered: 9.5, playerLoad: 255 },
     performanceMetrics: {
       physical: { speed: 90, stamina: 86, strength: 78 },
