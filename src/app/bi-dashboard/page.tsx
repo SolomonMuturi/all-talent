@@ -8,6 +8,9 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
+  HeartPulse,
+  UserCheck,
+  ShieldAlert,
 } from 'lucide-react';
 import { transactions, players } from '@/lib/data';
 
@@ -20,6 +23,22 @@ export default function BiDashboardPage() {
     .reduce((acc, t) => acc + Math.abs(t.amount), 0);
   const netProfit = totalRevenue - totalExpenses;
   const activePlayers = players.length;
+  const profitPerPlayer = activePlayers > 0 ? netProfit / activePlayers : 0;
+
+  const averageAttendance =
+    players.reduce((acc, p) => acc + p.attendance, 0) / activePlayers;
+  
+  const totalDisciplineInfractions = players.reduce((acc, p) => acc + p.disciplinaryLog.length, 0);
+
+  const injuryDaysLost = players.reduce((acc, p) => {
+    return acc + p.injuryLog.reduce((injuryAcc, injury) => {
+      if (injury.severity === 'Low') return injuryAcc + 7;
+      if (injury.severity === 'Medium') return injuryAcc + 21;
+      if (injury.severity === 'High') return injuryAcc + 60;
+      return injuryAcc;
+    }, 0);
+  }, 0);
+
 
   return (
     <div className="space-y-6">
@@ -30,23 +49,7 @@ export default function BiDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Link href="/finances">
-          <KpiCard
-            title="Total Revenue"
-            value={`KES ${totalRevenue.toLocaleString()}`}
-            icon={<Banknote className="size-5 text-muted-foreground" />}
-            description="YTD"
-          />
-        </Link>
-        <Link href="/finances">
-          <KpiCard
-            title="Total Expenses"
-            value={`KES ${totalExpenses.toLocaleString()}`}
-            icon={<TrendingDown className="size-5 text-muted-foreground" />}
-            description="YTD"
-          />
-        </Link>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link href="/finances">
           <KpiCard
             title="Net Profit"
@@ -57,20 +60,24 @@ export default function BiDashboardPage() {
         </Link>
         <Link href="/players">
           <KpiCard
-            title="Active Players"
-            value={String(activePlayers)}
+            title="Profit Per Player"
+            value={`KES ${profitPerPlayer.toLocaleString(undefined, { maximumFractionDigits: 0})}`}
             icon={<Users className="size-5 text-muted-foreground" />}
-            description="Across all teams"
+            description="YTD Average"
           />
         </Link>
-        <Link href="/players">
-          <KpiCard
-            title="Player Growth"
-            value="+15%"
-            icon={<TrendingUp className="size-5 text-muted-foreground" />}
-            description="Since last quarter"
+         <KpiCard
+            title="Attendance Rate"
+            value={`${averageAttendance.toFixed(1)}%`}
+            icon={<UserCheck className="size-5 text-muted-foreground" />}
+            description="Average across all players"
           />
-        </Link>
+        <KpiCard
+            title="Discipline Infractions"
+            value={String(totalDisciplineInfractions)}
+            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
+            description="Total logged infractions"
+          />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">

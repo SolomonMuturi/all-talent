@@ -19,6 +19,8 @@ import {
   CalendarDays,
   Boxes,
   Trophy,
+  HeartPulse,
+  UserCheck,
 } from 'lucide-react';
 
 import {
