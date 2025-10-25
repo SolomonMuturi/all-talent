@@ -29,7 +29,9 @@ export function CourseList({ courses }: CourseListProps) {
             <CardDescription className="line-clamp-2">{course.description}</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col justify-end">
-            <Button className="w-full mt-auto">View Course</Button>
+            <Button asChild className="w-full mt-auto">
+              <Link href={`/training-hub/${course.id}`}>View Course</Link>
+            </Button>
           </CardContent>
         </Card>
       ))}
