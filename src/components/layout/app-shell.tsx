@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Store,
   Newspaper,
+  BarChart,
 } from 'lucide-react';
 
 import {
@@ -57,6 +58,7 @@ import { Breadcrumb } from './breadcrumb';
 const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/players', icon: Users, label: 'Players' },
+  { href: '/standings', icon: BarChart, label: 'Standings' },
   { href: '/finances', icon: Banknote, label: 'Finances' },
   { href: '/events', icon: CalendarDays, label: 'Events' },
   { href: '/communications', icon: Bell, label: 'Communications' },

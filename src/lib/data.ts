@@ -8,6 +8,13 @@ export type Player = {
   attendance: number;
   disciplineScore: number;
   rank: number;
+  points: number;
+  stats: {
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+  };
   highlights: string[];
   gpsData: {
     maxSpeed: number; // km/h
@@ -136,6 +143,8 @@ export const players: Player[] = [
     attendance: 95,
     disciplineScore: 94,
     rank: 3,
+    points: 22,
+    stats: { played: 10, wins: 7, draws: 1, losses: 2 },
     highlights: ['Top Scorer', 'High Speed', 'Leadership'],
     gpsData: { maxSpeed: 32.5, distanceCovered: 9.8, playerLoad: 250 },
     performanceMetrics: {
@@ -163,6 +172,8 @@ export const players: Player[] = [
     attendance: 98,
     disciplineScore: 100,
     rank: 1,
+    points: 25,
+    stats: { played: 10, wins: 8, draws: 1, losses: 1 },
     highlights: ['Top Passing Accuracy', 'Excellent Game Reading', 'High Stamina'],
     gpsData: { maxSpeed: 29.1, distanceCovered: 11.2, playerLoad: 280 },
     performanceMetrics: {
@@ -184,6 +195,8 @@ export const players: Player[] = [
     attendance: 91,
     disciplineScore: 90,
     rank: 5,
+    points: 19,
+    stats: { played: 9, wins: 6, draws: 1, losses: 2 },
     highlights: ['Top Defender', 'High Strength', 'Teamwork'],
     gpsData: { maxSpeed: 30.5, distanceCovered: 8.5, playerLoad: 230 },
     performanceMetrics: {
@@ -209,6 +222,8 @@ export const players: Player[] = [
     attendance: 99,
     disciplineScore: 100,
     rank: 2,
+    points: 21,
+    stats: { played: 9, wins: 7, draws: 0, losses: 2 },
     highlights: ['Top Goalkeeper', 'High Attendance', 'Leadership'],
     gpsData: { maxSpeed: 18.2, distanceCovered: 4.1, playerLoad: 150 },
     performanceMetrics: {
@@ -230,6 +245,8 @@ export const players: Player[] = [
     attendance: 93,
     disciplineScore: 100,
     rank: 4,
+    points: 28,
+    stats: { played: 12, wins: 9, draws: 1, losses: 2 },
     highlights: ['Excellent Dribbling', 'High Speed', 'Teamwork'],
     gpsData: { maxSpeed: 28.9, distanceCovered: 10.5, playerLoad: 265 },
     performanceMetrics: {
@@ -251,6 +268,8 @@ export const players: Player[] = [
     attendance: 96,
     disciplineScore: 100,
     rank: 2,
+    points: 24,
+    stats: { played: 10, wins: 8, draws: 0, losses: 2 },
     highlights: ['Top Shooting Accuracy', 'High Speed', 'Teamwork'],
     gpsData: { maxSpeed: 33.1, distanceCovered: 9.5, playerLoad: 255 },
     performanceMetrics: {
