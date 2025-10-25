@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { players } from '@/lib/data';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const trainingModules = [
     'Advanced Dribbling & Ball Control',
@@ -27,8 +28,18 @@ const trainingModules = [
 ];
 
 export function CertificateGenerator() {
+    const router = useRouter();
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
     const [selectedModule, setSelectedModule] = useState<string | null>(null);
+    
+    const handleGenerate = () => {
+        if(selectedPlayer && selectedModule) {
+            const playerName = players.find(p => p.id === parseInt(selectedPlayer))?.name;
+            if (playerName) {
+              router.push(`/achievements/certificate/${encodeURIComponent(playerName)}/${encodeURIComponent(selectedModule)}`);
+            }
+        }
+    }
 
   return (
     <Card>
@@ -72,7 +83,7 @@ export function CertificateGenerator() {
             </Select>
         </div>
 
-        <Button className="w-full" disabled={!selectedPlayer || !selectedModule}>
+        <Button className="w-full" disabled={!selectedPlayer || !selectedModule} onClick={handleGenerate}>
             <Download className="mr-2 h-4 w-4" />
             Generate Certificate
         </Button>
