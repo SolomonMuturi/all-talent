@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,45 +32,48 @@ export function PlayerDetails({ player }: { player: Player }) {
     <div className="grid gap-6 md:grid-cols-3">
       <div className="md:col-span-1 space-y-6">
         <Card>
-          <CardContent className="pt-6 flex flex-col items-center text-center">
+          <CardHeader>
+            <CardTitle className="font-headline text-lg flex items-center gap-2">
+              <UserSquare className="text-primary"/>
+              Digital ID Card
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 flex flex-col items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
               <AvatarImage src={player.avatarUrl} alt={player.name} />
               <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
             <h2 className="text-xl font-bold font-headline">{player.name}</h2>
             <p className="text-muted-foreground">{player.position}</p>
-            <p className="text-sm text-muted-foreground">Age: {player.age}</p>
+            <p className="text-sm text-primary font-semibold">UPID: TT-{String(player.id).padStart(4, '0')}</p>
             <Separator className="my-4" />
-            <div className="grid grid-cols-2 gap-4 w-full text-sm">
-                <div className="text-left"><strong>Team:</strong></div>
-                <div className="text-right">{player.team}</div>
-                <div className="text-left"><strong>Attendance:</strong></div>
-                <div className="text-right">{player.attendance}%</div>
+            <div className="flex justify-center mb-4">
+               <Image
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=UPID:TT-${String(player.id).padStart(4, '0')}`}
+                  width={100}
+                  height={100}
+                  alt="Player QR Code"
+                />
+            </div>
+            <div className="grid grid-cols-2 gap-2 w-full text-sm">
+                <div className="text-left text-muted-foreground">Team:</div>
+                <div className="text-right font-medium">{player.team}</div>
+                <div className="text-left text-muted-foreground">Attendance:</div>
+                <div className="text-right font-medium">{player.attendance}%</div>
+                <div className="text-left text-muted-foreground">Card Expires:</div>
+                <div className="text-right font-medium">2025-01-01</div>
             </div>
           </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-lg">Biometric Validation</CardTitle>
-                <CardDescription>Last clock-in: 8:02 AM</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-4">
-                <Fingerprint className="w-16 h-16 text-primary" />
-                <p className="text-sm text-muted-foreground">Use scanner to validate attendance.</p>
-                <Button className="w-full">
-                    <Scan className="mr-2 h-4 w-4" />
-                    Clock In / Out
-                </Button>
-            </CardContent>
         </Card>
       </div>
 
       <div className="md:col-span-2">
         <Tabs defaultValue="performance">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="biometrics">Biometrics</TabsTrigger>
             <TabsTrigger value="gps">GPS Data</TabsTrigger>
-            <TabsTrigger value="reports">Scouting Reports</TabsTrigger>
+            <TabsTrigger value="reports">Scouting</TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance">
@@ -93,6 +96,22 @@ export function PlayerDetails({ player }: { player: Player }) {
                 </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="biometrics">
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg">Biometric Validation</CardTitle>
+                    <CardDescription>Last clock-in: 8:02 AM, Main Training Facility</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center gap-4 text-center">
+                    <Fingerprint className="w-20 h-20 text-primary" />
+                    <p className="text-sm text-muted-foreground">Use a registered scanner to validate player attendance and control facility access.</p>
+                    <Button className="w-full max-w-xs">
+                        <Scan className="mr-2 h-4 w-4" />
+                        Initiate Manual Clock In / Out
+                    </Button>
+                </CardContent>
+            </Card>
+          </TabsContent>
           <TabsContent value="gps">
             <Card>
               <CardHeader>
@@ -105,7 +124,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                     alt="GPS Heatmap"
                     width={600}
                     height={400}
-                    className="rounded-lg object-cover"
+                    className="rounded-lg object-cover w-full"
                     data-ai-hint="football pitch heatmap"
                 />
               </CardContent>
