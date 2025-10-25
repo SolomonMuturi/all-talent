@@ -16,6 +16,7 @@ import {
   Ticket,
   UserSquare,
   ClipboardList,
+  CalendarDays,
 } from 'lucide-react';
 
 import {
@@ -48,6 +49,7 @@ const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/players', icon: Users, label: 'Players' },
   { href: '/finances', icon: Banknote, label: 'Finances' },
+  { href: '/events', icon: CalendarDays, label: 'Events' },
   { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
   { href: '/id-card', icon: UserSquare, label: 'ID Card' },
   { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
