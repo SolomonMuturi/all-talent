@@ -73,10 +73,10 @@ export default function BiDashboardPage() {
             description="Average across all players"
           />
         <KpiCard
-            title="Discipline Infractions"
-            value={String(totalDisciplineInfractions)}
-            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
-            description="Total logged infractions"
+            title="Injury Days Lost"
+            value={String(injuryDaysLost)}
+            icon={<HeartPulse className="size-5 text-muted-foreground" />}
+            description="Total estimated days"
           />
       </div>
 
@@ -87,6 +87,14 @@ export default function BiDashboardPage() {
         <div className="col-span-1 lg:col-span-2">
           <PlayerDistributionChart />
         </div>
+      </div>
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+         <KpiCard
+            title="Discipline Infractions"
+            value={String(totalDisciplineInfractions)}
+            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
+            description="Total logged infractions"
+          />
       </div>
     </div>
   );
