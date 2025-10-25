@@ -15,6 +15,7 @@ import {
   PieChart,
   Ticket,
   UserSquare,
+  ClipboardUser,
 } from 'lucide-react';
 
 import {
@@ -49,6 +50,7 @@ const navItems = [
   { href: '/finances', icon: Banknote, label: 'Finances' },
   { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
   { href: '/id-card', icon: UserSquare, label: 'ID Card' },
+  { href: '/scouting', icon: ClipboardUser, label: 'Scouting' },
   { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
   { href: '/reporting', icon: FileText, label: 'Reporting' },
   { href: '/fraud-detection', icon: ShieldAlert, label: 'Fraud Detection' },
