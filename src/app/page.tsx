@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   Banknote,
   Users,
@@ -27,40 +28,48 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          title="Total Revenue"
-          value={`KES ${totalRevenue.toLocaleString()}`}
-          change="+11.5%"
-          icon={<Banknote className="size-5 text-muted-foreground" />}
-          description="from last month"
-        />
-        <KpiCard
-          title="Cost Per Player"
-          value={`KES ${avgExpensePerPlayer.toLocaleString(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          })}`}
-          change="+3%"
-          icon={<Coins className="size-5 text-muted-foreground" />}
-          description="from last month"
-        />
-        <KpiCard
-          title="Profit Per Player"
-          value={`KES ${profitPerPlayer.toLocaleString(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          })}`}
-          change="-2%"
-          icon={<Wallet className="size-5 text-muted-foreground" />}
-          description="from last month"
-        />
-        <KpiCard
-          title="Players Enrolled"
-          value={String(activePlayers)}
-          change="+2"
-          icon={<Users className="size-5 text-muted-foreground" />}
-          description="since last week"
-        />
+        <Link href="/finances">
+          <KpiCard
+            title="Total Revenue"
+            value={`KES ${totalRevenue.toLocaleString()}`}
+            change="+11.5%"
+            icon={<Banknote className="size-5 text-muted-foreground" />}
+            description="from last month"
+          />
+        </Link>
+        <Link href="/finances">
+          <KpiCard
+            title="Cost Per Player"
+            value={`KES ${avgExpensePerPlayer.toLocaleString(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}`}
+            change="+3%"
+            icon={<Coins className="size-5 text-muted-foreground" />}
+            description="from last month"
+          />
+        </Link>
+        <Link href="/finances">
+          <KpiCard
+            title="Profit Per Player"
+            value={`KES ${profitPerPlayer.toLocaleString(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}`}
+            change="-2%"
+            icon={<Wallet className="size-5 text-muted-foreground" />}
+            description="from last month"
+          />
+        </Link>
+        <Link href="/players">
+          <KpiCard
+            title="Players Enrolled"
+            value={String(activePlayers)}
+            change="+2"
+            icon={<Users className="size-5 text-muted-foreground" />}
+            description="since last week"
+          />
+        </Link>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="col-span-1 lg:col-span-3">
@@ -71,20 +80,24 @@ export default function DashboardPage() {
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          title="Attendance Rate"
-          value="92.8%"
-          change="-1.2%"
-          icon={<ScanLine className="size-5 text-muted-foreground" />}
-          description="from last month"
-        />
-        <KpiCard
-          title="Fraud Alerts"
-          value="3"
-          change="+1"
-          icon={<ShieldAlert className="size-5 text-muted-foreground" />}
-          description="in the last 24 hours"
-        />
+        <Link href="/players">
+          <KpiCard
+            title="Attendance Rate"
+            value="92.8%"
+            change="-1.2%"
+            icon={<ScanLine className="size-5 text-muted-foreground" />}
+            description="from last month"
+          />
+        </Link>
+        <Link href="/fraud-detection">
+          <KpiCard
+            title="Fraud Alerts"
+            value="3"
+            change="+1"
+            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
+            description="in the last 24 hours"
+          />
+        </Link>
       </div>
     </div>
   );
