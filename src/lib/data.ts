@@ -93,6 +93,22 @@ export type Consumable = {
   lowStockThreshold: number;
 };
 
+export type Message = {
+    id: number;
+    content: string;
+    channel: 'In-App' | 'SMS' | 'WhatsApp';
+    recipientGroup: string;
+    status: 'Sent' | 'Scheduled' | 'Failed';
+    timestamp: string;
+};
+
+export const messages: Message[] = [
+    { id: 1, content: "Reminder: U-17 training tomorrow at 10 AM. Don't be late!", channel: 'SMS', recipientGroup: 'U-17 Players', status: 'Sent', timestamp: '2024-07-28 14:00' },
+    { id: 2, content: "Team meeting for all coaches has been moved to 4 PM in the main office.", channel: 'In-App', recipientGroup: 'Coaches', status: 'Sent', timestamp: '2024-07-28 11:30' },
+    { id: 3, content: "U-19 Friendly match this Saturday. Please confirm your availability in the app.", channel: 'WhatsApp', recipientGroup: 'U-19 Players', status: 'Scheduled', timestamp: '2024-07-29 09:00' },
+    { id: 4, content: "Monthly fee payments are due next week. Please clear any outstanding balances.", channel: 'In-App', recipientGroup: 'All Players', status: 'Sent', timestamp: '2024-07-27 16:00' },
+]
+
 export const players: Player[] = [
   {
     id: 1,

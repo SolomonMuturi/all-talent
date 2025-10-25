@@ -47,7 +47,17 @@ const Breadcrumb = () => {
       });
     });
     
-    setItems(breadcrumbItems);
+    // A simple fix to prevent duplicate 'Home' on the root path
+    if (breadcrumbItems.length > 1 && breadcrumbItems[1].label === 'Home') {
+        setItems([breadcrumbItems[0]]);
+    } else if (breadcrumbItems.length > 2 && breadcrumbItems[1].href === breadcrumbItems[0].href) {
+        // This case handles when the first segment is the same as home, e.g. /
+        setItems([breadcrumbItems[0], ...breadcrumbItems.slice(2)]);
+    }
+    else {
+        setItems(breadcrumbItems);
+    }
+
   }, [pathname]);
 
   return (

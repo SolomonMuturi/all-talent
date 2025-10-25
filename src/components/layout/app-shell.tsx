@@ -22,6 +22,7 @@ import {
   HeartPulse,
   UserCheck,
   GraduationCap,
+  Bell,
 } from 'lucide-react';
 
 import {
@@ -55,6 +56,7 @@ const navItems = [
   { href: '/players', icon: Users, label: 'Players' },
   { href: '/finances', icon: Banknote, label: 'Finances' },
   { href: '/events', icon: CalendarDays, label: 'Events' },
+  { href: '/communications', icon: Bell, label: 'Communications' },
   { href: '/training-hub', icon: GraduationCap, label: 'Training Hub' },
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
   { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
