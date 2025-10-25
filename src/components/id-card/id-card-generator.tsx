@@ -75,6 +75,8 @@ export function IdCardGenerator() {
                     <p className="font-bold text-card-foreground">TalantaTrack Academy</p>
                     <p>123 Football Lane, Nairobi, Kenya</p>
                     <p>+254 700 000 000</p>
+                    <p>info@talentatrack.co.ke</p>
+                    <p>www.talentatrack.co.ke</p>
                 </div>
                 <Logo className="h-12 w-12" />
             </div>
@@ -124,7 +126,7 @@ export function IdCardGenerator() {
             <p className="text-xs text-muted-foreground text-center mb-6">Scan for verification & access</p>
 
             <div className="text-center text-xs text-muted-foreground absolute bottom-2 left-0 right-0">
-                <p>If found, please return to the address above.</p>
+                <p>If found, please contact us using the details above.</p>
             </div>
           </div>
         </div>
