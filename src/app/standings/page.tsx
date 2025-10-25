@@ -2,6 +2,7 @@ import { StandingsTable, TeamStandingsTable } from "@/components/standings/stand
 import { players, Player } from "@/lib/data";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Trophy, User, Star } from "lucide-react";
+import Link from "next/link";
 
 export default function StandingsPage() {
   const playersByTeam = players.reduce((acc, player) => {
@@ -51,12 +52,14 @@ export default function StandingsPage() {
           icon={<Trophy className="size-5 text-muted-foreground" />}
           description={`${topTeam.points} points in total`}
         />
-        <KpiCard
-          title="Top Scoring Player"
-          value={topPlayer.name}
-          icon={<User className="size-5 text-muted-foreground" />}
-          description={`${topPlayer.points} points`}
-        />
+        <Link href={`/players/${topPlayer.id}`}>
+            <KpiCard
+              title="Top Scoring Player"
+              value={topPlayer.name}
+              icon={<User className="size-5 text-muted-foreground" />}
+              description={`${topPlayer.points} points`}
+            />
+        </Link>
         <KpiCard
           title="Most Wins (Team)"
           value={mostWinsTeam.name}

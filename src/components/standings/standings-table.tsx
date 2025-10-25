@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, Trophy } from 'lucide-react';
+import Link from 'next/link';
 
 const playerColumns: ColumnDef<Player>[] = [
   {
@@ -135,10 +136,13 @@ function PlayerStandingsTable({ teamName, players }: { teamName: string; players
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className="cursor-pointer"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        <Link href={`/players/${row.original.id}`} className="block w-full h-full">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </Link>
                       </TableCell>
                     ))}
                   </TableRow>
