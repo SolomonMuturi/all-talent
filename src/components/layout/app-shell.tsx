@@ -24,6 +24,7 @@ import {
   GraduationCap,
   Bell,
   ShieldCheck,
+  Store,
 } from 'lucide-react';
 
 import {
@@ -60,6 +61,7 @@ const navItems = [
   { href: '/communications', icon: Bell, label: 'Communications' },
   { href: '/training-hub', icon: GraduationCap, label: 'Training Hub' },
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
+  { href: '/merchandise', icon: Store, label: 'Merchandise' },
   { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
   { href: '/id-card', icon: UserSquare, label: 'ID Card' },
   { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
