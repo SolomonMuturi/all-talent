@@ -4,9 +4,21 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Trophy } from 'lucide-react';
+import { PlusCircle, Trophy, Users, Cake, Shield } from 'lucide-react';
+import { KpiCard } from '@/components/dashboard/kpi-card';
 
 export default function PlayersPage() {
+  const totalPlayers = players.length;
+  const averageAge = players.reduce((acc, p) => acc + p.age, 0) / totalPlayers;
+
+  const teamCounts = players.reduce((acc, player) => {
+    acc[player.team] = (acc[player.team] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const mostPopulousTeam = Object.entries(teamCounts).sort((a, b) => b[1] - a[1])[0][0];
+
+
   return (
     <div className="space-y-6">
        <div className="flex justify-between items-center">
@@ -23,6 +35,28 @@ export default function PlayersPage() {
           </Link>
         </Button>
       </div>
+
+       <div className="grid gap-4 md:grid-cols-3">
+        <KpiCard
+          title="Total Players"
+          value={String(totalPlayers)}
+          icon={<Users className="size-5 text-muted-foreground" />}
+          description="Across all teams"
+        />
+        <KpiCard
+          title="Average Age"
+          value={averageAge.toFixed(1)}
+          icon={<Cake className="size-5 text-muted-foreground" />}
+          description="Average player age"
+        />
+        <KpiCard
+          title="Most Populous Team"
+          value={mostPopulousTeam}
+          icon={<Shield className="size-5 text-muted-foreground" />}
+          description={`${teamCounts[mostPopulousTeam]} players`}
+        />
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {players.sort((a,b) => a.rank - b.rank).map((player) => (
           <Link key={player.id} href={`/players/${player.id}`} passHref>
