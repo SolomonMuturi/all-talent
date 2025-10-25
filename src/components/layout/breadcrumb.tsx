@@ -45,18 +45,6 @@ const Breadcrumb = () => {
       });
     });
     
-    // A simple fix to prevent duplicate "Scouting" breadcrumb on the scouting page
-    if (pathname === '/scouting') {
-      const lastItem = breadcrumbItems[breadcrumbItems.length - 1];
-      if(lastItem.label === 'Scouting') {
-        const secondLastItem = breadcrumbItems[breadcrumbItems.length - 2];
-        if (secondLastItem && secondLastItem.label === 'Home' ) {
-           // a no-op, this is what we want
-        }
-      }
-    }
-
-
     setItems(breadcrumbItems);
   }, [pathname]);
 
