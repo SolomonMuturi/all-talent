@@ -1,7 +1,7 @@
 import { EquipmentTable } from '@/components/inventory/equipment-table';
 import { ConsumablesManagement } from '@/components/inventory/consumables-management';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { Boxes, Wrench, PackageWarning } from 'lucide-react';
+import { Boxes, Wrench, AlertTriangle } from 'lucide-react';
 import { equipment, consumables } from '@/lib/data';
 
 
@@ -35,7 +35,7 @@ export default function InventoryPage() {
          <KpiCard
             title="Low Stock Consumables"
             value={String(lowStockConsumables)}
-            icon={<PackageWarning className="size-5 text-muted-foreground" />}
+            icon={<AlertTriangle className="size-5 text-muted-foreground" />}
             description="Items needing restock"
         />
       </div>
