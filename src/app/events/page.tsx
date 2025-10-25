@@ -1,27 +1,19 @@
 import { EventCalendar } from "@/components/events/event-calendar";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Calendar, CalendarCheck } from "lucide-react";
-
-const events = {
-  '2024-08-05': [{ time: '10:00 AM', title: 'U-17 Training' }],
-  '2024-08-07': [{ time: '02:00 PM', title: 'U-19 Friendly Match vs. Gor Mahia Youth' }],
-  '2024-08-10': [
-    { time: '09:00 AM', title: 'U-15 Trials' },
-    { time: '12:00 PM', title: 'Team Lunch' },
-  ],
-};
+import { events } from "@/lib/data";
+import { UpcomingEvents } from "@/components/events/upcoming-events";
 
 export default function EventsPage() {
   const today = new Date();
   const nextWeek = new Date();
   nextWeek.setDate(today.getDate() + 7);
 
-  const upcomingEventsCount = Object.keys(events).filter(dateStr => {
-    const eventDate = new Date(dateStr);
-    return eventDate >= today && eventDate <= nextWeek;
-  }).reduce((acc, dateStr) => acc + events[dateStr as keyof typeof events].length, 0);
+  const upcomingEventsCount = events.filter(event => {
+    return event.date >= today && event.date <= nextWeek;
+  }).length;
 
-  const totalEventsCount = Object.values(events).reduce((acc, dayEvents) => acc + dayEvents.length, 0);
+  const totalEventsCount = events.length;
 
   return (
     <div className="space-y-6">
@@ -48,6 +40,7 @@ export default function EventsPage() {
       </div>
 
       <EventCalendar />
+      <UpcomingEvents />
     </div>
   );
 }

@@ -6,24 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, Users } from 'lucide-react';
-import { players } from '@/lib/data';
+import { players, events } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Checkbox } from '../ui/checkbox';
-
-const events = {
-  '2024-08-05': [{ time: '10:00 AM', title: 'U-17 Training' }],
-  '2024-08-07': [{ time: '02:00 PM', title: 'U-19 Friendly Match vs. Gor Mahia Youth' }],
-  '2024-08-10': [
-    { time: '09:00 AM', title: 'U-15 Trials' },
-    { time: '12:00 PM', title: 'Team Lunch' },
-  ],
-};
+import { isSameDay, format } from 'date-fns';
 
 export function EventCalendar() {
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   const selectedDayEvents = date
-    ? events[date.toISOString().split('T')[0] as keyof typeof events] || []
+    ? events.filter(event => isSameDay(event.date, date!))
     : [];
 
   return (
@@ -53,13 +45,13 @@ export function EventCalendar() {
               }}
               components={{
                 DayContent: ({ date }) => {
-                  const dayEvents = events[date.toISOString().split('T')[0] as keyof typeof events] || [];
+                  const dayEvents = events.filter(event => isSameDay(event.date, date));
                   return (
                     <>
                     <span className="self-center">{date.getDate()}</span>
                     <div className="mt-1 flex flex-col items-start w-full">
-                    {dayEvents.map((event, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs w-full truncate text-left mb-1">
+                    {dayEvents.map((event) => (
+                        <Badge key={event.id} variant="secondary" className="text-xs w-full truncate text-left mb-1">
                           {event.title}
                         </Badge>
                       ))}
@@ -77,7 +69,7 @@ export function EventCalendar() {
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">
-              {date ? date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Select a date'}
+              {date ? format(date, 'PPP') : 'Select a date'}
             </CardTitle>
             <CardDescription>
               {selectedDayEvents.length} event(s) scheduled.
@@ -88,7 +80,7 @@ export function EventCalendar() {
               selectedDayEvents.map((event, index) => (
                 <div key={index} className="p-3 bg-muted/50 rounded-lg">
                   <p className="font-semibold">{event.title}</p>
-                  <p className="text-sm text-muted-foreground">{event.time}</p>
+                  <p className="text-sm text-muted-foreground">{format(event.date, 'p')}</p>
                 </div>
               ))
             ) : (

@@ -102,6 +102,22 @@ export type Message = {
     timestamp: string;
 };
 
+export type AcademyEvent = {
+  id: string;
+  title: string;
+  date: Date;
+  category: 'Training' | 'Match' | 'Trial' | 'Social';
+};
+
+export const events: AcademyEvent[] = [
+    { id: 'evt-001', title: 'U-17 Training', date: new Date(new Date().getFullYear(), 7, 5, 10, 0, 0), category: 'Training' },
+    { id: 'evt-002', title: 'U-19 Friendly Match vs. Gor Mahia Youth', date: new Date(new Date().getFullYear(), 7, 7, 14, 0, 0), category: 'Match' },
+    { id: 'evt-003', title: 'U-15 Trials', date: new Date(new Date().getFullYear(), 7, 10, 9, 0, 0), category: 'Trial' },
+    { id: 'evt-004', title: 'Team Lunch', date: new Date(new Date().getFullYear(), 7, 10, 12, 0, 0), category: 'Social' },
+    { id: 'evt-005', title: 'U-17 Tactical Session', date: new Date(new Date().getFullYear(), 7, 12, 11, 0, 0), category: 'Training' },
+    { id: 'evt-006', title: 'U-19 League Match vs. AFC Leopards Youth', date: new Date(new Date().getFullYear(), 7, 14, 15, 0, 0), category: 'Match' },
+];
+
 export const messages: Message[] = [
     { id: 1, content: "Reminder: U-17 training tomorrow at 10 AM. Don't be late!", channel: 'SMS', recipientGroup: 'U-17 Players', status: 'Sent', timestamp: '2024-07-28 14:00' },
     { id: 2, content: "Team meeting for all coaches has been moved to 4 PM in the main office.", channel: 'In-App', recipientGroup: 'Coaches', status: 'Sent', timestamp: '2024-07-28 11:30' },
