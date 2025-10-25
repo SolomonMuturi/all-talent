@@ -21,6 +21,7 @@ export type Transaction = {
   amount: number;
   status: 'Completed' | 'Pending' | 'Failed';
   type: 'Fee Payment' | 'Stipend' | 'Expense' | 'Refund';
+  description?: string;
 };
 
 export type TeamMember = {
@@ -97,7 +98,7 @@ export const players: Player[] = [
 export const transactions: Transaction[] = [
   { id: 'TXN72943', playerName: 'Leo Wanjala', date: '2024-07-15', amount: 5000, status: 'Completed', type: 'Fee Payment' },
   { id: 'TXN72944', playerName: 'Aisha Akinyi', date: '2024-07-15', amount: 5000, status: 'Completed', type: 'Fee Payment' },
-  { id: 'TXN72945', playerName: 'Admin', date: '2024-07-14', amount: -12000, status: 'Completed', type: 'Expense' },
+  { id: 'TXN72945', playerName: 'Admin', date: '2024-07-14', amount: -12000, status: 'Completed', type: 'Expense', description: 'Field Rental' },
   { id: 'TXN72946', playerName: 'Samuel Kiprop', date: '2024-07-14', amount: 2500, status: 'Pending', type: 'Fee Payment' },
   { id: 'TXN72947', playerName: 'Fatima Omar', date: '2024-07-13', amount: 5000, status: 'Completed', type: 'Fee Payment' },
   { id: 'TXN72948', playerName: 'David Odhiambo', date: '2024-07-12', amount: 5000, status: 'Completed', type: 'Fee Payment' },

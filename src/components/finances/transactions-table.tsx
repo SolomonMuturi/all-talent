@@ -18,7 +18,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Download, PlusCircle, Search } from 'lucide-react';
+import { Download, PlusCircle, Search, FilePlus2 } from 'lucide-react';
 
 import { transactions, type Transaction } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ const columns: ColumnDef<Transaction>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Player
+          Player/Payee
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -91,6 +91,10 @@ const columns: ColumnDef<Transaction>[] = [
     accessorKey: 'type',
     header: 'Type',
   },
+  {
+    accessorKey: 'description',
+    header: 'Description',
+  },
 ];
 
 export function TransactionsTable() {
@@ -126,7 +130,7 @@ export function TransactionsTable() {
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Filter by player name..."
+            placeholder="Filter by player/payee..."
             value={(table.getColumn('playerName')?.getFilterValue() as string) ?? ''}
             onChange={(event) =>
               table.getColumn('playerName')?.setFilterValue(event.target.value)
@@ -139,6 +143,12 @@ export function TransactionsTable() {
             <Link href="/finances/pay">
               <PlusCircle className="mr-2 h-4 w-4" />
               Make Payment
+            </Link>
+          </Button>
+           <Button variant="secondary" asChild>
+            <Link href="/finances/log-expense">
+              <FilePlus2 className="mr-2 h-4 w-4" />
+              Log Expense
             </Link>
           </Button>
           <Button variant="outline" size="sm">
