@@ -6,6 +6,7 @@ export type Player = {
   avatarUrl: string;
   team: string;
   attendance: number;
+  disciplineScore: number;
   performanceMetrics: {
     speed: number;
     stamina: number;
@@ -61,6 +62,7 @@ export const players: Player[] = [
     avatarUrl: 'https://picsum.photos/seed/p1/100/100',
     team: 'U-17',
     attendance: 95,
+    disciplineScore: 94,
     performanceMetrics: { speed: 88, stamina: 92, shooting: 85, passing: 78 },
     disciplinaryLog: [
         { id: 1, date: '2024-06-20', infraction: 'Tardiness to practice', severity: 'Low', sanction: 'Warning' },
@@ -79,6 +81,7 @@ export const players: Player[] = [
     avatarUrl: 'https://picsum.photos/seed/p2/100/100',
     team: 'U-17',
     attendance: 98,
+    disciplineScore: 100,
     performanceMetrics: { speed: 82, stamina: 88, shooting: 75, passing: 91 },
     disciplinaryLog: [],
     injuryLog: [],
@@ -91,6 +94,7 @@ export const players: Player[] = [
     avatarUrl: 'https://picsum.photos/seed/p3/100/100',
     team: 'U-19',
     attendance: 91,
+    disciplineScore: 90,
     performanceMetrics: { speed: 80, stamina: 95, shooting: 60, passing: 75 },
     disciplinaryLog: [
         { id: 1, date: '2024-07-10', infraction: 'Missed team curfew', severity: 'High', sanction: '1 game suspension' },
@@ -107,6 +111,7 @@ export const players: Player[] = [
     avatarUrl: 'https://picsum.photos/seed/p4/100/100',
     team: 'U-19',
     attendance: 99,
+    disciplineScore: 100,
     performanceMetrics: { speed: 70, stamina: 85, shooting: 50, passing: 65 },
     disciplinaryLog: [],
     injuryLog: [],
@@ -119,6 +124,7 @@ export const players: Player[] = [
     avatarUrl: 'https://picsum.photos/seed/p5/100/100',
     team: 'U-15',
     attendance: 93,
+    disciplineScore: 100,
     performanceMetrics: { speed: 85, stamina: 80, shooting: 78, passing: 82 },
     disciplinaryLog: [],
     injuryLog: [],
@@ -131,6 +137,7 @@ export const players: Player[] = [
     avatarUrl: 'https://picsum.photos/seed/p6/100/100',
     team: 'U-17',
     attendance: 96,
+    disciplineScore: 100,
     performanceMetrics: { speed: 90, stamina: 86, shooting: 88, passing: 80 },
     disciplinaryLog: [],
     injuryLog: [],

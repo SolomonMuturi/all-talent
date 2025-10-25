@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Gauge, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const metricIcons = {
   speed: <Footprints className="h-5 w-5 text-accent" />,
@@ -49,6 +50,13 @@ const rtpStatusVariant = {
 export function PlayerDetails({ player }: { player: Player }) {
   const performanceData = Object.entries(player.performanceMetrics).map(([name, value]) => ({ name, value }));
 
+  const getDisciplineScoreColor = (score: number) => {
+    if (score > 95) return 'text-green-500';
+    if (score > 85) return 'text-yellow-500';
+    return 'text-red-500';
+  };
+
+
   return (
     <div className="grid gap-6 md:grid-cols-3">
       <div className="md:col-span-1 space-y-6">
@@ -68,13 +76,27 @@ export function PlayerDetails({ player }: { player: Player }) {
             <p className="text-muted-foreground">{player.position}</p>
             <p className="text-sm text-primary font-semibold">UPID: TT-{String(player.id).padStart(4, '0')}</p>
             <Separator className="my-4" />
-            <div className="flex justify-center mb-4">
+             <div className="flex justify-center items-center gap-4 mb-4">
                <Image
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=UPID:TT-${String(player.id).padStart(4, '0')}`}
                   width={100}
                   height={100}
                   alt="Player QR Code"
                 />
+                 <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                       <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg bg-muted/50">
+                          <ShieldCheckIcon className={`h-8 w-8 ${getDisciplineScoreColor(player.disciplineScore)}`} />
+                          <p className={`text-2xl font-bold ${getDisciplineScoreColor(player.disciplineScore)}`}>{player.disciplineScore}</p>
+                          <p className="text-xs text-muted-foreground">Discipline</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Discipline Score</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
             </div>
             <div className="grid grid-cols-2 gap-2 w-full text-sm">
                 <div className="text-left text-muted-foreground">Team:</div>
