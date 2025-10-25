@@ -29,14 +29,14 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <KpiCard
           title="Total Revenue"
-          value="KES 1,250,000"
+          value={`KES ${totalRevenue.toLocaleString()}`}
           change="+11.5%"
           icon={<Banknote className="size-5 text-muted-foreground" />}
           description="from last month"
         />
         <KpiCard
           title="Players Enrolled"
-          value="152"
+          value={String(activePlayers)}
           change="+2"
           icon={<Users className="size-5 text-muted-foreground" />}
           description="since last week"
