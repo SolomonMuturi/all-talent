@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -87,27 +87,43 @@ export function PlayerDetails({ player }: { player: Player }) {
             <p className="text-muted-foreground">{player.position}</p>
             <p className="text-sm text-primary font-semibold">UPID: TT-{String(player.id).padStart(4, '0')}</p>
             <Separator className="my-4" />
-             <div className="flex justify-center items-center gap-4 mb-4">
+             <div className="flex justify-center items-center gap-2 mb-4">
                <Image
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=UPID:TT-${String(player.id).padStart(4, '0')}`}
                   width={100}
                   height={100}
                   alt="Player QR Code"
                 />
-                 <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                       <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg bg-muted/50">
-                          <ShieldCheckIcon className={`h-8 w-8 ${getDisciplineScoreColor(player.disciplineScore)}`} />
-                          <p className={`text-2xl font-bold ${getDisciplineScoreColor(player.disciplineScore)}`}>{player.disciplineScore}</p>
-                          <p className="text-xs text-muted-foreground">Discipline</p>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Discipline Score</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                 <div className="flex flex-col gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg bg-muted/50 w-24">
+                              <ShieldCheckIcon className={`h-8 w-8 ${getDisciplineScoreColor(player.disciplineScore)}`} />
+                              <p className={`text-2xl font-bold ${getDisciplineScoreColor(player.disciplineScore)}`}>{player.disciplineScore}</p>
+                              <p className="text-xs text-muted-foreground">Discipline</p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Discipline Score</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <div className="flex flex-col items-center justify-center gap-1 p-2 rounded-lg bg-muted/50 w-24">
+                              <Trophy className="h-8 w-8 text-primary" />
+                              <p className="text-2xl font-bold">#{player.rank}</p>
+                              <p className="text-xs text-muted-foreground">Rank</p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Overall Player Rank</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2 w-full text-sm">
                 <div className="text-left text-muted-foreground">Team:</div>

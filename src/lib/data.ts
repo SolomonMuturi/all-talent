@@ -7,6 +7,7 @@ export type Player = {
   team: string;
   attendance: number;
   disciplineScore: number;
+  rank: number;
   gpsData: {
     maxSpeed: number; // km/h
     distanceCovered: number; // km
@@ -101,6 +102,7 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 95,
     disciplineScore: 94,
+    rank: 3,
     gpsData: { maxSpeed: 32.5, distanceCovered: 9.8, playerLoad: 250 },
     performanceMetrics: {
       physical: { speed: 88, stamina: 92, strength: 75 },
@@ -126,6 +128,7 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 98,
     disciplineScore: 100,
+    rank: 1,
     gpsData: { maxSpeed: 29.1, distanceCovered: 11.2, playerLoad: 280 },
     performanceMetrics: {
       physical: { speed: 82, stamina: 88, strength: 68 },
@@ -145,6 +148,7 @@ export const players: Player[] = [
     team: 'U-19',
     attendance: 91,
     disciplineScore: 90,
+    rank: 5,
     gpsData: { maxSpeed: 30.5, distanceCovered: 8.5, playerLoad: 230 },
     performanceMetrics: {
       physical: { speed: 80, stamina: 95, strength: 85 },
@@ -168,6 +172,7 @@ export const players: Player[] = [
     team: 'U-19',
     attendance: 99,
     disciplineScore: 100,
+    rank: 2,
     gpsData: { maxSpeed: 18.2, distanceCovered: 4.1, playerLoad: 150 },
     performanceMetrics: {
       physical: { speed: 70, stamina: 85, strength: 80 },
@@ -187,6 +192,7 @@ export const players: Player[] = [
     team: 'U-15',
     attendance: 93,
     disciplineScore: 100,
+    rank: 4,
     gpsData: { maxSpeed: 28.9, distanceCovered: 10.5, playerLoad: 265 },
     performanceMetrics: {
       physical: { speed: 85, stamina: 80, strength: 72 },
@@ -206,6 +212,7 @@ export const players: Player[] = [
     team: 'U-17',
     attendance: 96,
     disciplineScore: 100,
+    rank: 2,
     gpsData: { maxSpeed: 33.1, distanceCovered: 9.5, playerLoad: 255 },
     performanceMetrics: {
       physical: { speed: 90, stamina: 86, strength: 78 },

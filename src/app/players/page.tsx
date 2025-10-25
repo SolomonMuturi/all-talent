@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { players } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Trophy } from 'lucide-react';
 
 export default function PlayersPage() {
   return (
@@ -13,9 +15,13 @@ export default function PlayersPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {players.map((player) => (
+        {players.sort((a,b) => a.rank - b.rank).map((player) => (
           <Link key={player.id} href={`/players/${player.id}`} passHref>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer text-center">
+            <Card className="hover:bg-muted/50 transition-colors cursor-pointer text-center relative">
+               <Badge className="absolute top-2 right-2 flex gap-1 items-center" variant={player.rank === 1 ? 'default' : 'secondary'}>
+                  <Trophy className="h-3 w-3" />
+                  Rank #{player.rank}
+               </Badge>
               <CardContent className="flex flex-col items-center p-6">
                 <Avatar className="h-20 w-20 mb-4">
                   <AvatarImage src={player.avatarUrl} alt={player.name} data-ai-hint="athlete portrait"/>
