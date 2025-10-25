@@ -3,16 +3,25 @@ import { players } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { PlusCircle, Trophy } from 'lucide-react';
 
 export default function PlayersPage() {
   return (
     <div className="space-y-6">
-       <div>
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Player Roster</h1>
-        <p className="text-muted-foreground">
-          Browse and manage all players in the academy.
-        </p>
+       <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight font-headline">Player Roster</h1>
+          <p className="text-muted-foreground">
+            Browse and manage all players in the academy.
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/players/enroll">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Enroll Player
+          </Link>
+        </Button>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {players.sort((a,b) => a.rank - b.rank).map((player) => (
