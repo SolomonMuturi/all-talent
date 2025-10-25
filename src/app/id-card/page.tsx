@@ -1,4 +1,4 @@
-import { IdCardPreview } from "@/components/id-card/id-card-preview";
+import { IdCardGenerator } from "@/components/id-card/id-card-generator";
 
 export default function IdCardPage() {
   return (
@@ -9,7 +9,7 @@ export default function IdCardPage() {
           Manage and issue digital ID cards for players and staff.
         </p>
       </div>
-      <IdCardPreview />
+      <IdCardGenerator />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// This file has been renamed to id-card-generator.tsx
 'use client';
 
 import { useState } from 'react';
