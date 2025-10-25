@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Globe,
   MapPin,
@@ -9,6 +10,7 @@ import {
   Trophy,
   Users,
   Calendar,
+  Ticket,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { AcademyEvent } from '@/lib/data';
@@ -127,7 +129,12 @@ export function EventDetails({ event }: EventDetailsProps) {
               ))}
             </div>
              <div className="mt-6 text-center">
-                <Button variant="link">click to view Live Tournaments</Button>
+                <Button asChild>
+                    <Link href="/ticketing">
+                        <Ticket className="mr-2 h-4 w-4" />
+                        Book Tickets Now
+                    </Link>
+                </Button>
             </div>
           </TabsContent>
           <TabsContent value="lineup" className="mt-4">
@@ -138,5 +145,3 @@ export function EventDetails({ event }: EventDetailsProps) {
     </Card>
   );
 }
-
-  
