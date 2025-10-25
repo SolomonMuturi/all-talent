@@ -4,6 +4,7 @@ import {
   ScanLine,
   ShieldAlert,
   Coins,
+  Wallet,
 } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
@@ -16,11 +17,16 @@ export default function DashboardPage() {
     .reduce((acc, t) => acc + Math.abs(t.amount), 0);
   const activePlayers = players.length;
   const avgExpensePerPlayer = activePlayers > 0 ? totalExpenses / activePlayers : 0;
+  const totalRevenue = transactions
+    .filter((t) => t.type === 'Fee Payment')
+    .reduce((acc, t) => acc + t.amount, 0);
+  const netProfit = totalRevenue - totalExpenses;
+  const profitPerPlayer = activePlayers > 0 ? netProfit / activePlayers : 0;
 
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <KpiCard
           title="Total Revenue"
           value="KES 1,250,000"
@@ -36,13 +42,23 @@ export default function DashboardPage() {
           description="since last week"
         />
         <KpiCard
-          title="Avg. Expense / Player"
+          title="Cost Per Player"
           value={`KES ${avgExpensePerPlayer.toLocaleString(undefined, {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
           })}`}
           change="+3%"
           icon={<Coins className="size-5 text-muted-foreground" />}
+          description="from last month"
+        />
+        <KpiCard
+          title="Profit Per Player"
+          value={`KES ${profitPerPlayer.toLocaleString(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          })}`}
+          change="-2%"
+          icon={<Wallet className="size-5 text-muted-foreground" />}
           description="from last month"
         />
         <KpiCard
