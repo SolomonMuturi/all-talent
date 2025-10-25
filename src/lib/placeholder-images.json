@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "player-avatar-1",
+      "description": "Avatar for a football player",
+      "imageUrl": "https://images.unsplash.com/photo-1692197393247-c76e1bd8f29e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYWxlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYxMzY3NTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "male portrait"
+    },
+    {
+      "id": "player-avatar-2",
+      "description": "Avatar for a football player",
+      "imageUrl": "https://images.unsplash.com/photo-1552699611-e2c208d5d9cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmZW1hbGUlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjE0MTA4NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "female portrait"
+    },
+    {
+      "id": "player-avatar-3",
+      "description": "Avatar for a football player",
+      "imageUrl": "https://images.unsplash.com/photo-1599446602596-b6973cb4319d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwZXJzb24lMjBwbGF5aW5nJTIwc29jY2VyfGVufDB8fHx8MTc2MTQyMTcyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person playing soccer"
+    },
+    {
+      "id": "player-avatar-4",
+      "description": "Avatar for a football player",
+      "imageUrl": "https://images.unsplash.com/photo-1663576749125-56c161b4a9dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhdGhsZXRlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYxMzI1NjEyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "athlete portrait"
+    },
+    {
+      "id": "player-avatar-5",
+      "description": "Avatar for a football player",
+      "imageUrl": "https://images.unsplash.com/photo-1607079715010-f904ea641a31?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx5b3VuZyUyMGF0aGxldGV8ZW58MHx8fHwxNzYxNDIxNzI2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "young athlete"
+    },
+    {
+      "id": "player-avatar-6",
+      "description": "Avatar for a football player",
+      "imageUrl": "https://images.unsplash.com/photo-1551280857-2b9bbe52acf4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzb2NjZXIlMjBwbGF5ZXJ8ZW58MHx8fHwxNzYxNDIxNzI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soccer player"
+    },
+    {
+      "id": "admin-avatar",
+      "description": "Avatar for an admin user",
+      "imageUrl": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwcm9mZXNzaW9uYWwlMjB3b21hbnxlbnwwfHx8fDE3NjEzMjc5MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional woman"
+    },
+    {
+      "id": "gps-heatmap",
+      "description": "GPS heatmap of a player on a football pitch",
+      "imageUrl": "https://images.unsplash.com/photo-1628029437115-a48bbb6e6ef8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmb290YmFsbCUyMHBpdGNoJTIwaGVhdG1hcHxlbnwwfHx8fDE3NjE0MjE3MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "football pitch heatmap"
+    }
+  ]
 }
