@@ -1,5 +1,6 @@
 
 
+
 export type Player = {
   id: number;
   name: string;
@@ -121,18 +122,69 @@ export type Message = {
 export type AcademyEvent = {
   id: string;
   title: string;
+  subtitle: string;
   date: Date;
-  category: 'Training' | 'Match' | 'Trial' | 'Social';
+  category: 'Training' | 'Match' | 'Trial' | 'Social' | 'Tournament';
+  logoUrl: string;
+  details: {
+    country: string;
+    location: string;
+    venue: string;
+    gameType: string;
+    tournamentType: 'League' | 'Cup' | 'Friendly';
+    teamCount: number;
+  }
 };
 
 export const events: AcademyEvent[] = [
-    { id: 'evt-001', title: 'U-17 Training', date: new Date(new Date().getFullYear(), 7, 5, 10, 0, 0), category: 'Training' },
-    { id: 'evt-002', title: 'U-19 Friendly Match vs. Gor Mahia Youth', date: new Date(new Date().getFullYear(), 7, 7, 14, 0, 0), category: 'Match' },
-    { id: 'evt-003', title: 'U-15 Trials', date: new Date(new Date().getFullYear(), 7, 10, 9, 0, 0), category: 'Trial' },
-    { id: 'evt-004', title: 'Team Lunch', date: new Date(new Date().getFullYear(), 7, 10, 12, 0, 0), category: 'Social' },
-    { id: 'evt-005', title: 'U-17 Tactical Session', date: new Date(new Date().getFullYear(), 7, 12, 11, 0, 0), category: 'Training' },
-    { id: 'evt-006', title: 'U-19 League Match vs. AFC Leopards Youth', date: new Date(new Date().getFullYear(), 7, 14, 15, 0, 0), category: 'Match' },
-    { id: 'evt-007', title: 'Open Trials (U-15 & U-17)', date: new Date(new Date().getTime() + 10 * 24 * 60 * 60 * 1000), category: 'Trial' }
+    { 
+        id: 'evt-001', 
+        title: 'Dar Youth Cup 2025',
+        subtitle: 'U15 League Play-Offs',
+        date: new Date(2025, 9, 26), 
+        category: 'Tournament',
+        logoUrl: '/images/dar-youth-cup-logo.svg',
+        details: {
+            country: 'Tanzania',
+            location: 'Dar es Salaam',
+            venue: 'Ufundi Stadium',
+            gameType: 'Football',
+            tournamentType: 'Cup',
+            teamCount: 4,
+        } 
+    },
+    { 
+        id: 'evt-002', 
+        title: 'Nairobi Youth League',
+        subtitle: 'U-19 Season Opener',
+        date: new Date(new Date().getFullYear(), 8, 15), 
+        category: 'Match',
+        logoUrl: '/images/nairobi-league-logo.svg',
+         details: {
+            country: 'Kenya',
+            location: 'Nairobi',
+            venue: 'Kasarani Stadium',
+            gameType: 'Football',
+            tournamentType: 'League',
+            teamCount: 16,
+        }
+    },
+    { 
+        id: 'evt-003', 
+        title: 'TalantaTrack Annual Trials',
+        subtitle: 'U15 & U17 Open Trials',
+        date: new Date(new Date().getFullYear(), 8, 20), 
+        category: 'Trial',
+        logoUrl: '/images/talentatrack-logo.svg',
+         details: {
+            country: 'Kenya',
+            location: 'Nairobi',
+            venue: 'TalantaTrack Main Ground',
+            gameType: 'Football',
+            tournamentType: 'Friendly',
+            teamCount: 32,
+        }
+    },
 ];
 
 export const messages: Message[] = [

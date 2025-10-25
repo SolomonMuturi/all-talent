@@ -1,46 +1,29 @@
-import { EventCalendar } from "@/components/events/event-calendar";
-import { KpiCard } from "@/components/dashboard/kpi-card";
-import { Calendar, CalendarCheck } from "lucide-react";
-import { events } from "@/lib/data";
-import { UpcomingEvents } from "@/components/events/upcoming-events";
+'use client';
+
+import { useState } from 'react';
+import { EventList } from '@/components/events/event-list';
+import { EventDetails } from '@/components/events/event-details';
+import { LiveUpdateBanner } from '@/components/events/live-update-banner';
+import { events, AcademyEvent } from '@/lib/data';
 
 export default function EventsPage() {
-  const today = new Date();
-  const nextWeek = new Date();
-  nextWeek.setDate(today.getDate() + 7);
-
-  const upcomingEventsCount = events.filter(event => {
-    return event.date >= today && event.date <= nextWeek;
-  }).length;
-
-  const totalEventsCount = events.length;
+  const [selectedEvent, setSelectedEvent] = useState<AcademyEvent>(events[0]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Events & Scheduling</h1>
-        <p className="text-muted-foreground">
-          Manage training, matches, and tournaments.
-        </p>
+      <LiveUpdateBanner />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <EventList
+            events={events}
+            selectedEvent={selectedEvent}
+            onSelectEvent={setSelectedEvent}
+          />
+        </div>
+        <div className="lg:col-span-2">
+          {selectedEvent && <EventDetails event={selectedEvent} />}
+        </div>
       </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <KpiCard 
-          title="Upcoming Events (Next 7 Days)"
-          value={String(upcomingEventsCount)}
-          icon={<CalendarCheck className="size-5 text-muted-foreground" />}
-          description="Matches, training, and other events"
-        />
-        <KpiCard 
-          title="Total Scheduled Events"
-          value={String(totalEventsCount)}
-          icon={<Calendar className="size-5 text-muted-foreground" />}
-          description="In the current calendar view"
-        />
-      </div>
-
-      <EventCalendar />
-      <UpcomingEvents />
     </div>
   );
 }
