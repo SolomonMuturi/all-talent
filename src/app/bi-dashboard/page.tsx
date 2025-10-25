@@ -11,6 +11,7 @@ import {
   HeartPulse,
   UserCheck,
   ShieldAlert,
+  BrainCircuit,
 } from 'lucide-react';
 import { transactions, players } from '@/lib/data';
 
@@ -38,6 +39,20 @@ export default function BiDashboardPage() {
       return injuryAcc;
     }, 0);
   }, 0);
+
+  const averagePlayerRank = players.reduce((acc, p) => acc + p.rank, 0) / activePlayers;
+
+  const averageSkillScore = players.reduce((totalAcc, player) => {
+    const metrics = player.performanceMetrics;
+    const allScores = [
+      ...Object.values(metrics.physical),
+      ...Object.values(metrics.technical),
+      ...Object.values(metrics.tactical),
+      ...Object.values(metrics.psychoSocial),
+    ];
+    const playerAverage = allScores.reduce((acc, score) => acc + score, 0) / allScores.length;
+    return totalAcc + playerAverage;
+  }, 0) / activePlayers;
 
 
   return (
@@ -95,6 +110,18 @@ export default function BiDashboardPage() {
             icon={<ShieldAlert className="size-5 text-muted-foreground" />}
             description="Total logged infractions"
           />
+          <KpiCard
+            title="Average Skill Score"
+            value={averageSkillScore.toFixed(1)}
+            icon={<BrainCircuit className="size-5 text-muted-foreground" />}
+            description="Across all players & skills"
+            />
+        <KpiCard
+            title="Average Player Rank"
+            value={`#${averagePlayerRank.toFixed(1)}`}
+            icon={<TrendingUp className="size-5 text-muted-foreground" />}
+            description="Across all players"
+        />
       </div>
     </div>
   );
