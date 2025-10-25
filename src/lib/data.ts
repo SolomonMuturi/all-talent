@@ -53,6 +53,16 @@ export type TeamMember = {
   hoursWorked: number;
 };
 
+export type Equipment = {
+  id: string;
+  name: string;
+  category: string;
+  assignedTo?: string; // Player or staff name
+  location: string;
+  status: 'In Use' | 'In Storage' | 'Maintenance';
+  maintenanceDue?: string;
+};
+
 export const players: Player[] = [
   {
     id: 1,
@@ -160,4 +170,13 @@ export const teamMembers: TeamMember[] = [
   { id: 2, name: 'John Omondi', email: 'john.o@talentatrack.co.ke', role: 'Coach', avatarUrl: 'https://picsum.photos/seed/c1/100/100', hourlyRate: 30, hoursWorked: 120 },
   { id: 3, name: 'Maria Njeri', email: 'maria.n@talentatrack.co.ke', role: 'Finance', avatarUrl: 'https://picsum.photos/seed/f1/100/100', hourlyRate: 40, hoursWorked: 150 },
   { id: 4, name: 'Peter Kamau', email: 'peter.k@talentatrack.co.ke', role: 'Scout', avatarUrl: 'https://picsum.photos/seed/s1/100/100', hourlyRate: 25, hoursWorked: 80 },
+];
+
+export const equipment: Equipment[] = [
+  { id: 'EQP-001', name: 'Professional Cones (Set of 50)', category: 'Training Gear', assignedTo: 'John Omondi', location: 'Main Pitch', status: 'In Use' },
+  { id: 'EQP-002', name: 'Adidas Match Balls (x10)', category: 'Match Gear', location: 'Storage Room A', status: 'In Storage' },
+  { id: 'EQP-003', name: 'First-Aid Kit (Large)', category: 'Medical', assignedTo: 'Team Medic', location: 'Medical Tent', status: 'In Use' },
+  { id: 'EQP-004', name: 'Ball Pump Machine', category: 'General', location: 'Storage Room A', status: 'Maintenance', maintenanceDue: '2024-08-01' },
+  { id: 'EQP-005', name: 'Agility Ladders (x5)', category: 'Training Gear', assignedTo: 'John Omondi', location: 'Storage Room A', status: 'In Storage' },
+  { id: 'EQP-006', name: 'GPS Vests (x20)', category: 'Performance Tracking', location: 'Charging Station', status: 'In Use' },
 ];

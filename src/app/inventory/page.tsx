@@ -1,3 +1,4 @@
+import { EquipmentTable } from '@/components/inventory/equipment-table';
 
 export default function InventoryPage() {
   return (
@@ -8,6 +9,7 @@ export default function InventoryPage() {
           Track equipment and manage consumables.
         </p>
       </div>
+      <EquipmentTable />
     </div>
   );
 }
