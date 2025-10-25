@@ -57,6 +57,7 @@ import { Breadcrumb } from './breadcrumb';
 
 const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
   { href: '/players', icon: Users, label: 'Players' },
   { href: '/standings', icon: BarChart, label: 'Standings' },
   { href: '/finances', icon: Banknote, label: 'Finances' },
@@ -71,7 +72,6 @@ const navItems = [
   { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
   { href: '/inventory', icon: Boxes, label: 'Inventory' },
   { href: '/compliance', icon: ShieldCheck, label: 'Compliance' },
-  { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
   { href: '/reporting', icon: FileText, label: 'Reporting' },
   { href: '/fraud-detection', icon: ShieldAlert, label: 'Fraud Detection' },
   { href: '/team', icon: UsersRound, label: 'Team' },
