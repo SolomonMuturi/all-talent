@@ -1,3 +1,4 @@
+
 export type Player = {
   id: number;
   name: string;
@@ -123,6 +124,7 @@ export const events: AcademyEvent[] = [
     { id: 'evt-004', title: 'Team Lunch', date: new Date(new Date().getFullYear(), 7, 10, 12, 0, 0), category: 'Social' },
     { id: 'evt-005', title: 'U-17 Tactical Session', date: new Date(new Date().getFullYear(), 7, 12, 11, 0, 0), category: 'Training' },
     { id: 'evt-006', title: 'U-19 League Match vs. AFC Leopards Youth', date: new Date(new Date().getFullYear(), 7, 14, 15, 0, 0), category: 'Match' },
+    { id: 'evt-007', title: 'Open Trials (U-15 & U-17)', date: new Date(new Date().getTime() + 10 * 24 * 60 * 60 * 1000), category: 'Trial' }
 ];
 
 export const messages: Message[] = [
