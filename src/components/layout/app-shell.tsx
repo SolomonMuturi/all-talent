@@ -12,6 +12,7 @@ import {
   Users,
   UsersRound,
   FileText,
+  PieChart,
 } from 'lucide-react';
 
 import {
@@ -44,6 +45,7 @@ const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/players', icon: Users, label: 'Players' },
   { href: '/finances', icon: Banknote, label: 'Finances' },
+  { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
   { href: '/reporting', icon: FileText, label: 'Reporting' },
   { href: '/fraud-detection', icon: ShieldAlert, label: 'Fraud Detection' },
   { href: '/team', icon: UsersRound, label: 'Team' },
