@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   CaretSortIcon,
   ChevronDownIcon,
@@ -17,7 +18,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Download, Search } from 'lucide-react';
+import { Download, PlusCircle, Search } from 'lucide-react';
 
 import { transactions, type Transaction } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -134,6 +135,12 @@ export function TransactionsTable() {
           />
         </div>
         <div className="ml-auto flex gap-2">
+          <Button asChild>
+            <Link href="/finances/pay">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Make Payment
+            </Link>
+          </Button>
           <Button variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
             Export Report
