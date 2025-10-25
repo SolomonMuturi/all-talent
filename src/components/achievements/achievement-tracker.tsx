@@ -1,6 +1,7 @@
 'use client';
 
 import { Award, Star, Trophy, Download } from 'lucide-react';
+import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -55,8 +56,12 @@ export function AchievementTracker() {
                             {achievements.map((item, index) => {
                                 const player = players.find(p => p.id === item.playerId);
                                 return (
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">{player?.name}</TableCell>
+                                <TableRow key={index} className="cursor-pointer">
+                                  <TableCell className="font-medium">
+                                      <Link href={`/players/${player?.id}`} className="hover:underline">
+                                        {player?.name}
+                                      </Link>
+                                    </TableCell>
                                     <TableCell>
                                         <Badge variant="secondary" className="flex items-center gap-1 w-fit">
                                             <Award className="size-3" />
