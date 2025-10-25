@@ -23,7 +23,7 @@ const Breadcrumb = () => {
     let currentPath = '';
     pathSegments.forEach((segment, index) => {
       currentPath += `/${segment}`;
-      let label = segment.charAt(0).toUpperCase() + segment.slice(1);
+      let label = segment.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
       if (segment === 'players' && pathSegments[index + 1]) {
         const playerId = parseInt(pathSegments[index + 1]);

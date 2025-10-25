@@ -3,9 +3,13 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  CaretSortIcon,
-  ChevronDownIcon,
-} from '@radix-ui/react-icons';
+  ArrowUpDown,
+  ChevronDown,
+  Download,
+  PlusCircle,
+  Search,
+  FilePlus2,
+} from 'lucide-react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -18,7 +22,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Download, PlusCircle, Search, FilePlus2 } from 'lucide-react';
 
 import { transactions, type Transaction } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -54,7 +57,7 @@ const columns: ColumnDef<Transaction>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Player/Payee
-          <CaretSortIcon className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
@@ -158,7 +161,7 @@ export function TransactionsTable() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

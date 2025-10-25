@@ -11,6 +11,7 @@ import {
   ShieldAlert,
   Users,
   UsersRound,
+  FileText,
 } from 'lucide-react';
 
 import {
@@ -43,6 +44,7 @@ const navItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/players', icon: Users, label: 'Players' },
   { href: '/finances', icon: Banknote, label: 'Finances' },
+  { href: '/reporting', icon: FileText, label: 'Reporting' },
   { href: '/fraud-detection', icon: ShieldAlert, label: 'Fraud Detection' },
   { href: '/team', icon: UsersRound, label: 'Team' },
 ];
