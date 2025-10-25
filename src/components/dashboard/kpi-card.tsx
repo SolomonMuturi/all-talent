@@ -16,7 +16,7 @@ type KpiCardProps = {
 export function KpiCard({ title, value, change, icon, description }: KpiCardProps) {
   const isPositive = change ? change.startsWith('+') : true;
   return (
-    <Card>
+    <Card className="h-full hover:bg-muted/50 transition-colors">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         {icon}
