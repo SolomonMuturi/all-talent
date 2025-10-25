@@ -43,6 +43,11 @@ const Breadcrumb = () => {
         return;
       }
       
+       // Skip adding slug segments for blog posts
+      if (pathSegments[index - 1] === 'blog') {
+        return;
+      }
+      
       breadcrumbItems.push({
         label,
         href: currentPath,

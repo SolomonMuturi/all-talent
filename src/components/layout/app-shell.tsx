@@ -25,6 +25,7 @@ import {
   Bell,
   ShieldCheck,
   Store,
+  Newspaper,
 } from 'lucide-react';
 
 import {
@@ -63,6 +64,7 @@ const navItems = [
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
   { href: '/merchandise', icon: Store, label: 'Merchandise' },
   { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
+  { href: '/blog', icon: Newspaper, label: 'Blog' },
   { href: '/id-card', icon: UserSquare, label: 'ID Card' },
   { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
   { href: '/inventory', icon: Boxes, label: 'Inventory' },
