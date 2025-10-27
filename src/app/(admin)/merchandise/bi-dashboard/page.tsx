@@ -7,6 +7,7 @@ import { ChartContainer } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingDown, TrendingUp, Package, Wallet, DollarSign, BarChart as BarChartIcon } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import Link from 'next/link';
 
 const chartConfig = {
   profit: {
@@ -45,30 +46,38 @@ export default function MerchandiseBIDashboardPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <KpiCard
-                    title="Total Profit"
-                    value={`KES ${totalProfit.toLocaleString()}`}
-                    icon={<DollarSign className="size-5 text-muted-foreground" />}
-                    description="From all merchandise sales"
-                />
-                <KpiCard
-                    title="Most Profitable Item"
-                    value={mostProfitable.name}
-                    icon={<TrendingUp className="size-5 text-muted-foreground" />}
-                    description={`Generated KES ${((mostProfitable.price - mostProfitable.cost) * mostProfitable.sales).toLocaleString()} in profit`}
-                />
-                <KpiCard
-                    title="Total Inventory Value"
-                    value={`KES ${totalInventoryValue.toLocaleString()}`}
-                    icon={<Wallet className="size-5 text-muted-foreground" />}
-                    description="Value of all items in stock"
-                />
-                 <KpiCard
-                    title="Slowest Moving Item"
-                    value={slowMovingProducts[0].name}
-                    icon={<TrendingDown className="size-5 text-muted-foreground" />}
-                    description={`Only ${slowMovingProducts[0].sales} units sold`}
-                />
+                <Link href="/finances">
+                    <KpiCard
+                        title="Total Profit"
+                        value={`KES ${totalProfit.toLocaleString()}`}
+                        icon={<DollarSign className="size-5 text-muted-foreground" />}
+                        description="From all merchandise sales"
+                    />
+                </Link>
+                <Link href="/merchandise/manage">
+                    <KpiCard
+                        title="Most Profitable Item"
+                        value={mostProfitable.name}
+                        icon={<TrendingUp className="size-5 text-muted-foreground" />}
+                        description={`Generated KES ${((mostProfitable.price - mostProfitable.cost) * mostProfitable.sales).toLocaleString()} in profit`}
+                    />
+                </Link>
+                <Link href="/merchandise/manage">
+                    <KpiCard
+                        title="Total Inventory Value"
+                        value={`KES ${totalInventoryValue.toLocaleString()}`}
+                        icon={<Wallet className="size-5 text-muted-foreground" />}
+                        description="Value of all items in stock"
+                    />
+                </Link>
+                <Link href="/merchandise/manage">
+                    <KpiCard
+                        title="Slowest Moving Item"
+                        value={slowMovingProducts[0].name}
+                        icon={<TrendingDown className="size-5 text-muted-foreground" />}
+                        description={`Only ${slowMovingProducts[0].sales} units sold`}
+                    />
+                </Link>
             </div>
             
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
