@@ -12,26 +12,9 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M12 2L2 7l10 5 10-5-10-5z" fill="hsl(var(--primary))" stroke="none" />
-      <path d="M2 17l10 5 10-5" fill="hsl(var(--primary) / 0.5)" stroke="none" />
-      <path d="M2 12l10 5 10-5" fill="hsl(var(--primary) / 0.75)" stroke="none" />
-      <path d="M12 22V12" stroke="hsl(var(--primary-foreground))" strokeWidth="1.5" />
-      <path d="M22 7v10" stroke="hsl(var(--primary-foreground) / 0.5)" strokeWidth="1.5" />
-      <path d="M2 7v10" stroke="hsl(var(--primary-foreground) / 0.5)" strokeWidth="1.5" />
-      <path d="M7 4.5v3" stroke="hsl(var(--primary-foreground))" strokeWidth="1" />
-      <path d="M17 4.5v3" stroke="hsl(var(--primary-foreground))" strokeWidth="1" />
-      <text
-        x="12"
-        y="13"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fill="hsl(var(--primary-foreground))"
-        fontSize="10"
-        fontWeight="bold"
-        className="font-headline"
-      >
-        T
-      </text>
+      <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" stroke="none" />
+      <path d="M2 17l10 5 10-5" fill="currentColor" stroke="none" className="opacity-50" />
+      <path d="M2 12l10 5 10-5" fill="currentColor" stroke="none" className="opacity-75" />
     </svg>
   );
 }
