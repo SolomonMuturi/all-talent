@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -36,6 +37,18 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '../ui/badge';
+
+const getStatusVariant = (stock: number, threshold: number): 'default' | 'secondary' | 'destructive' => {
+  if (stock <= 0) return 'destructive';
+  if (stock < threshold) return 'secondary';
+  return 'default';
+};
+
+const getStatusText = (stock: number, threshold: number): string => {
+  if (stock <= 0) return 'Out of Stock';
+  if (stock < threshold) return 'Low Stock';
+  return 'In Stock';
+};
 
 const columns: ColumnDef<Product>[] = [
     {
@@ -85,18 +98,21 @@ const columns: ColumnDef<Product>[] = [
         },
     },
     {
-        accessorKey: 'sizes',
-        header: 'Sizes',
+        accessorKey: 'stock',
+        header: () => <div className="text-center">Stock</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('stock')}</div>
+    },
+    {
+        accessorKey: 'sales',
+        header: () => <div className="text-center">Sales</div>,
+        cell: ({ row }) => <div className="text-center">{row.getValue('sales')}</div>
+    },
+    {
+        id: 'status',
+        header: 'Status',
         cell: ({ row }) => {
-            const sizes = row.getValue('sizes') as string[] | undefined;
-            if (!sizes || sizes.length === 0) {
-                return <span className="text-muted-foreground">N/A</span>;
-            }
-            return (
-                <div className="flex flex-wrap gap-1">
-                    {sizes.map(size => <Badge key={size} variant="secondary">{size}</Badge>)}
-                </div>
-            )
+            const { stock, lowStockThreshold } = row.original;
+            return <Badge variant={getStatusVariant(stock, lowStockThreshold)}>{getStatusText(stock, lowStockThreshold)}</Badge>;
         }
     },
   {

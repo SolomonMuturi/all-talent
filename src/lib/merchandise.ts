@@ -1,3 +1,4 @@
+
 export type Product = {
   id: string;
   name: string;
@@ -6,6 +7,9 @@ export type Product = {
   imageHint: string;
   category: 'Apparel' | 'Accessories';
   sizes?: string[];
+  stock: number;
+  sales: number;
+  lowStockThreshold: number;
 };
 
 export const products: Product[] = [
@@ -17,6 +21,9 @@ export const products: Product[] = [
     imageHint: 'football jersey',
     category: 'Apparel',
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: 120,
+    sales: 88,
+    lowStockThreshold: 20,
   },
   {
     id: 'prod-002',
@@ -26,6 +33,9 @@ export const products: Product[] = [
     imageHint: 'football jersey white',
     category: 'Apparel',
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: 85,
+    sales: 42,
+    lowStockThreshold: 20,
   },
   {
     id: 'prod-003',
@@ -34,6 +44,9 @@ export const products: Product[] = [
     imageUrl: 'https://picsum.photos/seed/merch3/600/600',
     imageHint: 'football scarf',
     category: 'Accessories',
+    stock: 200,
+    sales: 150,
+    lowStockThreshold: 30,
   },
   {
     id: 'prod-004',
@@ -43,6 +56,9 @@ export const products: Product[] = [
     imageHint: 'training shirt',
     category: 'Apparel',
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: 150,
+    sales: 95,
+    lowStockThreshold: 25,
   },
     {
     id: 'prod-005',
@@ -51,6 +67,9 @@ export const products: Product[] = [
     imageUrl: 'https://picsum.photos/seed/merch5/600/600',
     imageHint: 'beanie hat',
     category: 'Accessories',
+    stock: 75,
+    sales: 15,
+    lowStockThreshold: 20,
   },
     {
     id: 'prod-006',
@@ -59,5 +78,8 @@ export const products: Product[] = [
     imageUrl: 'https://picsum.photos/seed/merch6/600/600',
     imageHint: 'baseball cap',
     category: 'Accessories',
+    stock: 90,
+    sales: 60,
+    lowStockThreshold: 15,
   },
 ];
