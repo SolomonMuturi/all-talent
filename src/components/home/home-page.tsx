@@ -57,7 +57,7 @@ export function HomePage() {
                 <Link href="/dashboard">Admin Login</Link>
             </Button>
             <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Link href="/book-ticket">Book Tickets</Link>
+                <Link href="/events">View Events</Link>
             </Button>
           </div>
         </div>
@@ -227,5 +227,3 @@ export function HomePage() {
     </div>
   );
 }
-
-    

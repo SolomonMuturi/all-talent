@@ -135,7 +135,7 @@ export function EventDetails({ event }: EventDetailsProps) {
                 <Button asChild>
                     <Link href={`/book-ticket?event=${event.id}`}>
                         <Ticket className="mr-2 h-4 w-4" />
-                        Book Tickets Now
+                        Purchase Ticket
                     </Link>
                 </Button>
             </div>
