@@ -34,6 +34,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
+import Link from 'next/link';
 
 const initialTiers = [
   { name: 'VIP', price: 2000, sold: 50, total: 100 },
@@ -226,42 +227,44 @@ export function TicketManagement() {
             <CardTitle className="font-headline">E-Ticket Preview</CardTitle>
             <CardDescription>Example of a generated e-ticket.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center text-center p-4">
-            <div className="border rounded-lg p-6 bg-card w-full max-w-sm">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-lg">U-17 Regional Finals</h3>
-                <Ticket className="h-6 w-6 text-primary" />
-              </div>
-              <Separator />
-              <div className="grid grid-cols-2 gap-4 my-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Tier</p>
-                  <p className="font-semibold">VIP</p>
+          <Link href="/ticketing/ticket/TKT-8A3F4E" passHref>
+            <CardContent className="flex flex-col items-center text-center p-4 cursor-pointer hover:bg-muted/50 rounded-b-lg">
+                <div className="border rounded-lg p-6 bg-card w-full max-w-sm">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-lg">U-17 Regional Finals</h3>
+                    <Ticket className="h-6 w-6 text-primary" />
                 </div>
-                <div className="text-right">
-                  <p className="text-muted-foreground">Gate</p>
-                  <p className="font-semibold">3A</p>
+                <Separator />
+                <div className="grid grid-cols-2 gap-4 my-4 text-sm">
+                    <div>
+                    <p className="text-muted-foreground">Tier</p>
+                    <p className="font-semibold">VIP</p>
+                    </div>
+                    <div className="text-right">
+                    <p className="text-muted-foreground">Gate</p>
+                    <p className="font-semibold">3A</p>
+                    </div>
+                    <div>
+                    <p className="text-muted-foreground">Date</p>
+                    <p className="font-semibold">28 July 2024</p>
+                    </div>
+                    <div className="text-right">
+                    <p className="text-muted-foreground">Time</p>
+                    <p className="font-semibold">14:00 KST</p>
+                    </div>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Date</p>
-                  <p className="font-semibold">28 July 2024</p>
+                <div className="flex justify-center my-4">
+                    <Image
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TKT-8A3F4E"
+                    width={120}
+                    height={120}
+                    alt="QR Code"
+                    />
                 </div>
-                <div className="text-right">
-                  <p className="text-muted-foreground">Time</p>
-                  <p className="font-semibold">14:00 KST</p>
+                <p className="text-xs text-muted-foreground">TKT-8A3F4E</p>
                 </div>
-              </div>
-              <div className="flex justify-center my-4">
-                <Image
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TKT-8A3F4E"
-                  width={120}
-                  height={120}
-                  alt="QR Code"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">TKT-8A3F4E</p>
-            </div>
-          </CardContent>
+            </CardContent>
+          </Link>
           <CardFooter className="flex-col gap-2">
              <Button className="w-full" onClick={handleGenerateAndSend} disabled={isGenerating}>
               {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <QrCode className="mr-2 h-4 w-4" />}
