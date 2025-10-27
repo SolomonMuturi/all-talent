@@ -1,12 +1,13 @@
+'use client';
 
 import { ProductManagementTable } from "@/components/merchandise/product-management-table";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { products } from "@/lib/merchandise";
-import { DollarSign, TrendingUp, TrendingDown, Package, BarChart, PieChart } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Package, BarChart as BarChartIcon, PieChart as PieChartIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const chartConfig = {
   sales: {
@@ -80,7 +81,7 @@ export default function ManageProductsPage() {
            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
                 <Card className="col-span-1 lg:col-span-3">
                     <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2"><BarChart /> Sales & Stock Overview</CardTitle>
+                        <CardTitle className="font-headline flex items-center gap-2"><BarChartIcon /> Sales & Stock Overview</CardTitle>
                         <CardDescription>Units sold vs. current stock levels for each product.</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -131,7 +132,7 @@ export default function ManageProductsPage() {
                 </Card>
                 <Card className="col-span-1 lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2"><PieChart /> Stock Distribution</CardTitle>
+                        <CardTitle className="font-headline flex items-center gap-2"><PieChartIcon /> Stock Distribution</CardTitle>
                         <CardDescription>Breakdown of current stock by category.</CardDescription>
                     </CardHeader>
                     <CardContent>
