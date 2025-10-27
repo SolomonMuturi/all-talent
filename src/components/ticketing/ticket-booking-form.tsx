@@ -36,7 +36,7 @@ const ticketTiers = [
 const formSchema = z.object({
   fullName: z.string().nonempty({ message: 'Please enter your full name.' }),
   email: z.string().email({ message: 'Please enter a valid email address.'}),
-  phoneNumber: z.string().regex(/^254\d{9}$/, 'Phone number must be in the format 254XXXXXXXXX.'),
+  phone: z.string().regex(/^(0|7|1)\d{8}$/, 'Please enter a valid 9-digit phone number (e.g., 712345678).'),
   ticketTier: z.string().nonempty({ message: 'Please select a ticket tier.' }),
 });
 
@@ -51,7 +51,7 @@ export function TicketBookingForm() {
     defaultValues: {
       fullName: '',
       email: '',
-      phoneNumber: '254',
+      phone: '',
       ticketTier: '',
     },
   });
@@ -65,12 +65,16 @@ export function TicketBookingForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setIsBookingComplete(false);
-    console.log('Simulating M-Pesa STK Push:', values);
+    
+    const phoneNumber = `254${values.phone.replace(/^0+/, '')}`;
+    const submissionValues = {...values, phoneNumber};
+
+    console.log('Simulating M-Pesa STK Push:', submissionValues);
 
     setTimeout(() => {
       toast({
         title: 'Booking Confirmed!',
-        description: `Your ${values.ticketTier} ticket has been sent to ${values.email} and ${values.phoneNumber}.`,
+        description: `Your ${values.ticketTier} ticket has been sent to ${values.email} and ${phoneNumber}.`,
       });
       setIsLoading(false);
       setIsBookingComplete(true);
@@ -161,13 +165,23 @@ export function TicketBookingForm() {
                     {selectedPrice !== null && (
                          <FormField
                             control={form.control}
-                            name="phoneNumber"
+                            name="phone"
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>M-Pesa Phone Number</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="254712345678" {...field} />
-                                </FormControl>
+                                <div className="flex items-center">
+                                    <div className="flex h-10 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm">
+                                    +254
+                                    </div>
+                                    <FormControl>
+                                        <Input 
+                                            type="tel" 
+                                            placeholder="712345678" 
+                                            className="rounded-l-none"
+                                            {...field} 
+                                        />
+                                    </FormControl>
+                                </div>
                                 <FormDescription>
                                     You will receive an M-Pesa prompt to pay KES {selectedPrice.toLocaleString()}.
                                 </FormDescription>
