@@ -38,7 +38,8 @@ export function EventList({ events, selectedEvent, onSelectEvent }: EventListPro
                     <Image
                         src={event.logoUrl}
                         alt={`${event.title} logo`}
-                        layout="fill"
+                        width={48}
+                        height={48}
                         objectFit="contain"
                     />
                 </div>

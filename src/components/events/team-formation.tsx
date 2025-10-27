@@ -19,6 +19,10 @@ const PlayerMarker = ({ number, name }: { number: number, name: string }) => (
 );
 
 export function TeamFormation({ lineup }: TeamFormationProps) {
+    if (!lineup) {
+        return null;
+    }
+    
     const { formation, squad } = lineup;
 
     const goalkeepers = squad.filter(p => p.position === 'Goalkeeper');
@@ -66,5 +70,3 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
         </div>
     );
 }
-
-  

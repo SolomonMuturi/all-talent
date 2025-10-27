@@ -91,7 +91,8 @@ export function EventDetails({ event }: EventDetailsProps) {
               <Image
                 src={event.logoUrl}
                 alt={`${event.title} logo`}
-                layout="fill"
+                width={80}
+                height={80}
                 objectFit="contain"
               />
             </div>

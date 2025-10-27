@@ -55,7 +55,7 @@ export function TicketManagement() {
   const totalRevenue = ticketTiers.reduce((acc, tier) => acc + tier.price * tier.sold, 0);
   const totalTicketsSold = ticketTiers.reduce((acc, tier) => acc + tier.sold, 0);
   const totalCapacity = ticketTiers.reduce((acc, tier) => acc + tier.total, 0);
-  const eventForBooking = events.find(e => e.title.includes("U-17"));
+  const eventForBooking = events.find(e => e.title.includes("Nairobi Youth League"));
 
   const handleGenerateAndSend = () => {
     setIsGenerating(true);
