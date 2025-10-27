@@ -3,11 +3,13 @@
 import { ProductManagementTable } from "@/components/merchandise/product-management-table";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { products } from "@/lib/merchandise";
-import { DollarSign, TrendingUp, TrendingDown, Package, BarChart as BarChartIcon, PieChart as PieChartIcon } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Package, BarChart as BarChartIcon, PieChart as PieChartIcon, ArrowUpRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const chartConfig = {
   sales: {
@@ -41,11 +43,19 @@ export default function ManageProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Manage Products & Inventory</h1>
-        <p className="text-muted-foreground">
-          Track stock, analyze sales, and manage all products in your store.
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight font-headline">Manage Products & Inventory</h1>
+          <p className="text-muted-foreground">
+            Track stock, analyze sales, and manage all products in your store.
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link href="/merchandise/bi-dashboard">
+            View Deeper Insights
+            <ArrowUpRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
       </div>
 
        <div className="grid gap-4 md:grid-cols-3">

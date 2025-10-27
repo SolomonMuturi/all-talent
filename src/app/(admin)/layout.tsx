@@ -98,6 +98,7 @@ const navItems = [
     subItems: [
         { href: '/merchandise', label: 'Store Front' },
         { href: '/merchandise/manage', label: 'Manage Products' },
+        { href: '/merchandise/bi-dashboard', label: 'BI Dashboard' },
     ]
   },
   {
