@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { BarChart, QrCode, Ticket, DollarSign, Users, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart, QrCode, Ticket, DollarSign, Users, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -51,6 +51,12 @@ export function TicketManagement() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [ticketTiers, setTicketTiers] = useState(initialTiers);
   const [isTierDialogOpen, setTierDialogOpen] = useState(false);
+  const [editableTiers, setEditableTiers] = useState(initialTiers);
+  
+  useEffect(() => {
+    setEditableTiers(ticketTiers);
+  }, [ticketTiers]);
+
 
   const totalRevenue = ticketTiers.reduce((acc, tier) => acc + tier.price * tier.sold, 0);
   const totalTicketsSold = ticketTiers.reduce((acc, tier) => acc + tier.sold, 0);
@@ -70,22 +76,39 @@ export function TicketManagement() {
 
   const handleTierUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const updatedTiers = ticketTiers.map(tier => {
-      const newPrice = formData.get(`price-${tier.name}`);
-      const newTotal = formData.get(`total-${tier.name}`);
-      return {
-        ...tier,
-        price: newPrice ? Number(newPrice) : tier.price,
-        total: newTotal ? Number(newTotal) : tier.total,
-      };
-    });
-    setTicketTiers(updatedTiers);
+    const finalTiers = editableTiers.filter(tier => tier.name.trim() !== '');
+    setTicketTiers(finalTiers);
     toast({
         title: "Ticket Tiers Updated",
         description: "Pricing and availability have been successfully updated."
     });
     setTierDialogOpen(false);
+  }
+
+  const handleAddNewTier = () => {
+    setEditableTiers([...editableTiers, { name: '', price: 0, sold: 0, total: 0 }]);
+  }
+
+  const handleEditableTierChange = (index: number, field: string, value: string | number) => {
+    const updatedTiers = [...editableTiers];
+    const tierToUpdate = { ...updatedTiers[index] };
+
+    if (field === 'name') {
+        tierToUpdate.name = value as string;
+    } else if (field === 'price') {
+        tierToUpdate.price = Number(value);
+    } else if (field === 'total') {
+        tierToUpdate.total = Number(value);
+    }
+
+    updatedTiers[index] = tierToUpdate;
+    setEditableTiers(updatedTiers);
+  };
+  
+  const handleRemoveTier = (index: number) => {
+      const updatedTiers = [...editableTiers];
+      updatedTiers.splice(index, 1);
+      setEditableTiers(updatedTiers);
   }
 
   return (
@@ -265,22 +288,47 @@ export function TicketManagement() {
                                         Adjust pricing and availability for each ticket tier.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    {ticketTiers.map(tier => (
-                                        <div key={tier.name} className="grid grid-cols-3 items-center gap-4 p-2 border rounded-lg">
-                                            <Label htmlFor={`price-${tier.name}`} className="font-semibold">{tier.name}</Label>
-                                            <div className='col-span-2 grid grid-cols-2 gap-2'>
-                                            <div>
-                                                <Label htmlFor={`price-${tier.name}`} className="text-xs text-muted-foreground">Price (KES)</Label>
-                                                <Input name={`price-${tier.name}`} id={`price-${tier.name}`} type="number" defaultValue={tier.price} />
+                                <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+                                    {editableTiers.map((tier, index) => (
+                                        <div key={index} className="grid grid-cols-12 items-center gap-2 p-2 border rounded-lg">
+                                            <div className="col-span-4">
+                                                <Label htmlFor={`name-${index}`} className="text-xs text-muted-foreground">Tier Name</Label>
+                                                <Input 
+                                                    id={`name-${index}`}
+                                                    value={tier.name}
+                                                    placeholder="e.g. Early Bird"
+                                                    onChange={(e) => handleEditableTierChange(index, 'name', e.target.value)}
+                                                />
                                             </div>
-                                            <div>
-                                                <Label htmlFor={`total-${tier.name}`} className="text-xs text-muted-foreground">Total</Label>
-                                                <Input name={`total-${tier.name}`} id={`total-${tier.name}`} type="number" defaultValue={tier.total} />
+                                            <div className='col-span-3'>
+                                                <Label htmlFor={`price-${index}`} className="text-xs text-muted-foreground">Price (KES)</Label>
+                                                <Input 
+                                                    id={`price-${index}`} 
+                                                    type="number" 
+                                                    value={tier.price}
+                                                    onChange={(e) => handleEditableTierChange(index, 'price', e.target.value)}
+                                                />
                                             </div>
+                                            <div className='col-span-3'>
+                                                <Label htmlFor={`total-${index}`} className="text-xs text-muted-foreground">Total</Label>
+                                                <Input 
+                                                    id={`total-${index}`} 
+                                                    type="number" 
+                                                    value={tier.total}
+                                                    onChange={(e) => handleEditableTierChange(index, 'total', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-span-2 flex items-end h-full">
+                                                 <Button variant="ghost" size="icon" onClick={() => handleRemoveTier(index)} type="button">
+                                                    <Trash2 className="h-4 w-4 text-destructive"/>
+                                                </Button>
                                             </div>
                                         </div>
                                     ))}
+                                    <Button variant="outline" type="button" onClick={handleAddNewTier} className="w-full">
+                                        <PlusCircle className="mr-2 h-4 w-4"/>
+                                        Add Tier
+                                    </Button>
                                 </div>
                                 <DialogFooter>
                                     <Button type="submit">Save Changes</Button>
