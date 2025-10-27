@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Textarea } from '@/components/ui/textarea';
 import { generateReportSummaryAction } from '@/app/reporting/actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Label } from '../ui/label';
 
 const formSchema = z.object({
   reportData: z.string().min(20, 'Report data must be at least 20 characters.'),

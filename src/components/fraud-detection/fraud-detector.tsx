@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { fraudDetectionAction } from './actions';
+import { fraudDetectionAction } from '@/app/fraud-detection/actions';
 
 const formSchema = z.object({
   transactionData: z.string().min(10, 'Transaction data is required.'),
