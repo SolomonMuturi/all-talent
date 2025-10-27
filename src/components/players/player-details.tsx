@@ -41,8 +41,8 @@ const metricIcons = {
   passing: <Users className="h-5 w-5 text-primary" />,
 
   // Tactical
-  positioning: <BrainCircuit className="h-5 w-5 text-destructive" />,
-  'game-reading': <BrainCircuit className="h-5 w-5 text-destructive" />,
+  positioning: <BrainCircuit className="h-5 w-5 text-primary" />,
+  'game-reading': <BrainCircuit className="h-5 w-5 text-primary" />,
   
   // Psycho-Social
   leadership: <Heart className="h-5 w-5 text-green-500" />,
@@ -65,7 +65,7 @@ export function PlayerDetails({ player }: { player: Player }) {
   const getDisciplineScoreColor = (score: number) => {
     if (score > 95) return 'text-green-500';
     if (score > 85) return 'text-yellow-500';
-    return 'text-red-500';
+    return 'text-primary';
   };
 
 
@@ -188,7 +188,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                         </div>
                     </div>
                      <div>
-                        <h3 className="font-semibold mb-3 text-destructive">Tactical</h3>
+                        <h3 className="font-semibold mb-3 text-primary">Tactical</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {Object.entries(player.performanceMetrics.tactical).map(([key, value]) => (
                                 <div key={key} className="space-y-2">

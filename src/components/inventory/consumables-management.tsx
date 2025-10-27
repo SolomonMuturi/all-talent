@@ -24,19 +24,6 @@ const getStockStatus = (item: Consumable) => {
   return 'In Stock';
 };
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'In Stock':
-      return 'bg-green-500';
-    case 'Low Stock':
-      return 'bg-yellow-500';
-    case 'Out of Stock':
-      return 'bg-red-500';
-    default:
-      return 'bg-gray-500';
-  }
-};
-
 const getBadgeVariant = (status: string) => {
   switch (status) {
     case 'In Stock':

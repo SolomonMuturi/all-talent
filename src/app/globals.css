@@ -18,8 +18,8 @@
     --muted-foreground: 240 5% 64.9%;
     --accent: 220 84% 60%; /* Energetic Blue */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 120 60% 50%; /* Changed from red to lime green */
+    --destructive-foreground: 0 0% 100%; /* Changed from 98% to 100% for better contrast */
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 220 84% 60%;
@@ -54,8 +54,8 @@
     --muted-foreground: 240 5% 64.9%;
     --accent: 220 84% 60%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 120 60% 50%; /* Changed from red to lime green */
+    --destructive-foreground: 0 0% 100%; /* Changed from 98% to 100% */
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 220 84% 60%;
