@@ -11,6 +11,7 @@ import {
   Users,
   Calendar,
   Ticket,
+  User,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { AcademyEvent } from '@/lib/data';
@@ -50,9 +51,9 @@ export function EventDetails({ event }: EventDetailsProps) {
 
   const eventDetails = [
     {
-      icon: <Globe className="h-5 w-5 text-foreground" />,
-      label: 'Country',
-      value: details.country,
+      icon: <User className="h-5 w-5 text-foreground" />,
+      label: 'Organizer',
+      value: event.organizer,
     },
     {
       icon: <Footprints className="h-5 w-5 text-foreground" />,
@@ -99,15 +100,17 @@ export function EventDetails({ event }: EventDetailsProps) {
         <h2 className="text-2xl font-bold tracking-tight font-headline">
           {event.title} - {event.subtitle}
         </h2>
-        <div className="flex justify-center items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-4 w-4" />
-          <span>
-            {event.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
+        <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground">
+          <div className='flex items-center gap-2'>
+            <Calendar className="h-4 w-4" />
+            <span>
+              {event.date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
+          </div>
           <Badge variant="outline">{event.category}</Badge>
         </div>
       </CardHeader>
@@ -138,7 +141,13 @@ export function EventDetails({ event }: EventDetailsProps) {
             </div>
           </TabsContent>
           <TabsContent value="lineup" className="mt-4">
-            <TeamFormation lineup={details.lineup} />
+            {details.lineup ? (
+              <TeamFormation lineup={details.lineup} />
+            ) : (
+                <div className='text-center text-muted-foreground py-8'>
+                    Lineup information is not available for this event.
+                </div>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>

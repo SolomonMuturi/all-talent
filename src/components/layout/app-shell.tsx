@@ -67,7 +67,7 @@ const navItems = [
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
   { href: '/merchandise', icon: Store, label: 'Merchandise' },
   { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
-  { href: '/book-ticket', icon: Ticket, label: 'Book Ticket' },
+  { href: '/book-ticket', icon: Ticket, label: 'Book Ticket', isPublic: true },
   { href: '/blog', icon: Newspaper, label: 'Blog' },
   { href: '/id-card', icon: UserSquare, label: 'ID Card' },
   { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {navItems.filter(item => !item.isPublic).map((item) => (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} passHref>
                   <SidebarMenuButton

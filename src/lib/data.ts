@@ -1,7 +1,4 @@
 
-
-
-
 export type Player = {
   id: number;
   name: string;
@@ -124,17 +121,18 @@ export type AcademyEvent = {
   id: string;
   title: string;
   subtitle: string;
+  organizer: string;
   date: Date;
-  category: 'Training' | 'Match' | 'Trial' | 'Social' | 'Tournament';
+  category: 'Training' | 'Match' | 'Trial' | 'Social' | 'Tournament' | 'Concert' | 'Conference';
   logoUrl: string;
   details: {
     country: string;
     location: string;
     venue: string;
     gameType: string;
-    tournamentType: 'League' | 'Cup' | 'Friendly';
+    tournamentType: 'League' | 'Cup' | 'Friendly' | 'N/A';
     teamCount: number;
-    lineup: {
+    lineup?: {
       formation: string;
       squad: {
         number: number;
@@ -150,6 +148,7 @@ export const events: AcademyEvent[] = [
         id: 'evt-001',
         title: 'Dar Youth Cup 2025',
         subtitle: 'U15 League Play-Offs',
+        organizer: 'TalantaTrack Academy',
         date: new Date(2025, 9, 26),
         category: 'Tournament',
         logoUrl: '/images/dar-youth-cup-logo.svg',
@@ -182,6 +181,7 @@ export const events: AcademyEvent[] = [
         id: 'evt-002',
         title: 'Nairobi Youth League',
         subtitle: 'U-19 Season Opener',
+        organizer: 'Nairobi FA',
         date: new Date(new Date().getFullYear(), 8, 15),
         category: 'Match',
         logoUrl: '/images/nairobi-league-logo.svg',
@@ -212,36 +212,38 @@ export const events: AcademyEvent[] = [
     },
     {
         id: 'evt-003',
-        title: 'TalantaTrack Annual Trials',
-        subtitle: 'U15 & U17 Open Trials',
-        date: new Date(new Date().getFullYear(), 8, 20),
-        category: 'Trial',
-        logoUrl: '/images/talentatrack-logo.svg',
+        title: 'Sauti Sol Live in Nairobi',
+        subtitle: 'Midnight Train Album Tour',
+        organizer: 'Sauti Sol Entertainment',
+        date: new Date(new Date().getFullYear(), 11, 10),
+        category: 'Concert',
+        logoUrl: '/images/sauti-sol-logo.svg',
          details: {
             country: 'Kenya',
             location: 'Nairobi',
-            venue: 'TalantaTrack Main Ground',
-            gameType: 'Football',
-            tournamentType: 'Friendly',
-            teamCount: 32,
-             lineup: {
-                formation: '4-2-3-1',
-                squad: [
-                    { number: 1, name: 'Fatima Omar', position: 'Goalkeeper' },
-                    { number: 2, name: 'Player A', position: 'Defender' },
-                    { number: 3, name: 'Samuel Kiprop', position: 'Defender' },
-                    { number: 4, name: 'Player B', position: 'Defender' },
-                    { number: 5, name: 'Player C', position: 'Defender' },
-                    { number: 6, name: 'Player H', position: 'Midfielder'},
-                    { number: 8, name: 'Player I', position: 'Midfielder'},
-                    { number: 7, name: 'Aisha Akinyi', position: 'Midfielder' },
-                    { number: 10, name: 'David Odhiambo', position: 'Midfielder' },
-                    { number: 11, name: 'Grace Mwende', position: 'Midfielder'},
-                    { number: 9, name: 'Leo Wanjala', position: 'Forward' },
-                ]
-            }
+            venue: 'Uhuru Gardens',
+            gameType: 'Music Concert',
+            tournamentType: 'N/A',
+            teamCount: 0,
         }
     },
+    {
+        id: 'evt-004',
+        title: 'Fintech Summit 2024',
+        subtitle: 'The Future of Finance in Africa',
+        organizer: 'Africa Fintech Network',
+        date: new Date(new Date().getFullYear(), 10, 5),
+        category: 'Conference',
+        logoUrl: '/images/fintech-logo.svg',
+         details: {
+            country: 'Kenya',
+            location: 'Nairobi',
+            venue: 'KICC',
+            gameType: 'Conference',
+            tournamentType: 'N/A',
+            teamCount: 0,
+        }
+    }
 ];
 
 export const messages: Message[] = [
