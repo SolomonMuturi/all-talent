@@ -4,9 +4,24 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ArrowRight, BarChart, ShieldCheck, Users } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
+
+const heroImages = [
+  { src: 'https://picsum.photos/seed/nairobi1/1800/1200', hint: 'Nairobi skyline' },
+  { src: 'https://picsum.photos/seed/nairobi2/1800/1200', hint: 'Nairobi park' },
+  { src: 'https://picsum.photos/seed/nairobi3/1800/1200', hint: 'Nairobi street' },
+  { src: 'https://picsum.photos/seed/nairobi4/1800/1200', hint: 'Nairobi market' },
+];
 
 export function HomePage() {
   return (
@@ -49,14 +64,26 @@ export function HomePage() {
       </header>
       <main className="flex-1">
         <section className="relative w-full h-[80vh] min-h-[600px] flex items-center justify-center text-center">
-            <Image
-                src="https://picsum.photos/seed/hero-soccer/1800/1200"
-                alt="Hero"
-                fill
-                className="object-cover object-center brightness-50"
-                data-ai-hint="football academy action"
-                priority
-            />
+            <Carousel 
+              opts={{ loop: true }} 
+              plugins={[Autoplay({ delay: 5000, stopOnInteraction: false })]} 
+              className="absolute inset-0 w-full h-full"
+            >
+              <CarouselContent>
+                {heroImages.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <Image
+                      src={image.src}
+                      alt={`Hero image ${index + 1}`}
+                      fill
+                      className="object-cover object-center brightness-50"
+                      data-ai-hint={image.hint}
+                      priority={index === 0}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
             <div className="relative z-10 container px-4 md:px-6">
                 <div className="flex flex-col justify-center items-center space-y-6">
                     <h1 className="text-4xl font-extrabold font-headline tracking-tighter sm:text-6xl xl:text-7xl/none text-white">
@@ -200,3 +227,5 @@ export function HomePage() {
     </div>
   );
 }
+
+    
