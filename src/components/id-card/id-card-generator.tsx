@@ -89,7 +89,7 @@ export function IdCardGenerator() {
                     )}
 
                     <div className="flex justify-center">
-                    <div className={cn("border rounded-lg p-6 bg-muted/20 w-full max-w-sm shadow-md relative overflow-hidden", isExpiringSoon && "border-destructive")}>
+                    <div className={cn("border rounded-lg p-6 bg-muted/20 w-full max-w-sm shadow-md relative overflow-hidden", isExpiringSoon && "border-primary")}>
                         <div className="flex justify-between items-start mb-6">
                             <div className="text-left text-xs text-muted-foreground">
                                 <p className="font-bold text-card-foreground">{academyName}</p>
@@ -133,7 +133,7 @@ export function IdCardGenerator() {
                             <p className="text-muted-foreground">Issued</p>
                             <p className="font-semibold">{issueDate.toLocaleDateString()}</p>
                             </div>
-                            <div className={cn("text-right", isExpiringSoon && "text-destructive")}>
+                            <div className={cn("text-right", isExpiringSoon && "text-primary")}>
                             <p className="text-muted-foreground">Expires</p>
                             <p className="font-semibold">{expiryDate.toLocaleDateString()}</p>
                             </div>
