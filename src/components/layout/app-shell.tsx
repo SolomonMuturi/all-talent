@@ -27,6 +27,7 @@ import {
   Store,
   Newspaper,
   BarChart,
+  ChevronDown,
 } from 'lucide-react';
 
 import {
@@ -40,6 +41,9 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -54,29 +58,100 @@ import {
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons';
 import { Breadcrumb } from './breadcrumb';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/bi-dashboard', icon: PieChart, label: 'BI Dashboard' },
-  { href: '/players', icon: Users, label: 'Players' },
-  { href: '/standings', icon: BarChart, label: 'Standings' },
-  { href: '/finances', icon: Banknote, label: 'Finances' },
-  { href: '/events', icon: CalendarDays, label: 'Events' },
-  { href: '/communications', icon: Bell, label: 'Communications' },
+  {
+    label: 'Player Management',
+    icon: Users,
+    subItems: [
+      { href: '/players', label: 'Player Roster' },
+      { href: '/standings', label: 'Standings' },
+      { href: '/achievements', label: 'Achievements' },
+      { href: '/id-card', label: 'ID & Access' },
+      { href: '/scouting', label: 'Scouting' },
+    ],
+  },
+  {
+    label: 'Financial Tools',
+    icon: Banknote,
+    subItems: [
+      { href: '/finances', label: 'Transactions' },
+      { href: '/fraud-detection', label: 'Fraud Detection' },
+      { href: '/reporting', label: 'Reporting' },
+    ],
+  },
+  {
+    label: 'Events & Ticketing',
+    icon: CalendarDays,
+    subItems: [
+      { href: '/events', label: 'Marketplace' },
+      { href: '/ticketing', label: 'Ticket Management' },
+      { href: '/book-ticket', label: 'Book a Ticket', isPublic: true },
+    ],
+  },
+  {
+    label: 'Academy Operations',
+    icon: Settings,
+    subItems: [
+        { href: '/team', label: 'Team Management' },
+        { href: '/inventory', label: 'Inventory' },
+        { href: '/communications', label: 'Communications' },
+        { href: '/compliance', label: 'Compliance' },
+    ]
+  },
   { href: '/training-hub', icon: GraduationCap, label: 'Training Hub' },
-  { href: '/achievements', icon: Trophy, label: 'Achievements' },
   { href: '/merchandise', icon: Store, label: 'Merchandise' },
-  { href: '/ticketing', icon: Ticket, label: 'Ticketing' },
-  { href: '/book-ticket', icon: Ticket, label: 'Book Ticket', isPublic: true },
   { href: '/blog', icon: Newspaper, label: 'Blog' },
-  { href: '/id-card', icon: UserSquare, label: 'ID Card' },
-  { href: '/scouting', icon: ClipboardList, label: 'Scouting' },
-  { href: '/inventory', icon: Boxes, label: 'Inventory' },
-  { href: '/compliance', icon: ShieldCheck, label: 'Compliance' },
-  { href: '/reporting', icon: FileText, label: 'Reporting' },
-  { href: '/fraud-detection', icon: ShieldAlert, label: 'Fraud Detection' },
-  { href: '/team', icon: UsersRound, label: 'Team' },
 ];
+
+const NavItem = ({ item, pathname }: { item: any, pathname: string }) => {
+  const isSubActive = item.subItems?.some((subItem: any) => pathname.startsWith(subItem.href));
+
+  if (item.subItems) {
+    return (
+      <Collapsible defaultOpen={isSubActive}>
+        <CollapsibleTrigger asChild>
+           <SidebarMenuButton
+            isActive={isSubActive}
+            className="justify-between"
+            >
+             <div className='flex items-center gap-2'>
+                <item.icon />
+                <span>{item.label}</span>
+             </div>
+             <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+            </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+            <SidebarMenuSub>
+                {item.subItems.filter((subItem: any) => !subItem.isPublic).map((subItem: any) => (
+                    <SidebarMenuSubItem key={subItem.href}>
+                         <Link href={subItem.href} passHref>
+                            <SidebarMenuSubButton isActive={pathname === subItem.href}>
+                                {subItem.label}
+                            </SidebarMenuSubButton>
+                         </Link>
+                    </SidebarMenuSubItem>
+                ))}
+            </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  }
+
+  return (
+    <Link href={item.href} passHref>
+      <SidebarMenuButton isActive={pathname === item.href} tooltip={{ children: item.label }}>
+        <item.icon />
+        <span>{item.label}</span>
+      </SidebarMenuButton>
+    </Link>
+  );
+};
+
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -95,16 +170,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             {navItems.filter(item => !item.isPublic).map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} passHref>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
+              <SidebarMenuItem key={item.href || item.label}>
+                <NavItem item={item} pathname={pathname} />
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
