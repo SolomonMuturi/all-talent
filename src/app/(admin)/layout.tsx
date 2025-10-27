@@ -136,9 +136,9 @@ const NavItem = ({ item, pathname }: { item: any, pathname: string }) => {
             <SidebarMenuSub>
                 {item.subItems.filter((subItem: any) => !subItem.isPublic).map((subItem: any) => (
                     <SidebarMenuSubItem key={subItem.href}>
-                         <Link href={subItem.href} passHref>
-                            <SidebarMenuSubButton isActive={pathname === subItem.href}>
-                                {subItem.label}
+                         <Link href={subItem.href} passHref legacyBehavior>
+                            <SidebarMenuSubButton asChild isActive={pathname === subItem.href}>
+                                <a>{subItem.label}</a>
                             </SidebarMenuSubButton>
                          </Link>
                     </SidebarMenuSubItem>
