@@ -5,7 +5,7 @@ export type Product = {
   price: number;
   imageUrl: string;
   imageHint: string;
-  category: 'Apparel' | 'Accessories';
+  category: 'Apparel' | 'Accessories' | 'Other';
   sizes?: string[];
   stock: number;
   sales: number;
