@@ -3,9 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  Globe,
+  Landmark,
   MapPin,
-  Stadium,
   Footprints,
   Trophy,
   Users,
@@ -71,7 +70,7 @@ export function EventDetails({ event }: EventDetailsProps) {
       value: details.tournamentType,
     },
     {
-      icon: <Stadium className="h-5 w-5 text-foreground" />,
+      icon: <Landmark className="h-5 w-5 text-foreground" />,
       label: 'Venue',
       value: details.venue,
     },
