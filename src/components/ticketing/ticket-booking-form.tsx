@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AcademyEvent } from '@/lib/data';
 
 const ticketTiers = [
   { name: 'VIP', price: 2000 },
@@ -40,7 +41,11 @@ const formSchema = z.object({
   ticketTier: z.string().nonempty({ message: 'Please select a ticket tier.' }),
 });
 
-export function TicketBookingForm() {
+interface TicketBookingFormProps {
+    event: AcademyEvent;
+}
+
+export function TicketBookingForm({ event }: TicketBookingFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isBookingComplete, setIsBookingComplete] = useState(false);
@@ -74,7 +79,7 @@ export function TicketBookingForm() {
     setTimeout(() => {
       toast({
         title: 'Booking Confirmed!',
-        description: `Your ${values.ticketTier} ticket has been sent to ${values.email} and ${phoneNumber}.`,
+        description: `Your ${values.ticketTier} ticket for ${event.title} has been sent to ${values.email} and ${phoneNumber}.`,
       });
       setIsLoading(false);
       setIsBookingComplete(true);
@@ -100,7 +105,7 @@ export function TicketBookingForm() {
     <div className="flex justify-center">
         <Card className="w-full max-w-lg">
             <CardHeader>
-                <CardTitle className="font-headline">U-17 Regional Finals</CardTitle>
+                <CardTitle className="font-headline">{event.title}</CardTitle>
                 <CardDescription>Fill in your details below to complete your booking.</CardDescription>
             </CardHeader>
             <CardContent>
