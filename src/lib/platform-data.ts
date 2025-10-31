@@ -25,6 +25,11 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   { id: 'plan_enterprise', name: 'Enterprise', price: 40000, playerLimit: 1000 },
 ];
 
+export const ADDON_PRICES = {
+  smsCredit: 2,
+  aiCredit: 10,
+}
+
 export const clubs: Club[] = [
   {
     id: 'club_001',
@@ -35,7 +40,7 @@ export const clubs: Club[] = [
     subscriptionPlan: subscriptionPlans[0],
     status: 'Active',
     renewalDate: '2024-08-15',
-    mrr: 5000,
+    mrr: 5000 + (1000 * ADDON_PRICES.smsCredit) + (50 * ADDON_PRICES.aiCredit),
     smsCredits: 1000,
     aiCredits: 50,
   },
@@ -48,7 +53,7 @@ export const clubs: Club[] = [
     subscriptionPlan: subscriptionPlans[1],
     status: 'Active',
     renewalDate: '2024-09-01',
-    mrr: 15000,
+    mrr: 15000 + (5000 * ADDON_PRICES.smsCredit) + (250 * ADDON_PRICES.aiCredit),
     smsCredits: 5000,
     aiCredits: 250,
   },

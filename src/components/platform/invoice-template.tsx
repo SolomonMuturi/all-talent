@@ -3,7 +3,7 @@
 import { Logo } from '@/components/icons';
 import { Button } from '../ui/button';
 import { Download, Printer } from 'lucide-react';
-import { Club } from '@/lib/platform-data';
+import { Club, ADDON_PRICES } from '@/lib/platform-data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Separator } from '../ui/separator';
 import Image from 'next/image';
@@ -17,7 +17,13 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
   const dueDate = new Date();
   dueDate.setDate(invoiceDate.getDate() + 14);
 
-  const subtotal = club.subscriptionPlan.price;
+  const lineItems = [
+      { description: `Subscription: ${club.subscriptionPlan.name} Plan`, price: club.subscriptionPlan.price, details: `For period ${invoiceDate.toLocaleString('default', { month: 'long' })} ${invoiceDate.getFullYear()}`},
+      ...(club.smsCredits > 0 ? [{ description: `SMS Credits Bundle`, price: club.smsCredits * ADDON_PRICES.smsCredit, details: `${club.smsCredits} credits @ KES ${ADDON_PRICES.smsCredit} each` }] : []),
+      ...(club.aiCredits > 0 ? [{ description: `AI Analysis Credits`, price: club.aiCredits * ADDON_PRICES.aiCredit, details: `${club.aiCredits} credits @ KES ${ADDON_PRICES.aiCredit} each` }] : []),
+  ]
+
+  const subtotal = lineItems.reduce((acc, item) => acc + item.price, 0);
   const tax = subtotal * 0.16; // 16% VAT
   const total = subtotal + tax;
 
@@ -70,8 +76,19 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
                 <section className="grid grid-cols-2 gap-8 mb-8">
                     <div>
                         <h3 className="font-semibold mb-2">BILL TO</h3>
-                        <p className="font-bold">{club.name}</p>
-                        <p className="text-muted-foreground">{club.adminEmail}</p>
+                        <div className='flex items-center gap-3'>
+                             <Image
+                                src={club.logoUrl}
+                                alt={`${club.name} logo`}
+                                width={40}
+                                height={40}
+                                className="rounded-md object-contain"
+                            />
+                            <div>
+                                <p className="font-bold">{club.name}</p>
+                                <p className="text-muted-foreground">{club.adminEmail}</p>
+                            </div>
+                        </div>
                     </div>
                     <div className="text-right">
                         <p><span className="font-semibold">Invoice Date:</span> {invoiceDate.toLocaleDateString()}</p>
@@ -88,13 +105,15 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>
-                                    <p className="font-medium">Subscription: {club.subscriptionPlan.name} Plan</p>
-                                    <p className="text-xs text-muted-foreground">For period {invoiceDate.toLocaleString('default', { month: 'long' })} {invoiceDate.getFullYear()}</p>
-                                </TableCell>
-                                <TableCell className="text-right">{club.subscriptionPlan.price.toLocaleString()}</TableCell>
-                            </TableRow>
+                            {lineItems.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>
+                                        <p className="font-medium">{item.description}</p>
+                                        <p className="text-xs text-muted-foreground">{item.details}</p>
+                                    </TableCell>
+                                    <TableCell className="text-right">{item.price.toLocaleString()}</TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
                 </section>
