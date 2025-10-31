@@ -6,6 +6,8 @@ export type Course = {
   thumbnailHint: string;
   modules: CourseModule[];
   accessLog: CourseAccessLog[];
+  price?: number;
+  enrolledStudentIds: number[];
 };
 
 export type CourseModule = {
@@ -29,6 +31,8 @@ export const courses: Course[] = [
     description: 'Learn to manage your finances, from budgeting to investing, to secure your future off the field.',
     thumbnailUrl: 'https://picsum.photos/seed/course1/600/400',
     thumbnailHint: 'finance money',
+    price: 1500,
+    enrolledStudentIds: [1, 2, 6, 3],
     modules: [
         { id: 'fl-m1', title: 'Introduction to Budgeting', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 15, description: 'Learn the basics of creating and sticking to a personal budget.' },
         { id: 'fl-m2', title: 'Understanding Investments', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 25, description: 'An overview of different investment types like stocks, bonds, and real estate.' },
@@ -47,6 +51,8 @@ export const courses: Course[] = [
     description: 'Understand the fuel your body needs. Covers meal planning, hydration, and supplements for elite athletes.',
     thumbnailUrl: 'https://picsum.photos/seed/course2/600/400',
     thumbnailHint: 'healthy food',
+    price: 0,
+    enrolledStudentIds: [3, 4, 5],
     modules: [
         { id: 'np-m1', title: 'Macronutrients Explained', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 18, description: 'A deep dive into proteins, carbs, and fats and their role in performance.' },
         { id: 'np-m2', title: 'Hydration Strategies', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 12, description: 'Learn when and what to drink to stay optimally hydrated.' },
@@ -63,6 +69,8 @@ export const courses: Course[] = [
     description: 'Master the art of the interview. Learn how to handle press conferences and build your personal brand.',
     thumbnailUrl: 'https://picsum.photos/seed/course3/600/400',
     thumbnailHint: 'interview microphone',
+    price: 1000,
+    enrolledStudentIds: [1, 4],
     modules: [
         { id: 'mt-m1', title: 'Handling Difficult Questions', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 20, description: 'Techniques for staying on message and handling tricky questions from journalists.' },
         { id: 'mt-m2', title: 'Building Your Personal Brand', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 22, description: 'How to use social media and public appearances to build a positive brand.' },
@@ -77,6 +85,8 @@ export const courses: Course[] = [
     description: 'Develop mental toughness, focus, and resilience with fundamental concepts from sports psychology.',
     thumbnailUrl: 'https://picsum.photos/seed/course4/600/400',
     thumbnailHint: 'brain thinking',
+    price: 0,
+    enrolledStudentIds: [],
     modules: [],
     accessLog: []
   },
@@ -86,6 +96,8 @@ export const courses: Course[] = [
     description: 'A deep dive into modern attacking tactics, formations, and player roles.',
     thumbnailUrl: 'https://picsum.photos/seed/course5/600/400',
     thumbnailHint: 'football tactics',
+    price: 2000,
+    enrolledStudentIds: [],
     modules: [],
     accessLog: []
   },
@@ -95,6 +107,8 @@ export const courses: Course[] = [
     description: 'Learn essential strategies for preventing common sports injuries and best practices for effective recovery.',
     thumbnailUrl: 'https://picsum.photos/seed/course6/600/400',
     thumbnailHint: 'athlete stretching',
+    price: 0,
+    enrolledStudentIds: [],
     modules: [],
     accessLog: []
   },

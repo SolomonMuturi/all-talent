@@ -5,7 +5,7 @@ import { Course, CourseModule } from '@/lib/courses';
 import { players } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, FileText, Video, HelpCircle, User } from 'lucide-react';
+import { CheckCircle, Clock, FileText, Video, HelpCircle, User, UserX } from 'lucide-react';
 import { Progress } from '../ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -35,6 +35,12 @@ export function CourseDetails({ course }: CourseDetailsProps) {
   const totalDuration = course.modules.reduce((sum, module) => sum + module.duration, 0);
   const completedModules = 1; // Dummy data
   const progress = (completedModules / course.modules.length) * 100;
+
+  const activeStudentIds = new Set(course.accessLog.map(log => log.studentId));
+  const inactiveEnrolledStudents = course.enrolledStudentIds
+    .filter(id => !activeStudentIds.has(id))
+    .map(id => players.find(p => p.id === id))
+    .filter(p => p !== undefined);
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
@@ -80,28 +86,80 @@ export function CourseDetails({ course }: CourseDetailsProps) {
                 </Card>
             </TabsContent>
             <TabsContent value="activity">
-                 <Card className="mt-4">
-                    <CardHeader>
-                        <CardTitle>Access Logs</CardTitle>
-                        <CardDescription>See which students have recently accessed this course.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                       <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Student</TableHead>
-                                    <TableHead className="text-right">Last Accessed</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {course.accessLog.length > 0 ? (
-                                    course.accessLog
-                                    .sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                                    .map(log => {
-                                        const player = players.find(p => p.id === log.studentId);
-                                        if (!player) return null;
-                                        return (
-                                            <TableRow key={log.studentId}>
+                 <div className="space-y-6 mt-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <User className="size-5 text-primary" />
+                                Active Students
+                            </CardTitle>
+                            <CardDescription>Students who have started this course.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                        <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Student</TableHead>
+                                        <TableHead className="text-right">Last Accessed</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {course.accessLog.length > 0 ? (
+                                        course.accessLog
+                                        .sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                        .map(log => {
+                                            const player = players.find(p => p.id === log.studentId);
+                                            if (!player) return null;
+                                            return (
+                                                <TableRow key={log.studentId}>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar className="h-9 w-9">
+                                                                <AvatarImage src={player.avatarUrl} alt={player.name} />
+                                                                <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                                            </Avatar>
+                                                            <span className="font-medium">{player.name}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        })
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={2} className="h-24 text-center">
+                                                No student has accessed this course yet.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <UserX className="size-5 text-muted-foreground" />
+                                Enrolled, Not Started
+                            </CardTitle>
+                            <CardDescription>Students who are enrolled but have not yet started the course.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Student</TableHead>
+                                        <TableHead className="text-right">Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {inactiveEnrolledStudents.length > 0 ? (
+                                        inactiveEnrolledStudents.map(player => {
+                                            if (!player) return null;
+                                            return (
+                                            <TableRow key={player.id}>
                                                 <TableCell>
                                                     <div className="flex items-center gap-3">
                                                         <Avatar className="h-9 w-9">
@@ -112,22 +170,23 @@ export function CourseDetails({ course }: CourseDetailsProps) {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                                                    <Button variant="outline" size="sm">Send Reminder</Button>
                                                 </TableCell>
                                             </TableRow>
-                                        )
-                                    })
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={2} className="h-24 text-center">
-                                            No student has accessed this course yet.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                                            )
+                                        })
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={2} className="h-24 text-center">
+                                                All enrolled students have started the course.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                 </div>
             </TabsContent>
         </Tabs>
       </div>
