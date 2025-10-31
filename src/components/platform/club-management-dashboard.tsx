@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -175,12 +176,38 @@ export function ClubManagementDashboard() {
                   An overview of all clubs on the TalantaTrack platform.
                   </CardDescription>
               </div>
-              <DialogTrigger asChild>
-                <Button onClick={() => setNewClubDialogOpen(true)}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Onboard New Club
-                </Button>
-              </DialogTrigger>
+              <Dialog open={isNewClubDialogOpen} onOpenChange={setNewClubDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Onboard New Club
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Onboard New Club</DialogTitle>
+                        <DialogDescription>
+                            Fill in the details to create a new club and send an invite to their administrator.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="club-name" className="text-right">Club Name</Label>
+                            <Input id="club-name" placeholder="e.g., Kisumu All-Stars" className="col-span-3" />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="admin-email" className="text-right">Admin Email</Label>
+                            <Input id="admin-email" type="email" placeholder="admin@kisumustars.com" className="col-span-3" />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={() => {
+                          toast({title: "Invite Sent!", description: "An onboarding link has been sent to the new admin."});
+                          setNewClubDialogOpen(false);
+                        }}>Send Invite</Button>
+                    </DialogFooter>
+                </DialogContent>
+              </Dialog>
           </div>
         </CardHeader>
         <CardContent>
@@ -231,34 +258,6 @@ export function ClubManagementDashboard() {
           </div>
         </CardContent>
       </Card>
-      
-      {/* Onboard New Club Dialog */}
-      <Dialog open={isNewClubDialogOpen} onOpenChange={setNewClubDialogOpen}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Onboard New Club</DialogTitle>
-                <DialogDescription>
-                    Fill in the details to create a new club and send an invite to their administrator.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="club-name" className="text-right">Club Name</Label>
-                    <Input id="club-name" placeholder="e.g., Kisumu All-Stars" className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="admin-email" className="text-right">Admin Email</Label>
-                    <Input id="admin-email" type="email" placeholder="admin@kisumustars.com" className="col-span-3" />
-                </div>
-            </div>
-            <DialogFooter>
-                <Button onClick={() => {
-                  toast({title: "Invite Sent!", description: "An onboarding link has been sent to the new admin."});
-                  setNewClubDialogOpen(false);
-                }}>Send Invite</Button>
-            </DialogFooter>
-        </DialogContent>
-      </Dialog>
       
        {/* Manage Subscription Dialog */}
       <Dialog open={isManageDialogOpen} onOpenChange={setManageDialogOpen}>
