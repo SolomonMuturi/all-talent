@@ -5,6 +5,7 @@ export type Course = {
   thumbnailUrl: string;
   thumbnailHint: string;
   modules: CourseModule[];
+  accessLog: CourseAccessLog[];
 };
 
 export type CourseModule = {
@@ -15,6 +16,11 @@ export type CourseModule = {
   duration: number; // in minutes
   description: string;
 };
+
+export type CourseAccessLog = {
+    studentId: number;
+    timestamp: string;
+}
 
 export const courses: Course[] = [
   {
@@ -29,6 +35,11 @@ export const courses: Course[] = [
         { id: 'fl-m3', title: 'Taxes for Athletes', contentType: 'document', contentUrl: '/docs/placeholder.pdf', duration: 20, description: 'A guide to understanding your tax obligations as a professional athlete.' },
         { id: 'fl-m4', title: 'Budgeting Quiz', contentType: 'quiz', contentUrl: '#', duration: 10, description: 'Test your knowledge on the core concepts of budgeting.' },
     ],
+    accessLog: [
+        { studentId: 1, timestamp: '2024-07-28 10:15:00' },
+        { studentId: 2, timestamp: '2024-07-28 09:30:00' },
+        { studentId: 6, timestamp: '2024-07-27 18:00:00' },
+    ]
   },
   {
     id: 'nutrition-for-performance',
@@ -41,6 +52,10 @@ export const courses: Course[] = [
         { id: 'np-m2', title: 'Hydration Strategies', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 12, description: 'Learn when and what to drink to stay optimally hydrated.' },
         { id: 'np-m3', title: 'Game Day Nutrition', contentType: 'document', contentUrl: '/docs/placeholder.pdf', duration: 15, description: 'A sample meal plan for pre-game, in-game, and post-game nutrition.' },
     ],
+    accessLog: [
+        { studentId: 3, timestamp: '2024-07-25 11:00:00' },
+        { studentId: 4, timestamp: '2024-07-24 15:45:00' },
+    ]
   },
   {
     id: 'media-training-basics',
@@ -52,6 +67,9 @@ export const courses: Course[] = [
         { id: 'mt-m1', title: 'Handling Difficult Questions', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 20, description: 'Techniques for staying on message and handling tricky questions from journalists.' },
         { id: 'mt-m2', title: 'Building Your Personal Brand', contentType: 'video', contentUrl: '/videos/placeholder.mp4', duration: 22, description: 'How to use social media and public appearances to build a positive brand.' },
     ],
+    accessLog: [
+         { studentId: 1, timestamp: '2024-07-20 14:00:00' }
+    ]
   },
   {
     id: 'sports-psychology-fundamentals',
@@ -60,6 +78,7 @@ export const courses: Course[] = [
     thumbnailUrl: 'https://picsum.photos/seed/course4/600/400',
     thumbnailHint: 'brain thinking',
     modules: [],
+    accessLog: []
   },
   {
     id: 'tactical-analysis-attacking',
@@ -68,6 +87,7 @@ export const courses: Course[] = [
     thumbnailUrl: 'https://picsum.photos/seed/course5/600/400',
     thumbnailHint: 'football tactics',
     modules: [],
+    accessLog: []
   },
   {
     id: 'injury-prevention-strategies',
@@ -76,5 +96,6 @@ export const courses: Course[] = [
     thumbnailUrl: 'https://picsum.photos/seed/course6/600/400',
     thumbnailHint: 'athlete stretching',
     modules: [],
+    accessLog: []
   },
 ];

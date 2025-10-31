@@ -2,10 +2,15 @@
 
 import { useState } from 'react';
 import { Course, CourseModule } from '@/lib/courses';
+import { players } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, FileText, Video, HelpCircle } from 'lucide-react';
+import { CheckCircle, Clock, FileText, Video, HelpCircle, User } from 'lucide-react';
 import { Progress } from '../ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
 
 interface CourseDetailsProps {
   course: Course;
@@ -34,32 +39,97 @@ export function CourseDetails({ course }: CourseDetailsProps) {
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2">
-        <Card>
-            <CardContent className="p-0">
-                {activeModule?.contentType === 'video' ? (
-                     <div className="aspect-video bg-muted flex items-center justify-center">
-                        <p className="text-muted-foreground">Video player for: {activeModule.title}</p>
-                    </div>
-                ) : activeModule?.contentType === 'document' ? (
-                    <div className="aspect-video bg-muted flex items-center justify-center p-6">
-                        <p className="text-muted-foreground">Document viewer for: {activeModule.title}</p>
-                    </div>
-                ): (
-                     <div className="aspect-video bg-muted flex items-center justify-center p-6">
-                        <p className="text-muted-foreground">Select a module to begin.</p>
-                    </div>
-                )}
-               
-            </CardContent>
-        </Card>
-         <div className="mt-6">
-            <h1 className="text-2xl font-bold font-headline">{course.title}</h1>
-            <p className="text-muted-foreground mt-2">{course.description}</p>
-             <div className="mt-4">
-                <p className="text-sm font-medium mb-2">{completedModules} of {course.modules.length} modules completed</p>
-                <Progress value={progress} />
+        <Tabs defaultValue="course">
+            <Card>
+                <CardContent className="p-0">
+                    {activeModule?.contentType === 'video' ? (
+                        <div className="aspect-video bg-muted flex items-center justify-center">
+                            <p className="text-muted-foreground">Video player for: {activeModule.title}</p>
+                        </div>
+                    ) : activeModule?.contentType === 'document' ? (
+                        <div className="aspect-video bg-muted flex items-center justify-center p-6">
+                            <p className="text-muted-foreground">Document viewer for: {activeModule.title}</p>
+                        </div>
+                    ): (
+                        <div className="aspect-video bg-muted flex items-center justify-center p-6">
+                            <p className="text-muted-foreground">Select a module to begin.</p>
+                        </div>
+                    )}
+                
+                </CardContent>
+            </Card>
+            <div className="mt-6">
+                <h1 className="text-2xl font-bold font-headline">{course.title}</h1>
+                <p className="text-muted-foreground mt-2">{course.description}</p>
+                <div className="mt-4">
+                    <TabsList>
+                        <TabsTrigger value="course">Course Details</TabsTrigger>
+                        <TabsTrigger value="activity">Student Activity</TabsTrigger>
+                    </TabsList>
+                </div>
             </div>
-        </div>
+             <TabsContent value="course">
+                <Card className="mt-4">
+                    <CardHeader>
+                        <CardTitle>Course Progress</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm font-medium mb-2">{completedModules} of {course.modules.length} modules completed</p>
+                        <Progress value={progress} />
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="activity">
+                 <Card className="mt-4">
+                    <CardHeader>
+                        <CardTitle>Access Logs</CardTitle>
+                        <CardDescription>See which students have recently accessed this course.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Student</TableHead>
+                                    <TableHead className="text-right">Last Accessed</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {course.accessLog.length > 0 ? (
+                                    course.accessLog
+                                    .sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                    .map(log => {
+                                        const player = players.find(p => p.id === log.studentId);
+                                        if (!player) return null;
+                                        return (
+                                            <TableRow key={log.studentId}>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar className="h-9 w-9">
+                                                            <AvatarImage src={player.avatarUrl} alt={player.name} />
+                                                            <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                                        </Avatar>
+                                                        <span className="font-medium">{player.name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    })
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={2} className="h-24 text-center">
+                                            No student has accessed this course yet.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+        </Tabs>
       </div>
       <div className="lg:col-span-1">
         <Card>
