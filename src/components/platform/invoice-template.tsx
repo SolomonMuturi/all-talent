@@ -6,6 +6,7 @@ import { Download, Printer } from 'lucide-react';
 import { Club } from '@/lib/platform-data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Separator } from '../ui/separator';
+import Image from 'next/image';
 
 interface InvoiceTemplateProps {
     club: Club;
@@ -19,6 +20,10 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
   const subtotal = club.subscriptionPlan.price;
   const tax = subtotal * 0.16; // 16% VAT
   const total = subtotal + tax;
+
+  const paymentData = `M-Pesa Paybill: 123456, Account: ${club.id}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(paymentData)}`;
+
 
   const handlePrint = () => {
     window.print();
@@ -47,8 +52,8 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
           }
         }
       `}</style>
-      <div id="invoice-to-print" className="bg-background p-8">
-        <div className="w-full max-w-4xl mx-auto bg-card text-card-foreground rounded-lg shadow-lg">
+      <div id="invoice-to-print" className="bg-background p-4 sm:p-8">
+        <div className="w-full max-w-2xl mx-auto bg-card text-card-foreground rounded-lg shadow-lg">
             <div className="p-8">
                 <header className="flex justify-between items-start mb-8">
                     <div>
@@ -112,12 +117,18 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
                     </div>
                 </section>
                 
-                 <footer className="mt-16 text-center text-xs text-muted-foreground">
-                    <p>Thank you for your business!</p>
-                    <p>Payments can be made via M-Pesa Paybill 123456, Account: {club.id}.</p>
+                 <footer className="mt-16 flex justify-between items-end">
+                    <div className="text-left text-xs text-muted-foreground">
+                        <p className="font-semibold">Thank you for your business!</p>
+                        <p>Payments can be made via M-Pesa Paybill 123456, Account: {club.id}.</p>
+                    </div>
+                    <div className="text-center">
+                        <Image src={qrCodeUrl} width={80} height={80} alt="Payment QR Code" />
+                        <p className="text-xs text-muted-foreground mt-1">Scan to Pay</p>
+                    </div>
                 </footer>
             </div>
-            <div className="bg-muted/50 p-4 flex justify-end gap-2 no-print">
+            <div className="bg-muted/50 p-4 flex justify-end gap-2 no-print rounded-b-lg">
                 <Button variant="outline" onClick={handlePrint}>
                     <Printer className="mr-2 h-4 w-4" />
                     Print Invoice
