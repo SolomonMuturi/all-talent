@@ -8,26 +8,14 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
-  ShieldAlert,
   Users,
-  UsersRound,
-  FileText,
   PieChart,
-  Ticket,
-  UserSquare,
-  ClipboardList,
   CalendarDays,
-  Boxes,
-  Trophy,
-  HeartPulse,
-  UserCheck,
-  GraduationCap,
-  Bell,
-  ShieldCheck,
   Store,
   Newspaper,
-  BarChart,
   ChevronDown,
+  GraduationCap,
+  Building,
 } from 'lucide-react';
 
 import {
@@ -113,6 +101,7 @@ const navItems = [
   },
   { href: '/training-hub', icon: GraduationCap, label: 'Training Hub' },
   { href: '/blog', icon: Newspaper, label: 'Blog' },
+  { href: '/platform', icon: Building, label: 'Platform Management' },
 ];
 
 const NavItem = ({ item, pathname }: { item: any, pathname: string }) => {
