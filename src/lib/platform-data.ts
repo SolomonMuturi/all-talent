@@ -14,6 +14,9 @@ export type Club = {
   subscriptionPlan: SubscriptionPlan;
   status: 'Active' | 'Trialing' | 'Canceled';
   renewalDate: string;
+  mrr: number; // Monthly Recurring Revenue
+  smsCredits: number;
+  aiCredits: number;
 };
 
 export const subscriptionPlans: SubscriptionPlan[] = [
@@ -32,6 +35,9 @@ export const clubs: Club[] = [
     subscriptionPlan: subscriptionPlans[0],
     status: 'Active',
     renewalDate: '2024-08-15',
+    mrr: 5000,
+    smsCredits: 1000,
+    aiCredits: 50,
   },
   {
     id: 'club_002',
@@ -42,6 +48,9 @@ export const clubs: Club[] = [
     subscriptionPlan: subscriptionPlans[1],
     status: 'Active',
     renewalDate: '2024-09-01',
+    mrr: 15000,
+    smsCredits: 5000,
+    aiCredits: 250,
   },
   {
     id: 'club_003',
@@ -52,6 +61,9 @@ export const clubs: Club[] = [
     subscriptionPlan: subscriptionPlans[0],
     status: 'Trialing',
     renewalDate: '2024-07-30',
+    mrr: 0, // In trial
+    smsCredits: 100,
+    aiCredits: 10,
   },
   {
     id: 'club_004',
@@ -62,5 +74,8 @@ export const clubs: Club[] = [
     subscriptionPlan: subscriptionPlans[1],
     status: 'Canceled',
     renewalDate: '2024-06-20',
+    mrr: 0, // Canceled
+    smsCredits: 0,
+    aiCredits: 0,
   },
 ];
