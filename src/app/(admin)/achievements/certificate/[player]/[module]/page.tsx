@@ -14,7 +14,7 @@ export default function CertificatePage({ params }: { params: { player: string, 
 
     const brandingProps = {
         academyName: searchParams.get('academyName') || 'TalantaTrack Academy',
-        contactInfo: searchParams.get('contactInfo') || '123 Football Lane, Nairobi, Kenya',
+        contactInfo: searchParams.get('contactInfo') || '123 Football Lane, Nairobi, Kenya | +254 700 000 000',
         signatory1Name: searchParams.get('s1Name') || 'John Omondi',
         signatory1Title: searchParams.get('s1Title') || 'Head Coach',
         signatory2Name: searchParams.get('s2Name') || 'Esther Chepkoech',
