@@ -18,7 +18,7 @@ export default function TeamPage() {
   const mostCommonRole = Object.keys(roleCounts).reduce((a, b) => roleCounts[a] > roleCounts[b] ? a : b, '');
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col space-y-8 h-full">
       <div>
         <h1 className="text-2xl font-bold tracking-tight font-headline">Team Management</h1>
         <p className="text-muted-foreground">
@@ -49,7 +49,9 @@ export default function TeamPage() {
         />
       </div>
 
-      <TeamTable />
+      <div className="flex-grow">
+        <TeamTable />
+      </div>
     </div>
   );
 }
