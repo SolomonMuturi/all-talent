@@ -75,8 +75,14 @@ export function CertificateTemplate({
             <div className="absolute top-0 left-0 w-full h-full bg-no-repeat bg-center bg-cover opacity-5" style={{backgroundImage: 'url(/images/certificate-bg.svg)'}}></div>
             
             <div className="relative text-center space-y-6">
-                <div className="flex justify-between items-center">
-                    <Logo className="h-20 w-20" />
+                <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-4 text-left">
+                        <Logo className="h-20 w-20 flex-shrink-0" />
+                        <div className="text-xs text-muted-foreground">
+                            <p className="font-bold text-card-foreground text-sm">{academyName}</p>
+                            {contactInfo.split('|').map(info => <p key={info}>{info.trim()}</p>)}
+                        </div>
+                    </div>
                     <Image
                         src={qrCodeUrl}
                         width={80}
@@ -112,11 +118,6 @@ export function CertificateTemplate({
                          <hr className="w-full border-t border-muted-foreground my-1" />
                         <p className="text-sm text-muted-foreground">{signatory2Title}</p>
                     </div>
-                </div>
-
-                <div className="absolute bottom-8 left-8 text-left text-xs text-muted-foreground">
-                    <p className="font-bold text-card-foreground">{academyName}</p>
-                    {contactInfo.split('|').map(info => <p key={info}>{info.trim()}</p>)}
                 </div>
             </div>
         </div>
