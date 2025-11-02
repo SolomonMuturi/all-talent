@@ -15,17 +15,25 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from '@/components/ui/select';
 import { players } from '@/lib/data';
+import { courses } from '@/lib/courses';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const trainingModules = [
+const onPitchModules = [
     'Advanced Dribbling & Ball Control',
     'Defensive Positioning Masterclass',
     'Finishing & Shot Power',
-    'Tactical Awareness & Game Reading'
 ];
+
+const tacticalModules = [
+    'Tactical Awareness & Game Reading'
+]
+
+const offPitchModules = courses.map(course => course.title);
 
 interface CertificateGeneratorProps {
     branding: {
@@ -91,11 +99,30 @@ export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
                     <SelectValue placeholder="Select a module" />
                 </SelectTrigger>
                 <SelectContent>
-                {trainingModules.map((module) => (
-                    <SelectItem key={module} value={module}>
-                    {module}
-                    </SelectItem>
-                ))}
+                  <SelectGroup>
+                    <SelectLabel>On-Pitch Skills</SelectLabel>
+                    {onPitchModules.map((module) => (
+                        <SelectItem key={module} value={module}>
+                        {module}
+                        </SelectItem>
+                    ))}
+                  </SelectGroup>
+                   <SelectGroup>
+                    <SelectLabel>Tactical & Mental</SelectLabel>
+                    {tacticalModules.map((module) => (
+                        <SelectItem key={module} value={module}>
+                        {module}
+                        </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Off-Pitch Development</SelectLabel>
+                    {offPitchModules.map((module) => (
+                        <SelectItem key={module} value={module}>
+                        {module}
+                        </SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
             </Select>
         </div>
