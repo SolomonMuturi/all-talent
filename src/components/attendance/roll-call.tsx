@@ -14,8 +14,9 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '../ui/checkbox';
 
-type Person = { id: string; name: string; avatarUrl: string };
+type Person = { id: string; name: string; avatarUrl: string; team?: string };
 type Status = 'Present' | 'Absent' | 'Late';
 
 type AttendanceItem = {
@@ -24,7 +25,7 @@ type AttendanceItem = {
   timestamp?: string;
 };
 
-const allPlayers = players.map(p => ({ id: `player-${p.id}`, name: p.name, avatarUrl: p.avatarUrl }));
+const allPlayers = players.map(p => ({ id: `player-${p.id}`, name: p.name, avatarUrl: p.avatarUrl, team: p.team }));
 const allStaff = teamMembers.map(m => ({ id: `staff-${m.id}`, name: m.name, avatarUrl: m.avatarUrl }));
 
 const initialAttendance = (people: Person[]): AttendanceItem[] => {
@@ -45,24 +46,29 @@ export function RollCall() {
   const [staffAttendance, setStaffAttendance] = useState<AttendanceItem[]>(initialAttendance(allStaff));
   const [gameDayAttendance, setGameDayAttendance] = useState<AttendanceItem[]>([]);
   const [liveFeed, setLiveFeed] = useState<AttendanceItem[]>([]);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [playerFilter, setPlayerFilter] = useState('All');
 
   const updateAttendance = (
     list: AttendanceItem[],
     setList: React.Dispatch<React.SetStateAction<AttendanceItem[]>>,
-    id: string,
+    ids: string[],
     newStatus: Status
   ) => {
     const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const updatedList = list.map(item =>
-      item.person.id === id ? { ...item, status: newStatus, timestamp } : item
-    );
+    let updatedPeople: Person[] = [];
+    const updatedList = list.map(item => {
+      if (ids.includes(item.person.id)) {
+        updatedPeople.push(item.person);
+        return { ...item, status: newStatus, timestamp };
+      }
+      return item;
+    });
     setList(updatedList);
     
     if(newStatus === 'Present' || newStatus === 'Late') {
-      const person = updatedList.find(item => item.person.id === id);
-      if(person) {
-        setLiveFeed(prevFeed => [person, ...prevFeed].slice(0, 5));
-      }
+      const feedItems = updatedList.filter(item => ids.includes(item.person.id));
+      setLiveFeed(prevFeed => [...feedItems, ...prevFeed].slice(0, 5));
     }
   };
 
@@ -86,20 +92,17 @@ export function RollCall() {
     }
   }
 
-  const notifyGuardian = (playerName: string) => {
+  const notifyGuardian = (playerNames: string[]) => {
       toast({
           title: 'Notification Sent',
-          description: `An SMS has been sent to the guardian of ${playerName}.`
+          description: `An SMS has been sent to the guardian(s) of ${playerNames.join(', ')}.`,
       })
   }
   
   const notifyAllAbsentees = (items: AttendanceItem[]) => {
-      const absentPlayers = items.filter(item => item.status === 'Absent').length;
-      if (absentPlayers > 0) {
-        toast({
-            title: 'Batch Notifications Sent',
-            description: `Sent ${absentPlayers} notification(s) to guardians of all absent players.`
-        })
+      const absentPlayers = items.filter(item => item.status === 'Absent');
+      if (absentPlayers.length > 0) {
+        notifyGuardian(absentPlayers.map(p => p.person.name));
       } else {
         toast({
             variant: 'destructive',
@@ -108,12 +111,24 @@ export function RollCall() {
         })
       }
   }
+  
+  const handleSelectedAction = (action: 'Present' | 'Absent' | 'Notify') => {
+    const selectedItems = playerAttendance.filter(item => selectedPlayerIds.includes(item.person.id));
+    if (action === 'Notify') {
+        notifyGuardian(selectedItems.map(item => item.person.name));
+    } else {
+        updateAttendance(playerAttendance, setPlayerAttendance, selectedPlayerIds, action);
+    }
+    setSelectedPlayerIds([]);
+  };
+
+  const filteredPlayers = playerAttendance.filter(item => playerFilter === 'All' || item.person.team === playerFilter);
 
   const presentPlayers = playerAttendance.filter(p => p.status === 'Present' || p.status === 'Late').length;
   const absentPlayers = playerAttendance.length - presentPlayers;
   const presentStaff = staffAttendance.filter(p => p.status === 'Present' || p.status === 'Late').length;
 
-  const AttendanceTable = ({ items, onUpdate, onBatchUpdate, title, isPlayerTable = false }: { items: AttendanceItem[], onUpdate: (id: string, status: Status) => void, onBatchUpdate?: (status: Status | 'Reset') => void, title: string, isPlayerTable?: boolean }) => (
+  const AttendanceTable = ({ items, onUpdate, onBatchUpdate, title, isPlayerTable = false, onSelectionChange, selectedIds, onFilterChange, filterValue }: { items: AttendanceItem[], onUpdate: (id: string[], status: Status) => void, onBatchUpdate?: (status: Status | 'Reset') => void, title: string, isPlayerTable?: boolean, onSelectionChange?: (ids: string[]) => void, selectedIds?: string[], onFilterChange?: (value: string) => void, filterValue?: string }) => (
     <Card>
       <CardHeader>
         <div className="flex flex-wrap gap-2 justify-between items-center">
@@ -128,11 +143,37 @@ export function RollCall() {
                 )}
             </div>
         </div>
+        {isPlayerTable && onFilterChange && (
+            <div className='flex items-center gap-2 mt-4'>
+                <label className="text-sm font-medium">Filter by Team:</label>
+                <Select value={filterValue} onValueChange={onFilterChange}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All Teams</SelectItem>
+                        <SelectItem value="U-15">U-15</SelectItem>
+                        <SelectItem value="U-17">U-17</SelectItem>
+                        <SelectItem value="U-19">U-19</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+        )}
       </CardHeader>
       <CardContent>
          <Table>
             <TableHeader>
                 <TableRow>
+                    {isPlayerTable && onSelectionChange && (
+                        <TableHead className="w-[40px]">
+                            <Checkbox 
+                                checked={selectedIds?.length === items.length && items.length > 0}
+                                onCheckedChange={(checked) => {
+                                    onSelectionChange(checked ? items.map(i => i.person.id) : []);
+                                }}
+                            />
+                        </TableHead>
+                    )}
                 <TableHead>Person</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -141,6 +182,20 @@ export function RollCall() {
             <TableBody>
                 {items.map(item => (
                 <TableRow key={item.person.id}>
+                    {isPlayerTable && onSelectionChange && (
+                        <TableCell>
+                            <Checkbox 
+                                checked={selectedIds?.includes(item.person.id)}
+                                onCheckedChange={(checked) => {
+                                    onSelectionChange(
+                                        checked 
+                                        ? [...(selectedIds || []), item.person.id] 
+                                        : (selectedIds || []).filter(id => id !== item.person.id)
+                                    )
+                                }}
+                            />
+                        </TableCell>
+                    )}
                     <TableCell>
                     <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
@@ -155,7 +210,7 @@ export function RollCall() {
                     </TableCell>
                     <TableCell className="text-right flex items-center justify-end gap-2">
                          {isPlayerTable && item.status === 'Absent' && (
-                            <Button variant="ghost" size="sm" onClick={() => notifyGuardian(item.person.name)}>
+                            <Button variant="ghost" size="sm" onClick={() => notifyGuardian([item.person.name])}>
                                 <Send className="mr-2 h-4 w-4" />
                                 Notify
                             </Button>
@@ -165,9 +220,9 @@ export function RollCall() {
                                 <Button variant="outline" size="sm">Set Status</Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => onUpdate(item.person.id, 'Present')}>Present</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onUpdate(item.person.id, 'Late')}>Late</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onUpdate(item.person.id, 'Absent')}>Absent</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => onUpdate([item.person.id], 'Present')}>Present</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => onUpdate([item.person.id], 'Late')}>Late</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => onUpdate([item.person.id], 'Absent')}>Absent</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>
@@ -175,6 +230,16 @@ export function RollCall() {
                 ))}
             </TableBody>
         </Table>
+        {isPlayerTable && selectedIds && selectedIds.length > 0 && (
+            <div className="mt-4 p-2 bg-muted/50 rounded-lg flex items-center justify-between">
+                <p className="text-sm font-medium">{selectedIds.length} player(s) selected.</p>
+                <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleSelectedAction('Present')}>Mark as Present</Button>
+                    <Button size="sm" variant="secondary" onClick={() => handleSelectedAction('Absent')}>Mark as Absent</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleSelectedAction('Notify')}><Send className="mr-2 h-3 w-3" /> Notify Guardians</Button>
+                </div>
+            </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -217,17 +282,21 @@ export function RollCall() {
                     </TabsList>
                     <TabsContent value="players" className="mt-4">
                         <AttendanceTable 
-                            items={playerAttendance} 
-                            onUpdate={(id, status) => updateAttendance(playerAttendance, setPlayerAttendance, id, status)}
+                            items={filteredPlayers} 
+                            onUpdate={(ids, status) => updateAttendance(playerAttendance, setPlayerAttendance, ids, status)}
                             onBatchUpdate={(status) => handleBatchUpdate(setPlayerAttendance, status)}
                             title="Daily Player Attendance"
                             isPlayerTable={true}
+                            selectedIds={selectedPlayerIds}
+                            onSelectionChange={setSelectedPlayerIds}
+                            filterValue={playerFilter}
+                            onFilterChange={setPlayerFilter}
                         />
                     </TabsContent>
                     <TabsContent value="staff" className="mt-4">
                         <AttendanceTable 
                             items={staffAttendance} 
-                            onUpdate={(id, status) => updateAttendance(staffAttendance, setStaffAttendance, id, status)} 
+                            onUpdate={(ids, status) => updateAttendance(staffAttendance, setStaffAttendance, ids, status)} 
                             onBatchUpdate={(status) => handleBatchUpdate(setStaffAttendance, status)}
                             title="Daily Staff Attendance"
                         />
@@ -249,7 +318,7 @@ export function RollCall() {
                         {gameDayAttendance.length > 0 ? (
                              <AttendanceTable 
                                 items={gameDayAttendance} 
-                                onUpdate={(id, status) => updateAttendance(gameDayAttendance, setGameDayAttendance, id, status)} 
+                                onUpdate={(ids, status) => updateAttendance(gameDayAttendance, setGameDayAttendance, ids, status)} 
                                 onBatchUpdate={(status) => handleBatchUpdate(setGameDayAttendance, status)}
                                 title="Game Day Roster"
                                 isPlayerTable={true}
