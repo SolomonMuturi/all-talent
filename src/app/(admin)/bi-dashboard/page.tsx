@@ -114,7 +114,7 @@ export default function BiDashboardPage() {
             title="Average Skill Score"
             value={averageSkillScore.toFixed(1)}
             icon={<BrainCircuit className="size-5 text-muted-foreground" />}
-            description="Across all players & skills"
+            description="Across all players &amp; skills"
             />
         <KpiCard
             title="Average Player Rank"
