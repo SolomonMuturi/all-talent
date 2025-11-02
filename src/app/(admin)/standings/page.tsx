@@ -1,3 +1,5 @@
+'use client';
+
 import { StandingsTable, TeamStandingsTable } from "@/components/standings/standings-table";
 import { players, Player } from "@/lib/data";
 import { KpiCard } from "@/components/dashboard/kpi-card";
