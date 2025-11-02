@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { players, teamMembers, events } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserCheck, UserX, Users, Clock, CheckCheck, RefreshCcw, CalendarCheck } from 'lucide-react';
+import { UserCheck, UserX, Users, Clock, CheckCheck, RefreshCcw, CalendarCheck, Send } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 type Person = { id: string; name: string; avatarUrl: string };
 type Status = 'Present' | 'Absent' | 'Late';
@@ -39,6 +40,7 @@ const getStatusVariant = (status: Status): 'default' | 'destructive' | 'secondar
 };
 
 export function RollCall() {
+  const { toast } = useToast();
   const [playerAttendance, setPlayerAttendance] = useState<AttendanceItem[]>(initialAttendance(allPlayers));
   const [staffAttendance, setStaffAttendance] = useState<AttendanceItem[]>(initialAttendance(allStaff));
   const [gameDayAttendance, setGameDayAttendance] = useState<AttendanceItem[]>([]);
@@ -83,22 +85,48 @@ export function RollCall() {
         setGameDayAttendance([]);
     }
   }
+
+  const notifyGuardian = (playerName: string) => {
+      toast({
+          title: 'Notification Sent',
+          description: `An SMS has been sent to the guardian of ${playerName}.`
+      })
+  }
   
+  const notifyAllAbsentees = (items: AttendanceItem[]) => {
+      const absentPlayers = items.filter(item => item.status === 'Absent').length;
+      if (absentPlayers > 0) {
+        toast({
+            title: 'Batch Notifications Sent',
+            description: `Sent ${absentPlayers} notification(s) to guardians of all absent players.`
+        })
+      } else {
+        toast({
+            variant: 'destructive',
+            title: 'No Absentees',
+            description: `There are no absent players to notify.`
+        })
+      }
+  }
+
   const presentPlayers = playerAttendance.filter(p => p.status === 'Present' || p.status === 'Late').length;
   const absentPlayers = playerAttendance.length - presentPlayers;
   const presentStaff = staffAttendance.filter(p => p.status === 'Present' || p.status === 'Late').length;
 
-  const AttendanceTable = ({ items, onUpdate, onBatchUpdate, title }: { items: AttendanceItem[], onUpdate: (id: string, status: Status) => void, onBatchUpdate?: (status: Status | 'Reset') => void, title: string }) => (
+  const AttendanceTable = ({ items, onUpdate, onBatchUpdate, title, isPlayerTable = false }: { items: AttendanceItem[], onUpdate: (id: string, status: Status) => void, onBatchUpdate?: (status: Status | 'Reset') => void, title: string, isPlayerTable?: boolean }) => (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap gap-2 justify-between items-center">
             <CardTitle>{title}</CardTitle>
-            {onBatchUpdate && (
-                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onBatchUpdate('Present')}><CheckCheck className="mr-2 h-4 w-4"/> Mark All Present</Button>
-                    <Button variant="ghost" size="sm" onClick={() => onBatchUpdate('Reset')}><RefreshCcw className="mr-2 h-4 w-4"/> Reset</Button>
-                </div>
-            )}
+            <div className="flex gap-2 flex-wrap">
+                {isPlayerTable && <Button variant="outline" size="sm" onClick={() => notifyAllAbsentees(items)}><Send className="mr-2 h-4 w-4"/> Notify All Absentees</Button>}
+                {onBatchUpdate && (
+                    <>
+                        <Button variant="outline" size="sm" onClick={() => onBatchUpdate('Present')}><CheckCheck className="mr-2 h-4 w-4"/> Mark All Present</Button>
+                        <Button variant="ghost" size="sm" onClick={() => onBatchUpdate('Reset')}><RefreshCcw className="mr-2 h-4 w-4"/> Reset</Button>
+                    </>
+                )}
+            </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -107,7 +135,7 @@ export function RollCall() {
                 <TableRow>
                 <TableHead>Person</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -125,7 +153,13 @@ export function RollCall() {
                     <TableCell>
                     <Badge variant={getStatusVariant(item.status)}>{item.status}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right flex items-center justify-end gap-2">
+                         {isPlayerTable && item.status === 'Absent' && (
+                            <Button variant="ghost" size="sm" onClick={() => notifyGuardian(item.person.name)}>
+                                <Send className="mr-2 h-4 w-4" />
+                                Notify
+                            </Button>
+                        )}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">Set Status</Button>
@@ -187,6 +221,7 @@ export function RollCall() {
                             onUpdate={(id, status) => updateAttendance(playerAttendance, setPlayerAttendance, id, status)}
                             onBatchUpdate={(status) => handleBatchUpdate(setPlayerAttendance, status)}
                             title="Daily Player Attendance"
+                            isPlayerTable={true}
                         />
                     </TabsContent>
                     <TabsContent value="staff" className="mt-4">
@@ -217,6 +252,7 @@ export function RollCall() {
                                 onUpdate={(id, status) => updateAttendance(gameDayAttendance, setGameDayAttendance, id, status)} 
                                 onBatchUpdate={(status) => handleBatchUpdate(setGameDayAttendance, status)}
                                 title="Game Day Roster"
+                                isPlayerTable={true}
                             />
                         ) : (
                             <div className="text-center text-muted-foreground p-8 border rounded-lg bg-muted/20">
