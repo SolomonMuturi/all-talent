@@ -16,6 +16,7 @@ import {
   ChevronDown,
   GraduationCap,
   Building,
+  UserCheck,
 } from 'lucide-react';
 
 import {
@@ -94,6 +95,7 @@ const navItems = [
     icon: Settings,
     subItems: [
         { href: '/team', label: 'Team Management' },
+        { href: '/attendance', label: 'Attendance' },
         { href: '/inventory', label: 'Inventory' },
         { href: '/communications', label: 'Communications' },
         { href: '/compliance', label: 'Compliance' },
