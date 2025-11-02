@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink, BookDown } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -74,10 +74,18 @@ export function PlayerDetails({ player }: { player: Player }) {
       <div className="md:col-span-1 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2">
-              <UserSquare className="text-primary"/>
-              Digital ID Card
-            </CardTitle>
+            <div className="flex justify-between items-start">
+              <CardTitle className="font-headline text-lg flex items-center gap-2">
+                <UserSquare className="text-primary"/>
+                Digital ID Card
+              </CardTitle>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/players/${player.id}/book`}>
+                  <BookDown className="mr-2 h-4 w-4" />
+                  Download Book
+                </Link>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="pt-0 flex flex-col items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
