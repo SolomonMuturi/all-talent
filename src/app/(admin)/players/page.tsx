@@ -46,24 +46,30 @@ export default function PlayersPage() {
       </div>
 
        <div className="grid gap-4 md:grid-cols-3">
-        <KpiCard
-          title="Total Players"
-          value={String(totalPlayers)}
-          icon={<Users className="size-5 text-muted-foreground" />}
-          description="Across all teams"
-        />
-        <KpiCard
-          title="Average Age"
-          value={averageAge.toFixed(1)}
-          icon={<Cake className="size-5 text-muted-foreground" />}
-          description="Average player age"
-        />
-        <KpiCard
-          title="Most Populous Team"
-          value={mostPopulousTeam}
-          icon={<Shield className="size-5 text-muted-foreground" />}
-          description={`${teamCounts[mostPopulousTeam]} players`}
-        />
+        <Link href="/players">
+            <KpiCard
+            title="Total Players"
+            value={String(totalPlayers)}
+            icon={<Users className="size-5 text-muted-foreground" />}
+            description="Across all teams"
+            />
+        </Link>
+        <Link href="/players">
+            <KpiCard
+            title="Average Age"
+            value={averageAge.toFixed(1)}
+            icon={<Cake className="size-5 text-muted-foreground" />}
+            description="Average player age"
+            />
+        </Link>
+        <Link href="/players">
+            <KpiCard
+            title="Most Populous Team"
+            value={mostPopulousTeam}
+            icon={<Shield className="size-5 text-muted-foreground" />}
+            description={`${teamCounts[mostPopulousTeam]} players`}
+            />
+        </Link>
       </div>
 
       {Object.entries(playersByTeam).map(([team, teamPlayers]) => (

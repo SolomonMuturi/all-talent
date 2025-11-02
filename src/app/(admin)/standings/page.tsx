@@ -48,12 +48,14 @@ export default function StandingsPage() {
       </div>
 
        <div className="grid gap-4 md:grid-cols-3">
-        <KpiCard
-          title="Top Performing Team"
-          value={topTeam.name}
-          icon={<Trophy className="size-5 text-muted-foreground" />}
-          description={`${topTeam.points} points in total`}
-        />
+        <Link href="/standings">
+            <KpiCard
+            title="Top Performing Team"
+            value={topTeam.name}
+            icon={<Trophy className="size-5 text-muted-foreground" />}
+            description={`${topTeam.points} points in total`}
+            />
+        </Link>
         <Link href={`/players/${topPlayer.id}`}>
             <KpiCard
               title="Top Scoring Player"
@@ -62,12 +64,14 @@ export default function StandingsPage() {
               description={`${topPlayer.points} points`}
             />
         </Link>
-        <KpiCard
-          title="Most Wins (Team)"
-          value={mostWinsTeam.name}
-          icon={<Star className="size-5 text-muted-foreground" />}
-          description={`${mostWinsTeam.wins} wins`}
-        />
+        <Link href="/standings">
+            <KpiCard
+            title="Most Wins (Team)"
+            value={mostWinsTeam.name}
+            icon={<Star className="size-5 text-muted-foreground" />}
+            description={`${mostWinsTeam.wins} wins`}
+            />
+        </Link>
       </div>
 
       <TeamStandingsTable teams={teamStats} />

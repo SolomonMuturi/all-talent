@@ -81,18 +81,22 @@ export default function BiDashboardPage() {
             description="YTD Average"
           />
         </Link>
-         <KpiCard
-            title="Attendance Rate"
-            value={`${averageAttendance.toFixed(1)}%`}
-            icon={<UserCheck className="size-5 text-muted-foreground" />}
-            description="Average across all players"
-          />
-        <KpiCard
-            title="Injury Days Lost"
-            value={String(injuryDaysLost)}
-            icon={<HeartPulse className="size-5 text-muted-foreground" />}
-            description="Total estimated days"
-          />
+         <Link href="/players">
+            <KpiCard
+                title="Attendance Rate"
+                value={`${averageAttendance.toFixed(1)}%`}
+                icon={<UserCheck className="size-5 text-muted-foreground" />}
+                description="Average across all players"
+            />
+         </Link>
+        <Link href="/players">
+            <KpiCard
+                title="Injury Days Lost"
+                value={String(injuryDaysLost)}
+                icon={<HeartPulse className="size-5 text-muted-foreground" />}
+                description="Total estimated days"
+            />
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
@@ -104,24 +108,30 @@ export default function BiDashboardPage() {
         </div>
       </div>
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-         <KpiCard
-            title="Discipline Infractions"
-            value={String(totalDisciplineInfractions)}
-            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
-            description="Total logged infractions"
-          />
-          <KpiCard
-            title="Average Skill Score"
-            value={averageSkillScore.toFixed(1)}
-            icon={<BrainCircuit className="size-5 text-muted-foreground" />}
-            description="Across all players &amp; skills"
+         <Link href="/players">
+            <KpiCard
+                title="Discipline Infractions"
+                value={String(totalDisciplineInfractions)}
+                icon={<ShieldAlert className="size-5 text-muted-foreground" />}
+                description="Total logged infractions"
             />
-        <KpiCard
-            title="Average Player Rank"
-            value={`#${averagePlayerRank.toFixed(1)}`}
-            icon={<TrendingUp className="size-5 text-muted-foreground" />}
-            description="Across all players"
-        />
+         </Link>
+          <Link href="/players">
+            <KpiCard
+                title="Average Skill Score"
+                value={averageSkillScore.toFixed(1)}
+                icon={<BrainCircuit className="size-5 text-muted-foreground" />}
+                description="Across all players &amp; skills"
+            />
+          </Link>
+        <Link href="/standings">
+            <KpiCard
+                title="Average Player Rank"
+                value={`#${averagePlayerRank.toFixed(1)}`}
+                icon={<TrendingUp className="size-5 text-muted-foreground" />}
+                description="Across all players"
+            />
+        </Link>
       </div>
     </div>
   );
