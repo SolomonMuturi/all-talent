@@ -4,13 +4,6 @@ import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
   Table,
   TableBody,
   TableCell,
@@ -21,7 +14,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { Award, BookCopy, Printer, Trophy, ShieldX, HeartPulse } from 'lucide-react';
+import { Award, BookCopy, Printer, Trophy, ShieldX, HeartPulse, Share2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const severityVariant = {
   Low: 'secondary',
@@ -30,9 +24,46 @@ const severityVariant = {
 } as const;
 
 export function PlayerBook({ player }: { player: Player }) {
+    const { toast } = useToast();
 
     const handlePrint = () => {
         window.print();
+    }
+
+    const handleShare = async () => {
+        const shareData = {
+            title: `Player Book: ${player.name}`,
+            text: `Check out the player book for ${player.name}.`,
+            url: window.location.href,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error('Error sharing:', err);
+                copyToClipboard();
+            }
+        } else {
+            copyToClipboard();
+        }
+    }
+    
+    const copyToClipboard = () => {
+        const bookUrl = `${window.location.origin}/players/${player.id}/book`;
+        navigator.clipboard.writeText(bookUrl).then(() => {
+            toast({
+                title: "Link Copied!",
+                description: "The player book link has been copied to your clipboard.",
+            });
+        }, (err) => {
+            console.error('Could not copy text: ', err);
+            toast({
+                variant: "destructive",
+                title: "Failed to Copy",
+                description: "Could not copy the link.",
+            });
+        });
     }
 
   return (
@@ -45,15 +76,22 @@ export function PlayerBook({ player }: { player: Player }) {
           .no-print {
             display: none;
           }
+          #player-book, #player-book * {
+            visibility: visible;
+          }
           #player-book {
             border: none;
             box-shadow: none;
             width: 100%;
             max-width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
           }
         }
       `}</style>
-        <div className="absolute top-4 right-4 no-print">
+        <div className="absolute top-4 right-4 no-print flex gap-2">
+            <Button onClick={handleShare} variant="outline"><Share2 className="mr-2 h-4 w-4"/> Share</Button>
             <Button onClick={handlePrint}><Printer className="mr-2 h-4 w-4"/> Print / Download PDF</Button>
         </div>
         <div id="player-book" className="max-w-4xl mx-auto p-8 bg-background text-foreground rounded-lg shadow-lg border">

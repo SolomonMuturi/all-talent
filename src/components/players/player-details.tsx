@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink, BookDown } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink, BookOpen } from 'lucide-react';
 
 import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,11 +24,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { PlayerBook } from './player-book';
 
 const metricIcons = {
   // Physical
@@ -62,6 +72,7 @@ const rtpStatusVariant = {
 } as const;
 
 export function PlayerDetails({ player }: { player: Player }) {
+  const [isBookOpen, setBookOpen] = useState(false);
   const getDisciplineScoreColor = (score: number) => {
     if (score > 95) return 'text-green-500';
     if (score > 85) return 'text-yellow-500';
@@ -79,12 +90,19 @@ export function PlayerDetails({ player }: { player: Player }) {
                 <UserSquare className="text-primary"/>
                 Digital ID Card
               </CardTitle>
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/players/${player.id}/book`}>
-                  <BookDown className="mr-2 h-4 w-4" />
-                  Download Book
-                </Link>
-              </Button>
+                <Dialog open={isBookOpen} onOpenChange={setBookOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                            <BookOpen className="mr-2 h-4 w-4" />
+                            View Book
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl p-0 h-[90vh]">
+                        <div className="w-full h-full overflow-y-auto">
+                            <PlayerBook player={player} />
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
           </CardHeader>
           <CardContent className="pt-0 flex flex-col items-center text-center">
