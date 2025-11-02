@@ -27,7 +27,16 @@ const trainingModules = [
     'Tactical Awareness & Game Reading'
 ];
 
-export function CertificateGenerator() {
+interface CertificateGeneratorProps {
+    branding: {
+        academyName: string;
+        contactInfo: string;
+        signatory1: { name: string; title: string };
+        signatory2: { name: string; title: string };
+    }
+}
+
+export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
     const router = useRouter();
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
     const [selectedModule, setSelectedModule] = useState<string | null>(null);
@@ -36,7 +45,15 @@ export function CertificateGenerator() {
         if(selectedPlayer && selectedModule) {
             const playerName = players.find(p => p.id === parseInt(selectedPlayer))?.name;
             if (playerName) {
-              router.push(`/achievements/certificate/${encodeURIComponent(playerName)}/${encodeURIComponent(selectedModule)}`);
+              const query = new URLSearchParams({
+                  academyName: branding.academyName,
+                  contactInfo: branding.contactInfo,
+                  s1Name: branding.signatory1.name,
+                  s1Title: branding.signatory1.title,
+                  s2Name: branding.signatory2.name,
+                  s2Title: branding.signatory2.title,
+              });
+              router.push(`/achievements/certificate/${encodeURIComponent(playerName)}/${encodeURIComponent(selectedModule)}?${query.toString()}`);
             }
         }
     }

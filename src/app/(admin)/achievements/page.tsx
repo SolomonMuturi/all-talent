@@ -10,6 +10,8 @@ const achievements = [
   { playerId: 1, achievement: 'Player of the Match', date: '2024-05-25', event: 'Cup Final' },
 ];
 
+const generatedCertificatesCount = players.reduce((total, player) => total + player.certificates.length, 0);
+
 export default function AchievementsPage() {
   const totalAwards = achievements.length;
   
@@ -45,7 +47,7 @@ export default function AchievementsPage() {
         />
         <KpiCard
           title="Certificates Generated"
-          value="12"
+          value={String(generatedCertificatesCount)}
           icon={<FileText className="size-5 text-muted-foreground" />}
           description="For completed training modules"
         />
