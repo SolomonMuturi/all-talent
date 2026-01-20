@@ -1,13 +1,29 @@
-import { notFound } from 'next/navigation';
-import { players } from '@/lib/data';
+// Player profile page - dynamic route
 import { PlayerDetails } from '@/components/players/player-details';
+import { notFound } from 'next/navigation';
 
-export default function PlayerProfilePage({ params }: { params: { id: string } }) {
-  const player = players.find(p => p.id === parseInt(params.id));
+interface PlayerPageProps {
+  params: {
+    id: string;
+  };
+}
 
-  if (!player) {
+export default async function PlayerPage({ params }: PlayerPageProps) {
+  const { id } = await params;
+  const playerId = parseInt(id);
+  
+  if (isNaN(playerId)) {
     notFound();
   }
 
-  return <PlayerDetails player={player} />;
+  return (
+    <div className="container mx-auto py-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Player Profile</h1>
+        <p className="text-muted-foreground">View detailed information about the player</p>
+      </div>
+      
+      <PlayerDetails playerId={playerId} />
+    </div>
+  );
 }
