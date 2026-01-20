@@ -1,17 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { EventList } from '@/components/events/event-list';
 import { EventDetails } from '@/components/events/event-details';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { events, AcademyEvent } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EventManagementTable } from '@/components/events/event-management-table';
 
+interface AcademyEvent {
+  id: string;
+  title: string;
+  subtitle?: string;
+  organizer: string;
+  event_date: string;
+  category: string;
+  logo_url?: string;
+  country?: string;
+  location?: string;
+  venue?: string;
+  game_type?: string;
+  tournament_type?: string;
+  team_count?: number;
+  lineup_formation?: string;
+  lineup_squad?: any[];
+  created_at: string;
+  updated_at: string;
+}
+
 export default function EventsPage() {
-  const [selectedEvent, setSelectedEvent] = useState<AcademyEvent | null>(events[0]);
+  const [events, setEvents] = useState<AcademyEvent[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<AcademyEvent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/events?limit=100');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setEvents(data.data.events);
+        setSelectedEvent(data.data.events[0] || null);
+      } else {
+        setError(data.error || 'Failed to load events');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch events');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
