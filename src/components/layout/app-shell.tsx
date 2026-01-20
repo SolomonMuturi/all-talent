@@ -129,7 +129,7 @@ const NavItem = ({ item, pathname }: { item: any, pathname: string }) => {
             <SidebarMenuSub>
                 {item.subItems.filter((subItem: any) => !subItem.isPublic).map((subItem: any) => (
                     <SidebarMenuSubItem key={subItem.href}>
-                         <Link href={subItem.href} passHref>
+                         <Link href={subItem.href}>
                             <SidebarMenuSubButton isActive={pathname === subItem.href}>
                                 {subItem.label}
                             </SidebarMenuSubButton>
@@ -143,7 +143,7 @@ const NavItem = ({ item, pathname }: { item: any, pathname: string }) => {
   }
 
   return (
-    <Link href={item.href} passHref>
+    <Link href={item.href}>
       <SidebarMenuButton isActive={pathname === item.href} tooltip={{ children: item.label }}>
         <item.icon />
         <span>{item.label}</span>

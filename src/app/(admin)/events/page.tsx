@@ -14,7 +14,7 @@ interface AcademyEvent {
   title: string;
   subtitle?: string;
   organizer: string;
-  event_date: string;
+  event_date: string | null; // Changed to allow null
   category: string;
   logo_url?: string;
   country?: string;
@@ -42,26 +42,119 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      setError(null); // Reset error on retry
+      
       const response = await fetch('/api/events?limit=100');
       
       if (!response.ok) {
-        throw new Error('Failed to fetch events');
+        throw new Error(`HTTP ${response.status}: Failed to fetch events`);
       }
       
       const data = await response.json();
       
       if (data.success) {
-        setEvents(data.data.events);
-        setSelectedEvent(data.data.events[0] || null);
+        // Ensure all events have proper date handling
+        const formattedEvents = data.data.events.map((event: any) => ({
+          ...event,
+          event_date: event.event_date || null, // Handle null dates
+          subtitle: event.subtitle || '', // Ensure string
+          location: event.location || '',
+          venue: event.venue || '',
+          country: event.country || '',
+          game_type: event.game_type || '',
+          tournament_type: event.tournament_type || 'N/A',
+          team_count: event.team_count || 0,
+          lineup_formation: event.lineup_formation || '',
+          lineup_squad: event.lineup_squad || [],
+        }));
+        
+        setEvents(formattedEvents);
+        setSelectedEvent(formattedEvents[0] || null);
       } else {
-        setError(data.error || 'Failed to load events');
+        setError(data.error || 'Failed to load events from API');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch events');
+      console.error('Fetch events error:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
   };
+
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight font-headline">Events & Ticketing</h1>
+            <p className="text-muted-foreground">
+              Browse the marketplace or manage your created events.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/events/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Event
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-8 text-center">
+          <h3 className="text-lg font-semibold text-destructive mb-2">Error Loading Events</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={fetchEvents}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle empty events
+  if (events.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight font-headline">Events & Ticketing</h1>
+            <p className="text-muted-foreground">
+              Browse the marketplace or manage your created events.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/events/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Event
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <h3 className="text-lg font-semibold mb-2">No Events Found</h3>
+          <p className="text-muted-foreground mb-4">
+            There are no events available. Create your first event to get started.
+          </p>
+          <Button asChild>
+            <Link href="/events/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Your First Event
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -80,33 +173,36 @@ export default function EventsPage() {
         </Button>
       </div>
 
-       <Tabs defaultValue="marketplace">
+      <Tabs defaultValue="marketplace">
         <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-            <TabsTrigger value="manage">Manage Events</TabsTrigger>
+          <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
+          <TabsTrigger value="manage">Manage Events</TabsTrigger>
         </TabsList>
-        <TabsContent value="marketplace">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
-                <div className="lg:col-span-1">
-                <EventList
-                    events={events}
-                    selectedEvent={selectedEvent}
-                    onSelectEvent={setSelectedEvent}
-                />
-                </div>
-                <div className="lg:col-span-2">
-                {selectedEvent ? (
-                    <EventDetails event={selectedEvent} />
-                ) : (
-                    <div className="flex items-center justify-center h-full rounded-lg border border-dashed text-muted-foreground">
-                    Select an event to see the details
-                    </div>
-                )}
-                </div>
+        
+        <TabsContent value="marketplace" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <EventList
+                events={events}
+                selectedEvent={selectedEvent}
+                onSelectEvent={setSelectedEvent}
+              />
             </div>
+            <div className="lg:col-span-2">
+              {selectedEvent ? (
+                <EventDetails event={selectedEvent} />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full min-h-[400px] rounded-lg border border-dashed p-8 text-muted-foreground">
+                  <p className="mb-2">Select an event to see the details</p>
+                  <p className="text-sm">Click on any event from the list on the left</p>
+                </div>
+              )}
+            </div>
+          </div>
         </TabsContent>
-        <TabsContent value="manage">
-            <EventManagementTable events={events} />
+        
+        <TabsContent value="manage" className="mt-6">
+          <EventManagementTable events={events} />
         </TabsContent>
       </Tabs>
     </div>

@@ -18,10 +18,43 @@ import {
   SelectGroup,
   SelectLabel,
 } from '@/components/ui/select';
-import { players } from '@/lib/data';
 import { courses } from '@/lib/courses';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
+interface DatabasePlayer {
+  id: number;
+  name: string;
+  age: number;
+  position: string;
+  avatar_url: string | null;
+  team: string;
+  attendance: number;
+  discipline_score: number;
+  rank: number;
+  points: number;
+  stats_played: number;
+  stats_wins: number;
+  stats_draws: number;
+  stats_losses: number;
+  highlights: string;
+  gps_max_speed: number | null;
+  gps_distance_covered: number | null;
+  gps_player_load: number | null;
+  physical_speed: number;
+  physical_stamina: number;
+  physical_strength: number;
+  technical_dribbling: number;
+  technical_shooting: number;
+  technical_passing: number;
+  tactical_positioning: number;
+  tactical_game_reading: number;
+  psycho_leadership: number;
+  psycho_teamwork: number;
+  certificate_count: number;
+  infraction_count: number;
+  injury_count: number;
+}
 
 const onPitchModules = [
     'Advanced Dribbling & Ball Control',
@@ -46,13 +79,37 @@ interface CertificateGeneratorProps {
 
 export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
     const router = useRouter();
+    const [players, setPlayers] = useState<DatabasePlayer[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
     const [selectedModule, setSelectedModule] = useState<string | null>(null);
     
+    useEffect(() => {
+      fetchPlayers();
+    }, []);
+
+    const fetchPlayers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/players?limit=1000');
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.players) {
+            setPlayers(data.data.players);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch players:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     const handleGenerate = () => {
         if(selectedPlayer && selectedModule) {
-            const playerName = players.find(p => p.id === parseInt(selectedPlayer))?.name;
-            if (playerName) {
+            const player = players.find(p => p.id === parseInt(selectedPlayer));
+            if (player) {
               const query = new URLSearchParams({
                   academyName: branding.academyName,
                   contactInfo: branding.contactInfo,
@@ -61,7 +118,7 @@ export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
                   s2Name: branding.signatory2.name,
                   s2Title: branding.signatory2.title,
               });
-              router.push(`/achievements/certificate/${encodeURIComponent(playerName)}/${encodeURIComponent(selectedModule)}?${query.toString()}`);
+              router.push(`/achievements/certificate/${encodeURIComponent(player.name)}/${encodeURIComponent(selectedModule)}?${query.toString()}`);
             }
         }
     }
@@ -79,9 +136,9 @@ export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
       <CardContent className="space-y-4">
         <div>
             <label className="text-sm font-medium">Player</label>
-            <Select onValueChange={setSelectedPlayer}>
+            <Select onValueChange={setSelectedPlayer} disabled={loading}>
                 <SelectTrigger>
-                    <SelectValue placeholder="Select a player" />
+                    <SelectValue placeholder={loading ? "Loading players..." : "Select a player"} />
                 </SelectTrigger>
                 <SelectContent>
                 {players.map((player) => (
@@ -127,7 +184,7 @@ export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
             </Select>
         </div>
 
-        <Button className="w-full" disabled={!selectedPlayer || !selectedModule} onClick={handleGenerate}>
+        <Button className="w-full" disabled={!selectedPlayer || !selectedModule || loading} onClick={handleGenerate}>
             <Download className="mr-2 h-4 w-4" />
             Generate Certificate
         </Button>

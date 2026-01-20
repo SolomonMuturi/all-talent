@@ -17,27 +17,98 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { players } from '@/lib/data';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { CertificateGenerator } from './certificate-generator';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 
-const achievements = [
-  { playerId: 1, achievement: 'Player of the Match', date: '2024-07-10', event: 'U-17 Friendly' },
-  { playerId: 2, achievement: 'Most Assists', date: '2024-06-15', event: 'League Season' },
-  { playerId: 6, achievement: 'Golden Boot', date: '2024-06-15', event: 'League Season' },
-  { playerId: 1, achievement: 'Player of the Match', date: '2024-05-25', event: 'Cup Final' },
-];
+interface DatabasePlayer {
+  id: number;
+  name: string;
+  age: number;
+  position: string;
+  avatar_url: string | null;
+  team: string;
+  attendance: number;
+  discipline_score: number;
+  rank: number;
+  points: number;
+  stats_played: number;
+  stats_wins: number;
+  stats_draws: number;
+  stats_losses: number;
+  highlights: string;
+  gps_max_speed: number | null;
+  gps_distance_covered: number | null;
+  gps_player_load: number | null;
+  physical_speed: number;
+  physical_stamina: number;
+  physical_strength: number;
+  technical_dribbling: number;
+  technical_shooting: number;
+  technical_passing: number;
+  tactical_positioning: number;
+  tactical_game_reading: number;
+  psycho_leadership: number;
+  psycho_teamwork: number;
+  certificate_count: number;
+  infraction_count: number;
+  injury_count: number;
+}
+
+interface Achievement {
+  playerId: number;
+  playerName: string;
+  achievement: string;
+  date: string;
+}
 
 export function AchievementTracker() {
+  const [players, setPlayers] = useState<DatabasePlayer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [signatory1, setSignatory1] = useState({ name: 'John Omondi', title: 'Head Coach' });
   const [signatory2, setSignatory2] = useState({ name: 'Esther Chepkoech', title: 'Academy Director' });
   const [academyName, setAcademyName] = useState('TalantaTrack Academy');
   const [contactInfo, setContactInfo] = useState('123 Football Lane, Nairobi, Kenya | +254 700 000 000');
 
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
+
+  const fetchPlayers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/players?limit=1000');
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data.players) {
+          setPlayers(data.data.players);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch players:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create achievements list from players with certificate data
+  const achievements: Achievement[] = players
+    .filter(p => p.certificate_count && p.certificate_count > 0)
+    .flatMap(p => {
+      const count = p.certificate_count || 0;
+      // Create certificate entries for each certificate count
+      return Array.from({ length: Math.min(count, 5) }).map((_, i) => ({
+        playerId: p.id,
+        playerName: p.name,
+        achievement: `Certificate ${i + 1}`,
+        date: new Date().toLocaleDateString('en-CA'), // Format: YYYY-MM-DD
+      }));
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -52,6 +123,11 @@ export function AchievementTracker() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {loading ? (
+                      <div className="text-center py-4 text-muted-foreground">Loading achievements...</div>
+                    ) : achievements.length === 0 ? (
+                      <div className="text-center py-4 text-muted-foreground">No achievements yet</div>
+                    ) : (
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -62,13 +138,11 @@ export function AchievementTracker() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {achievements.map((item, index) => {
-                                const player = players.find(p => p.id === item.playerId);
-                                return (
+                            {achievements.map((item, index) => (
                                 <TableRow key={index} className="cursor-pointer">
                                   <TableCell className="font-medium">
-                                      <Link href={`/players/${player?.id}`} className="hover:underline">
-                                        {player?.name}
+                                      <Link href={`/players/${item.playerId}`} className="hover:underline">
+                                        {item.playerName}
                                       </Link>
                                     </TableCell>
                                     <TableCell>
@@ -77,13 +151,13 @@ export function AchievementTracker() {
                                             {item.achievement}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>{item.event}</TableCell>
+                                    <TableCell>Training Module</TableCell>
                                     <TableCell>{item.date}</TableCell>
                                 </TableRow>
-                                );
-                            })}
+                            ))}
                         </TableBody>
                     </Table>
+                    )}
                 </CardContent>
             </Card>
             <Card>

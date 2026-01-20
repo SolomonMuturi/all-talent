@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink, BookOpen } from 'lucide-react';
+import { Scan, Fingerprint, Footprints, Dumbbell, UserSquare, UserCheck, ShieldX, PlusCircle, HeartPulse, ShieldCheck as ShieldCheckIcon, Target, BrainCircuit, Heart, Users, Gauge, TrendingUp, Zap, Trophy, Award, ExternalLink, BookOpen, AlertCircle } from 'lucide-react';
 
-import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,6 +36,72 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { PlayerBook } from './player-book';
+import { useToast } from '@/hooks/use-toast';
+
+// Define Player interface based on database structure
+interface Player {
+  id: number;
+  name: string;
+  age: number;
+  position: string;
+  avatarUrl: string;
+  team: string;
+  attendance: number;
+  disciplineScore: number;
+  rank: number;
+  points: number;
+  stats: {
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+  };
+  highlights: string[];
+  gpsData: {
+    maxSpeed: number;
+    distanceCovered: number;
+    playerLoad: number;
+  };
+  performanceMetrics: {
+    physical: {
+      speed: number;
+      stamina: number;
+      strength: number;
+    };
+    technical: {
+      dribbling: number;
+      shooting: number;
+      passing: number;
+    };
+    tactical: {
+      positioning: number;
+      'game reading': number;
+    };
+    psychoSocial: {
+      leadership: number;
+      teamwork: number;
+    };
+  };
+  disciplinaryLog: Array<{
+    id: number;
+    date: string;
+    infraction: string;
+    severity: 'Low' | 'Medium' | 'High';
+    sanction: string;
+  }>;
+  injuryLog: Array<{
+    id: number;
+    date: string;
+    injury: string;
+    severity: 'Low' | 'Medium' | 'High';
+    rtpStatus: 'In Treatment' | 'Cleared for Light Training' | 'Cleared to Play';
+  }>;
+  certificates: Array<{
+    id: string;
+    moduleName: string;
+    date: string;
+  }>;
+}
 
 const metricIcons = {
   // Physical
@@ -71,14 +135,128 @@ const rtpStatusVariant = {
     'Cleared to Play': 'default'
 } as const;
 
-export function PlayerDetails({ player }: { player: Player }) {
+interface PlayerDetailsProps {
+  playerId: number;
+}
+
+export function PlayerDetails({ playerId }: PlayerDetailsProps) {
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isBookOpen, setBookOpen] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchPlayer();
+  }, [playerId]);
+
+  const fetchPlayer = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`/api/players/${playerId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch player: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        const rawPlayer = data.data;
+        // Transform database response to component interface
+        const transformedPlayer: Player = {
+          id: rawPlayer.id,
+          name: rawPlayer.name,
+          age: rawPlayer.age,
+          position: rawPlayer.position,
+          avatarUrl: rawPlayer.avatar_url || '',
+          team: rawPlayer.team,
+          attendance: rawPlayer.attendance || 0,
+          disciplineScore: rawPlayer.discipline_score || 100,
+          rank: rawPlayer.rank || 0,
+          points: rawPlayer.points || 0,
+          stats: {
+            played: rawPlayer.stats_played || 0,
+            wins: rawPlayer.stats_wins || 0,
+            draws: rawPlayer.stats_draws || 0,
+            losses: rawPlayer.stats_losses || 0,
+          },
+          highlights: rawPlayer.highlights ? rawPlayer.highlights.split(',').map((h: string) => h.trim()) : [],
+          gpsData: {
+            maxSpeed: rawPlayer.gps_max_speed || 0,
+            distanceCovered: rawPlayer.gps_distance_covered || 0,
+            playerLoad: rawPlayer.gps_player_load || 0,
+          },
+          performanceMetrics: rawPlayer.performanceMetrics || {
+            physical: { speed: 0, stamina: 0, strength: 0 },
+            technical: { dribbling: 0, shooting: 0, passing: 0 },
+            tactical: { positioning: 0, 'game reading': 0 },
+            psychoSocial: { leadership: 0, teamwork: 0 },
+          },
+          disciplinaryLog: rawPlayer.disciplinaryLog || [],
+          injuryLog: rawPlayer.injuryLog || [],
+          certificates: rawPlayer.certificates || [],
+        };
+        setPlayer(transformedPlayer);
+      } else {
+        setError(data.message || 'Failed to load player data');
+      }
+    } catch (err) {
+      console.error('Error fetching player:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getDisciplineScoreColor = (score: number) => {
     if (score > 95) return 'text-green-500';
     if (score > 85) return 'text-yellow-500';
     return 'text-primary';
   };
 
+  const handleAddInfraction = async () => {
+    // In a real app, this would open a form modal
+    // For now, just show a toast
+    toast({
+      title: "Feature Coming Soon",
+      description: "Infraction logging will be available in the next update.",
+    });
+  };
+
+  const handleAddInjury = async () => {
+    // In a real app, this would open a form modal
+    toast({
+      title: "Feature Coming Soon",
+      description: "Injury logging will be available in the next update.",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="text-lg">Loading player details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !player) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <div className="text-lg font-semibold">Error Loading Player</div>
+        <div className="text-sm text-muted-foreground text-center max-w-md">
+          {error || 'Player not found. The player may have been removed or you may not have permission to view this profile.'}
+        </div>
+        <Button onClick={fetchPlayer}>Try Again</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 md:grid-cols-3">
@@ -107,7 +285,10 @@ export function PlayerDetails({ player }: { player: Player }) {
           </CardHeader>
           <CardContent className="pt-0 flex flex-col items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
-              <AvatarImage src={player.avatarUrl} alt={player.name} />
+              <AvatarImage 
+                src={player.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=random`} 
+                alt={player.name} 
+              />
               <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
             <h2 className="text-xl font-bold font-headline">{player.name}</h2>
@@ -120,6 +301,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                   width={100}
                   height={100}
                   alt="Player QR Code"
+                  className="rounded-lg border"
                 />
                  <div className="flex flex-col gap-2">
                     <TooltipProvider>
@@ -132,7 +314,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Discipline Score</p>
+                          <p>Discipline Score: {player.disciplineScore}/100</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -157,9 +339,32 @@ export function PlayerDetails({ player }: { player: Player }) {
                 <div className="text-right font-medium">{player.team}</div>
                 <div className="text-left text-muted-foreground">Attendance:</div>
                 <div className="text-right font-medium">{player.attendance}%</div>
-                <div className="text-left text-muted-foreground">Card Expires:</div>
-                <div className="text-right font-medium">2025-01-01</div>
+                <div className="text-left text-muted-foreground">Age:</div>
+                <div className="text-right font-medium">{player.age}</div>
+                <div className="text-left text-muted-foreground">Points:</div>
+                <div className="text-right font-medium">{player.points}</div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Performance Highlights Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline text-lg">Performance Highlights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {player.highlights && player.highlights.length > 0 ? (
+              <ul className="space-y-2">
+                {player.highlights.map((highlight, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary"></div>
+                    <span className="text-sm">{highlight}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">No highlights recorded yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -168,12 +373,12 @@ export function PlayerDetails({ player }: { player: Player }) {
         <Tabs defaultValue="performance">
           <TabsList className="mb-4 grid w-full grid-cols-7">
             <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="biometrics">Biometrics</TabsTrigger>
+            <TabsTrigger value="stats">Statistics</TabsTrigger>
             <TabsTrigger value="gps">GPS Data</TabsTrigger>
-            <TabsTrigger value="reports">Scouting</TabsTrigger>
             <TabsTrigger value="discipline">Discipline</TabsTrigger>
             <TabsTrigger value="injuries">Injuries</TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="details">Details</TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance">
@@ -191,7 +396,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                                     <div className="flex items-center gap-2">
                                         {metricIcons[key as keyof typeof metricIcons]}
                                         <h4 className="capitalize font-medium">{key}</h4>
-                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                        <span className="ml-auto text-lg font-bold">{value}/100</span>
                                     </div>
                                     <Progress value={value} aria-label={`${key} score`} />
                                 </div>
@@ -206,7 +411,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                                     <div className="flex items-center gap-2">
                                         {metricIcons[key as keyof typeof metricIcons]}
                                         <h4 className="capitalize font-medium">{key}</h4>
-                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                        <span className="ml-auto text-lg font-bold">{value}/100</span>
                                     </div>
                                     <Progress value={value} aria-label={`${key} score`} />
                                 </div>
@@ -221,7 +426,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                                     <div className="flex items-center gap-2">
                                         {metricIcons[key.replace(' ', '-') as keyof typeof metricIcons]}
                                         <h4 className="capitalize font-medium">{key}</h4>
-                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                        <span className="ml-auto text-lg font-bold">{value}/100</span>
                                     </div>
                                     <Progress value={value} aria-label={`${key} score`} />
                                 </div>
@@ -236,7 +441,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                                     <div className="flex items-center gap-2">
                                         {metricIcons[key as keyof typeof metricIcons]}
                                         <h4 className="capitalize font-medium">{key}</h4>
-                                        <span className="ml-auto text-lg font-bold">{value}</span>
+                                        <span className="ml-auto text-lg font-bold">{value}/100</span>
                                     </div>
                                     <Progress value={value} aria-label={`${key} score`} />
                                 </div>
@@ -246,35 +451,50 @@ export function PlayerDetails({ player }: { player: Player }) {
                 </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="biometrics">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-lg flex items-center gap-2">
-                        <UserCheck className="text-primary" />
-                        Biometric Attendance
-                    </CardTitle>
-                    <CardDescription>Clock-In/Out via fingerprint/facial recognition for attendance verification.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-4 text-center">
-                    <div className="flex gap-8">
-                        <div className="flex flex-col items-center gap-2">
-                            <Fingerprint className="w-20 h-20 text-primary" />
-                            <p className="text-sm font-medium">Fingerprint</p>
-                        </div>
-                        <div className="flex flex-col items-center gap-2">
-                            <Scan className="w-20 h-20 text-primary" />
-                            <p className="text-sm font-medium">Facial Scan</p>
-                        </div>
+
+          <TabsContent value="stats">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline">Match Statistics</CardTitle>
+                <CardDescription>Season performance statistics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <div className="text-3xl font-bold">{player.stats.played}</div>
+                    <div className="text-sm text-muted-foreground">Matches Played</div>
+                  </div>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">{player.stats.wins}</div>
+                    <div className="text-sm text-muted-foreground">Wins</div>
+                  </div>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <div className="text-3xl font-bold text-yellow-600">{player.stats.draws}</div>
+                    <div className="text-sm text-muted-foreground">Draws</div>
+                  </div>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <div className="text-3xl font-bold text-red-600">{player.stats.losses}</div>
+                    <div className="text-sm text-muted-foreground">Losses</div>
+                  </div>
+                </div>
+                {player.stats.played > 0 && (
+                  <div className="mt-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Win Rate</span>
+                      <span className="text-sm font-bold">
+                        {((player.stats.wins / player.stats.played) * 100).toFixed(1)}%
+                      </span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-4">Last clock-in: 8:02 AM, Main Training Facility</p>
-                    <Button className="w-full max-w-xs mt-2">
-                        <Scan className="mr-2 h-4 w-4" />
-                        Initiate Manual Clock-In/Out
-                    </Button>
-                    <p className="text-xs text-muted-foreground">Manual clock-in requires admin approval.</p>
-                </CardContent>
+                    <Progress 
+                      value={(player.stats.wins / player.stats.played) * 100} 
+                      className="h-2"
+                    />
+                  </div>
+                )}
+              </CardContent>
             </Card>
           </TabsContent>
+
           <TabsContent value="gps">
             <Card>
               <CardHeader>
@@ -289,7 +509,8 @@ export function PlayerDetails({ player }: { player: Player }) {
                         <Gauge className="h-5 w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{player.gpsData.maxSpeed} km/h</div>
+                        <div className="text-2xl font-bold">{player.gpsData.maxSpeed || 0} km/h</div>
+                        <p className="text-xs text-muted-foreground">Top speed achieved</p>
                     </CardContent>
                   </Card>
                   <Card>
@@ -298,7 +519,8 @@ export function PlayerDetails({ player }: { player: Player }) {
                         <TrendingUp className="h-5 w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{player.gpsData.distanceCovered} km</div>
+                        <div className="text-2xl font-bold">{player.gpsData.distanceCovered || 0} km</div>
+                        <p className="text-xs text-muted-foreground">Total distance</p>
                     </CardContent>
                   </Card>
                   <Card>
@@ -307,37 +529,27 @@ export function PlayerDetails({ player }: { player: Player }) {
                         <Zap className="h-5 w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{player.gpsData.playerLoad}</div>
+                        <div className="text-2xl font-bold">{player.gpsData.playerLoad || 0}</div>
+                        <p className="text-xs text-muted-foreground">Physical exertion</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div>
                     <h3 className="font-semibold mb-4">Movement Heatmap</h3>
-                    <Image 
-                        src="https://picsum.photos/seed/heatmap1/600/400" 
-                        alt="GPS Heatmap"
-                        width={600}
-                        height={400}
-                        className="rounded-lg object-cover w-full"
-                        data-ai-hint="football pitch heatmap"
-                    />
+                    <div className="bg-muted/50 rounded-lg p-8 flex items-center justify-center">
+                      <div className="text-center">
+                        <Gauge className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-muted-foreground">GPS data visualization coming soon</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Connect GPS tracking device to see heatmap
+                        </p>
+                      </div>
+                    </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="reports">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Latest Scouting Report</CardTitle>
-                    <CardDescription>From: Peter Kamau, Date: 2024-07-10</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm">
-                    <p><strong>Strengths:</strong> Excellent field vision and precise long passes. Shows strong leadership qualities during high-pressure situations. Great work rate both offensively and defensively.</p>
-                    <p><strong>Areas for Improvement:</strong> Needs to improve left-footed shots and decision-making in the final third. Can sometimes hold onto the ball for too long.</p>
-                    <p><strong>Recommendation:</strong> Focus on drills that require quick one-two passes and shooting with the weaker foot. Recommended for one-on-one coaching for attacking decisions.</p>
-                </CardContent>
-            </Card>
-          </TabsContent>
+
           <TabsContent value="discipline">
             <Card>
                 <CardHeader className="flex flex-row items-center">
@@ -348,7 +560,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                         </CardTitle>
                         <CardDescription>Record of all disciplinary infractions for this player.</CardDescription>
                     </div>
-                    <Button size="sm" className="ml-auto gap-1">
+                    <Button size="sm" className="ml-auto gap-1" onClick={handleAddInfraction}>
                         <PlusCircle className="h-4 w-4" />
                         Log Infraction
                     </Button>
@@ -380,7 +592,11 @@ export function PlayerDetails({ player }: { player: Player }) {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-24 text-center">
-                                        No disciplinary infractions recorded.
+                                        <div className="flex flex-col items-center gap-2">
+                                          <ShieldCheckIcon className="h-8 w-8 text-green-500" />
+                                          <p className="text-sm font-medium">No disciplinary issues</p>
+                                          <p className="text-xs text-muted-foreground">Player maintains excellent discipline</p>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -389,7 +605,8 @@ export function PlayerDetails({ player }: { player: Player }) {
                 </CardContent>
             </Card>
           </TabsContent>
-           <TabsContent value="injuries">
+
+          <TabsContent value="injuries">
             <Card>
               <CardHeader className="flex flex-row items-center">
                 <div className="grid gap-2">
@@ -399,7 +616,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                   </CardTitle>
                   <CardDescription>Record of all injuries and Return-to-Play status.</CardDescription>
                 </div>
-                <Button size="sm" className="ml-auto gap-1">
+                <Button size="sm" className="ml-auto gap-1" onClick={handleAddInjury}>
                   <PlusCircle className="h-4 w-4" />
                   Log Injury
                 </Button>
@@ -435,7 +652,11 @@ export function PlayerDetails({ player }: { player: Player }) {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={4} className="h-24 text-center">
-                          No injuries recorded.
+                          <div className="flex flex-col items-center gap-2">
+                            <HeartPulse className="h-8 w-8 text-green-500" />
+                            <p className="text-sm font-medium">No injuries recorded</p>
+                            <p className="text-xs text-muted-foreground">Player is injury-free</p>
+                          </div>
                         </TableCell>
                       </TableRow>
                     )}
@@ -444,7 +665,8 @@ export function PlayerDetails({ player }: { player: Player }) {
               </CardContent>
             </Card>
           </TabsContent>
-           <TabsContent value="achievements">
+
+          <TabsContent value="achievements">
              <Card>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2">
@@ -473,7 +695,7 @@ export function PlayerDetails({ player }: { player: Player }) {
                                         <TableCell>{new Date(cert.date).toLocaleDateString()}</TableCell>
                                         <TableCell className="text-right">
                                             <Button variant="outline" size="sm" asChild>
-                                                <Link href={`/achievements/certificate/${encodeURIComponent(player.name)}/${encodeURIComponent(cert.moduleName)}`}>
+                                                <Link href={`/achievements/certificate/${player.id}/${encodeURIComponent(cert.moduleName)}`}>
                                                     View Certificate
                                                     <ExternalLink className="ml-2 h-4 w-4" />
                                                 </Link>
@@ -484,13 +706,71 @@ export function PlayerDetails({ player }: { player: Player }) {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={3} className="h-24 text-center">
-                                        No certificates earned yet.
+                                        <div className="flex flex-col items-center gap-2">
+                                          <Award className="h-8 w-8 text-muted-foreground" />
+                                          <p className="text-sm font-medium">No certificates yet</p>
+                                          <p className="text-xs text-muted-foreground">Complete training modules to earn certificates</p>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
                 </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="details">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline">Additional Details</CardTitle>
+                <CardDescription>Additional player information and notes</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Player Information</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Position</p>
+                      <p className="font-medium">{player.position}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Team</p>
+                      <p className="font-medium">{player.team}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Age</p>
+                      <p className="font-medium">{player.age} years</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Attendance</p>
+                      <p className="font-medium">{player.attendance}%</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div>
+                  <h4 className="font-semibold mb-2">Performance Summary</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Overall Rank</span>
+                      <span className="font-bold">#{player.rank}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Discipline Score</span>
+                      <span className={`font-bold ${getDisciplineScoreColor(player.disciplineScore)}`}>
+                        {player.disciplineScore}/100
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Total Points</span>
+                      <span className="font-bold">{player.points}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

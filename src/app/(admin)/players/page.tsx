@@ -132,7 +132,6 @@ export default function PlayersPage() {
           </Link>
         </Button>
       </div>
-
       <div className="grid gap-4 md:grid-cols-3">
         <Link href="/players">
           <KpiCard
@@ -159,7 +158,6 @@ export default function PlayersPage() {
           />
         </Link>
       </div>
-
       {Object.entries(playersByTeam).map(([team, teamPlayers]) => (
         <div key={team}>
           <h2 className="text-xl font-semibold tracking-tight font-headline mb-4">
@@ -167,7 +165,7 @@ export default function PlayersPage() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {teamPlayers.sort((a, b) => a.rank - b.rank).map((player) => (
-              <Link key={player.id} href={`/admin/players/${player.id}`} passHref>
+              <Link key={player.id} href={`/admin/players/${player.id}`}>
                 <Card className="hover:bg-muted/50 transition-colors cursor-pointer text-center relative">
                   <Badge className="absolute top-2 right-2 flex gap-1 items-center" 
                          variant={player.rank === 1 ? 'default' : 'secondary'}>
@@ -199,7 +197,6 @@ export default function PlayersPage() {
           </div>
         </div>
       ))}
-
       {totalPlayers === 0 && (
         <Card className="text-center py-12">
           <CardContent>

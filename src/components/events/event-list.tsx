@@ -1,61 +1,95 @@
 'use client';
 
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { AcademyEvent } from '@/lib/data';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar } from 'lucide-react';
+import { Calendar, MapPin, Users } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { safeFormatDate } from '@/lib/date-utils'; // Make sure this import exists
 
-
-interface EventListProps {
-  events: AcademyEvent[];
-  selectedEvent: AcademyEvent | null;
-  onSelectEvent: (event: AcademyEvent) => void;
+interface Event {
+  id: string;
+  title: string;
+  subtitle?: string;
+  event_date: string | null; // Make sure event_date can be null
+  category: string;
+  venue: string;
+  location: string;
+  logo_url?: string;
+  participant_count?: number;
 }
 
-export function EventList({ events, selectedEvent, onSelectEvent }: EventListProps) {
+interface EventListProps {
+  events: Event[];
+}
+
+export function EventList({ events }: EventListProps) {
+  if (!events || events.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-muted-foreground">No events found.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">Tournaments</CardTitle>
-        <CardDescription>Select a tournament to view details.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {events.map((event) => (
-          <button
-            key={event.id}
-            className={cn(
-              'flex w-full items-center gap-4 rounded-lg border p-3 text-left transition-colors',
-              selectedEvent?.id === event.id
-                ? 'bg-muted ring-2 ring-primary'
-                : 'hover:bg-muted/50'
-            )}
-            onClick={() => onSelectEvent(event)}
-          >
-            {event.logoUrl && (
-                <div className="relative h-12 w-12 flex-shrink-0">
-                    <Image
-                        src={event.logoUrl}
-                        alt={`${event.title} logo`}
-                        width={48}
-                        height={48}
-                        objectFit="contain"
-                    />
-                </div>
-            )}
-            <div className="flex-grow">
-              <p className="font-semibold">{event.title}</p>
-              <p className="text-sm text-muted-foreground">{event.subtitle}</p>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                <Calendar className="h-3 w-3" />
-                 <span>{event.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-                <Badge variant="outline" className="text-xs">{event.category}</Badge>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {events.map((event) => (
+        <Link href={`/events/${event.id}`} key={event.id}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-4">
+              <div className="flex justify-between items-start">
+                <CardTitle className="font-headline text-lg line-clamp-1">
+                  {event.title}
+                </CardTitle>
+                <Badge variant="secondary">{event.category}</Badge>
               </div>
-            </div>
-          </button>
-        ))}
-      </CardContent>
-    </Card>
+              {event.subtitle && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {event.subtitle}
+                </p>
+              )}
+            </CardHeader>
+            <CardContent>
+              {event.logo_url && (
+                <div className="relative h-40 w-full mb-4 rounded-md overflow-hidden">
+                  <Image
+                    src={event.logo_url}
+                    alt={event.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="space-y-3">
+                <div className="flex items-center text-sm">
+                  <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                  {/* SAFE DATE FORMATTING HERE */}
+                  <span className="text-muted-foreground">
+                    {safeFormatDate(event.event_date, 'Date not set')}
+                  </span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span className="text-muted-foreground">
+                    {event.venue || event.location || 'Location not specified'}
+                  </span>
+                </div>
+                {event.participant_count !== undefined && (
+                  <div className="flex items-center text-sm">
+                    <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {event.participant_count} participants
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      ))}
+    </div>
   );
 }

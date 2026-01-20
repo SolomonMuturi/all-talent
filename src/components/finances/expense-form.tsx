@@ -57,18 +57,56 @@ export function ExpenseForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    console.log('Simulating expense logging:', values);
-
-    setTimeout(() => {
-      toast({
-        title: 'Expense Logged',
-        description: `An expense of KES ${values.amount} for ${values.expenseType} has been logged.`,
-      });
-      setIsSubmitting(false);
-      form.reset();
-    }, 2000);
+    submitExpense(values);
   }
+
+  const submitExpense = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      const response = await fetch('/api/finances/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          player_name: values.payee,
+          date: format(values.date, 'yyyy-MM-dd'),
+          amount: -values.amount, // Negative for expenses
+          type: 'Expense',
+          description: values.description || `${values.expenseType} - ${values.description}`,
+          status: 'Completed'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to log expense');
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: 'Expense Logged',
+          description: `An expense of KES ${values.amount} for ${values.expenseType} has been logged.`,
+        });
+        form.reset();
+      } else {
+        toast({
+          title: 'Error',
+          description: data.error || 'Failed to log expense',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to log expense',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Card>

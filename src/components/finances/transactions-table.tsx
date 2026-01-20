@@ -23,7 +23,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { transactions, type Transaction } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -43,13 +42,24 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
+interface Transaction {
+  id: string;
+  player_name: string;
+  date: string;
+  amount: number;
+  status: 'Completed' | 'Pending' | 'Failed';
+  type: 'Fee Payment' | 'Stipend' | 'Expense' | 'Refund';
+  description: string | null;
+  created_at: string;
+}
+
 const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'id',
     header: 'Transaction ID',
   },
   {
-    accessorKey: 'playerName',
+    accessorKey: 'player_name',
     header: ({ column }) => {
       return (
         <Button
@@ -101,11 +111,40 @@ const columns: ColumnDef<Transaction>[] = [
 ];
 
 export function TransactionsTable() {
-  const [data] = React.useState(() => [...transactions]);
+  const [data, setData] = React.useState<Transaction[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/finances/transactions');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch transactions');
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setData(result.data.transactions);
+      } else {
+        setError(result.error || 'Failed to load transactions');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch transactions');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const table = useReactTable({
     data,
@@ -125,6 +164,28 @@ export function TransactionsTable() {
       rowSelection,
     },
   });
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-8">
+          <div className="flex items-center justify-center">
+            <div className="text-muted-foreground">Loading transactions...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-8">
+          <div className="text-destructive">Error: {error}</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

@@ -21,9 +21,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { players } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
@@ -32,9 +31,16 @@ const formSchema = z.object({
   phoneNumber: z.string().regex(/^254\d{9}$/, 'Phone number must be in the format 254XXXXXXXXX.'),
 });
 
+interface Player {
+  id: number;
+  name: string;
+}
+
 export function PaymentForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loadingPlayers, setLoadingPlayers] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,20 +51,79 @@ export function PaymentForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    console.log('Simulating M-Pesa C2B payment request:', values);
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
 
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: 'Payment Initiated',
-        description: `A payment request of KES ${values.amount} has been sent to ${values.phoneNumber}.`,
-      });
-      setIsSubmitting(false);
-      form.reset();
-    }, 2000);
+  const fetchPlayers = async () => {
+    try {
+      const response = await fetch('/api/players?limit=1000');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setPlayers(data.data.players);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch players:', error);
+    } finally {
+      setLoadingPlayers(false);
+    }
+  };
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    submitPayment(values);
   }
+
+  const submitPayment = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      const selectedPlayer = players.find(p => p.id.toString() === values.playerId);
+      
+      const response = await fetch('/api/finances/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          player_name: selectedPlayer?.name || 'Unknown',
+          date: new Date().toISOString().split('T')[0],
+          amount: values.amount,
+          type: 'Fee Payment',
+          description: `Payment to ${values.phoneNumber}`,
+          status: 'Pending'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create payment transaction');
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: 'Payment Initiated',
+          description: `A payment request of KES ${values.amount} has been sent to ${values.phoneNumber}.`,
+        });
+        form.reset();
+      } else {
+        toast({
+          title: 'Error',
+          description: data.error || 'Failed to initiate payment',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to initiate payment',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Card>

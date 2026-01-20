@@ -9,7 +9,6 @@ import {
   useReactTable,
   SortingState,
 } from '@tanstack/react-table';
-import { players, type Player } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -23,6 +22,21 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, Trophy } from 'lucide-react';
 import Link from 'next/link';
+
+interface Player {
+  id: number;
+  name: string;
+  rank: number;
+  points: number;
+  avatarUrl: string | null;
+  team: string;
+  stats: {
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+  };
+}
 
 const playerColumns: ColumnDef<Player>[] = [
   {

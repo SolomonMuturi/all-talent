@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { players, teamMembers } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, Edit, UploadCloud } from 'lucide-react';
@@ -14,29 +13,83 @@ import { Logo } from '../icons';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
+interface DatabasePlayer {
+  id: number;
+  name: string;
+  age: number;
+  position: string;
+  avatar_url: string | null;
+  team: string;
+  attendance: number;
+  discipline_score: number;
+  rank: number;
+  points: number;
+  stats_played: number;
+  stats_wins: number;
+  stats_draws: number;
+  stats_losses: number;
+  highlights: string;
+  gps_max_speed: number | null;
+  gps_distance_covered: number | null;
+  gps_player_load: number | null;
+  physical_speed: number;
+  physical_stamina: number;
+  physical_strength: number;
+  technical_dribbling: number;
+  technical_shooting: number;
+  technical_passing: number;
+  tactical_positioning: number;
+  tactical_game_reading: number;
+  psycho_leadership: number;
+  psycho_teamwork: number;
+  certificate_count: number;
+  infraction_count: number;
+  injury_count: number;
+}
+
 type Person = {
   id: string;
   name: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
   role: string;
   team?: string;
 };
 
-const allPersonnel: Person[] = [
-  ...players.map(p => ({ id: `player-${p.id}`, name: p.name, avatarUrl: p.avatarUrl, role: p.position, team: p.team })),
-  ...teamMembers.map(m => ({ id: `staff-${m.id}`, name: m.name, avatarUrl: m.avatarUrl, role: m.role })),
-];
-
 export function IdCardGenerator() {
-  const [selectedPersonId, setSelectedPersonId] = useState<string>(allPersonnel[0].id);
-
-  // State for editable branding details
+  const [players, setPlayers] = useState<DatabasePlayer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPersonId, setSelectedPersonId] = useState<string>('');
   const [academyName, setAcademyName] = useState('TalantaTrack Academy');
   const [address, setAddress] = useState('123 Football Lane, Nairobi, Kenya');
   const [phone, setPhone] = useState('+254 700 000 000');
   const [email, setEmail] = useState('info@talentatrack.co.ke');
   const [website, setWebsite] = useState('www.talentatrack.co.ke');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
+
+  const fetchPlayers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/players?limit=1000');
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data.players) {
+          setPlayers(data.data.players);
+          if (data.data.players.length > 0) {
+            setSelectedPersonId(`player-${data.data.players[0].id}`);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch players:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -45,6 +98,13 @@ export function IdCardGenerator() {
     }
   };
 
+  const allPersonnel: Person[] = players.map(p => ({ 
+    id: `player-${p.id}`, 
+    name: p.name, 
+    avatarUrl: p.avatar_url, 
+    role: p.position, 
+    team: p.team 
+  }));
 
   const selectedPerson = allPersonnel.find(p => p.id === selectedPersonId) || allPersonnel[0];
 
@@ -52,6 +112,16 @@ export function IdCardGenerator() {
   const issueDate = new Date('2024-01-01');
   const expiryDate = new Date('2025-01-01');
   const isExpiringSoon = new Date() > new Date(expiryDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center text-muted-foreground">Loading players...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -107,20 +177,20 @@ export function IdCardGenerator() {
 
                         <div className="flex items-center gap-4">
                             <Avatar className="h-20 w-20 border-2 border-primary">
-                                <AvatarImage src={selectedPerson.avatarUrl} alt={selectedPerson.name} />
-                                <AvatarFallback>{selectedPerson.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                <AvatarImage src={selectedPerson?.avatarUrl || ''} alt={selectedPerson?.name} />
+                                <AvatarFallback>{selectedPerson?.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <h3 className="font-bold text-xl font-headline">{selectedPerson.name}</h3>
-                                <p className="text-muted-foreground">{selectedPerson.role}</p>
-                                <p className="text-sm text-primary font-semibold">UPID: TT-{String(selectedPerson.id.split('-')[1]).padStart(4, '0')}</p>
+                                <h3 className="font-bold text-xl font-headline">{selectedPerson?.name}</h3>
+                                <p className="text-muted-foreground">{selectedPerson?.role}</p>
+                                <p className="text-sm text-primary font-semibold">UPID: TT-{String(selectedPerson?.id.split('-')[1]).padStart(4, '0')}</p>
                             </div>
                         </div>
                         
                         <Separator className="my-4"/>
                         
                         <div className="grid grid-cols-2 gap-4 my-4 text-sm">
-                            {selectedPerson.team && (
+                            {selectedPerson?.team && (
                             <>
                                 <div>
                                 <p className="text-muted-foreground">Team</p>
@@ -141,7 +211,7 @@ export function IdCardGenerator() {
                         
                         <div className="flex justify-center my-4">
                             <Image
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=UPID:TT-${String(selectedPerson.id.split('-')[1]).padStart(4, '0')}`}
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=UPID:TT-${String(selectedPerson?.id.split('-')[1]).padStart(4, '0')}`}
                             width={120}
                             height={120}
                             alt="Player QR Code"
@@ -197,3 +267,4 @@ export function IdCardGenerator() {
     </div>
   );
 }
+
