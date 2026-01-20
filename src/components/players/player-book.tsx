@@ -1,6 +1,5 @@
 'use client';
 
-import type { Player } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +15,71 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Award, BookCopy, Printer, Trophy, ShieldX, HeartPulse, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+// Update Player interface import to match your structure
+interface Player {
+  id: number;
+  name: string;
+  age: number;
+  position: string;
+  avatarUrl: string;
+  team: string;
+  attendance: number;
+  disciplineScore: number;
+  rank: number;
+  points: number;
+  stats: {
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+  };
+  highlights: string[];
+  gpsData: {
+    maxSpeed: number;
+    distanceCovered: number;
+    playerLoad: number;
+  };
+  performanceMetrics: {
+    physical: {
+      speed: number;
+      stamina: number;
+      strength: number;
+    };
+    technical: {
+      dribbling: number;
+      shooting: number;
+      passing: number;
+    };
+    tactical: {
+      positioning: number;
+      'game reading': number;
+    };
+    psychoSocial: {
+      leadership: number;
+      teamwork: number;
+    };
+  };
+  disciplinaryLog: Array<{
+    id: number;
+    date: string;
+    infraction: string;
+    severity: 'Low' | 'Medium' | 'High';
+    sanction: string;
+  }>;
+  injuryLog: Array<{
+    id: number;
+    date: string;
+    injury: string;
+    severity: 'Low' | 'Medium' | 'High';
+    rtpStatus: 'In Treatment' | 'Cleared for Light Training' | 'Cleared to Play';
+  }>;
+  certificates: Array<{
+    id: string;
+    moduleName: string;
+    date: string;
+  }>;
+}
 
 const severityVariant = {
   Low: 'secondary',
@@ -98,7 +162,10 @@ export function PlayerBook({ player }: { player: Player }) {
         
         <header className="flex flex-col items-center text-center pb-8 border-b-2 border-primary">
             <Avatar className="h-32 w-32 mb-4 ring-4 ring-primary ring-offset-4 ring-offset-background">
-              <AvatarImage src={player.avatarUrl} alt={player.name} />
+              <AvatarImage 
+                src={player.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=random`} 
+                alt={player.name} 
+              />
               <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
             <h1 className="text-4xl font-bold font-headline">{player.name}</h1>
@@ -122,7 +189,7 @@ export function PlayerBook({ player }: { player: Player }) {
                             <div key={key} className="space-y-2">
                                 <h5 className="capitalize font-medium text-sm text-muted-foreground">{key}</h5>
                                 <Progress value={value} aria-label={`${key} score`} />
-                                <p className="text-right font-bold">{value}</p>
+                                <p className="text-right font-bold">{value}/100</p>
                             </div>
                         ))}
                         </div>
@@ -134,7 +201,7 @@ export function PlayerBook({ player }: { player: Player }) {
                             <div key={key} className="space-y-2">
                                 <h5 className="capitalize font-medium text-sm text-muted-foreground">{key}</h5>
                                 <Progress value={value} aria-label={`${key} score`} />
-                                <p className="text-right font-bold">{value}</p>
+                                <p className="text-right font-bold">{value}/100</p>
                             </div>
                         ))}
                         </div>
@@ -146,14 +213,14 @@ export function PlayerBook({ player }: { player: Player }) {
                             <div key={key} className="space-y-2">
                                 <h5 className="capitalize font-medium text-sm text-muted-foreground">{key}</h5>
                                 <Progress value={value} aria-label={`${key} score`} />
-                                <p className="text-right font-bold">{value}</p>
+                                <p className="text-right font-bold">{value}/100</p>
                             </div>
                         ))}
                         {Object.entries(player.performanceMetrics.psychoSocial).map(([key, value]) => (
                             <div key={key} className="space-y-2">
                                 <h5 className="capitalize font-medium text-sm text-muted-foreground">{key}</h5>
                                 <Progress value={value} aria-label={`${key} score`} />
-                                <p className="text-right font-bold">{value}</p>
+                                <p className="text-right font-bold">{value}/100</p>
                             </div>
                         ))}
                         </div>
