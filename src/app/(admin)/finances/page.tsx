@@ -1,16 +1,46 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { TransactionsTable } from "@/components/finances/transactions-table";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { DollarSign, TrendingUp, TrendingDown } from "lucide-react";
-import { transactions } from "@/lib/data";
 
 export default function FinancesPage() {
-  const totalRevenue = transactions
-    .filter((t) => t.amount > 0)
-    .reduce((acc, t) => acc + t.amount, 0);
-  const totalExpenses = transactions
-    .filter((t) => t.amount < 0)
-    .reduce((acc, t) => acc + Math.abs(t.amount), 0);
-  const netProfit = totalRevenue - totalExpenses;
+  const [totals, setTotals] = useState({
+    total_revenue: 0,
+    total_expenses: 0,
+    net_profit: 0,
+    total_transactions: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchFinanceSummary();
+  }, []);
+
+  const fetchFinanceSummary = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/finances/summary');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch finance summary');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setTotals(data.data.totals);
+      } else {
+        setError(data.error || 'Failed to load finance data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch finance data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -24,19 +54,19 @@ export default function FinancesPage() {
        <div className="grid gap-4 md:grid-cols-3">
         <KpiCard
           title="Total Revenue"
-          value={`KES ${totalRevenue.toLocaleString()}`}
+          value={`KES ${totals.total_revenue?.toLocaleString() || '0'}`}
           icon={<TrendingUp className="size-5 text-muted-foreground" />}
           description="All incoming funds"
         />
         <KpiCard
           title="Total Expenses"
-          value={`KES ${totalExpenses.toLocaleString()}`}
+          value={`KES ${totals.total_expenses?.toLocaleString() || '0'}`}
           icon={<TrendingDown className="size-5 text-muted-foreground" />}
           description="All outgoing funds"
         />
         <KpiCard
           title="Net Profit"
-          value={`KES ${netProfit.toLocaleString()}`}
+          value={`KES ${totals.net_profit?.toLocaleString() || '0'}`}
           icon={<DollarSign className="size-5 text-muted-foreground" />}
           description="Revenue minus expenses"
         />
