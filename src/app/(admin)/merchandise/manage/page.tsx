@@ -2,14 +2,16 @@
 
 import { ProductManagementTable } from "@/components/merchandise/product-management-table";
 import { KpiCard } from "@/components/dashboard/kpi-card";
-import { products } from "@/lib/merchandise";
-import { DollarSign, TrendingUp, TrendingDown, Package, BarChart as BarChartIcon, PieChart as PieChartIcon, ArrowUpRight } from "lucide-react";
+// Remove mock import
+// import { products } from "@/lib/merchandise";
+import { DollarSign, TrendingUp, Package, BarChart as BarChartIcon, PieChart as PieChartIcon, ArrowUpRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const chartConfig = {
   sales: {
@@ -25,21 +27,49 @@ const chartConfig = {
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
 export default function ManageProductsPage() {
-  const totalRevenue = products.reduce((acc, p) => acc + p.price * p.sales, 0);
-  const bestSelling = [...products].sort((a, b) => b.sales - a.sales)[0];
-  const lowStockCount = products.filter(p => p.stock < p.lowStockThreshold).length;
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/merchandise");
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setProducts(data.data?.products || []);
+      } catch (err: any) {
+        setError(err.message || "Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return <div>Loading products...</div>;
+  }
+  if (error) {
+    return <div className="text-destructive">{error}</div>;
+  }
+
+  const totalRevenue = products.reduce((acc, p) => acc + (p.price || 0) * (p.sales || 0), 0);
+  const bestSelling = [...products].sort((a, b) => (b.sales || 0) - (a.sales || 0))[0] || { name: "N/A", sales: 0 };
+  const lowStockCount = products.filter(p => (p.stock || 0) < (p.lowStockThreshold || 0)).length;
 
   const salesData = products.map(p => ({ name: p.name, sales: p.sales, stock: p.stock }));
   const categoryStockData = products.reduce((acc, p) => {
-    const existing = acc.find(item => item.name === p.category);
+    const existing = acc.find((item: any) => item.name === p.category);
     if (existing) {
-        existing.value += p.stock;
+      existing.value += p.stock;
     } else {
-        acc.push({ name: p.category, value: p.stock });
+      acc.push({ name: p.category, value: p.stock });
     }
     return acc;
   }, [] as { name: string; value: number }[]);
-
 
   return (
     <div className="space-y-6">
@@ -58,7 +88,7 @@ export default function ManageProductsPage() {
         </Button>
       </div>
 
-       <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <KpiCard
           title="Total Revenue"
           value={`KES ${totalRevenue.toLocaleString()}`}
@@ -88,98 +118,98 @@ export default function ManageProductsPage() {
           <ProductManagementTable />
         </TabsContent>
         <TabsContent value="analytics">
-           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
-                <Card className="col-span-1 lg:col-span-3">
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2"><BarChartIcon /> Sales & Stock Overview</CardTitle>
-                        <CardDescription>Units sold vs. current stock levels for each product.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={salesData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis 
-                                        dataKey="name" 
-                                        tick={{ fontSize: 12 }}
-                                        interval={0}
-                                        angle={-45}
-                                        textAnchor="end"
-                                        height={80}
-                                    />
-                                    <YAxis />
-                                    <Tooltip
-                                        content={({ active, payload, label }) => {
-                                            if (active && payload && payload.length) {
-                                                return (
-                                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                                    <div className="grid grid-cols-2 gap-2">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                        {label}
-                                                        </span>
-                                                        <span className="font-bold text-muted-foreground">
-                                                         Sales: {payload[0].value}
-                                                        </span>
-                                                         <span className="font-bold text-muted-foreground">
-                                                         Stock: {payload[1].value}
-                                                        </span>
-                                                    </div>
-                                                    </div>
-                                                </div>
-                                                )
-                                            }
-                                            return null
-                                            }}
-                                    />
-                                    <Legend />
-                                    <Bar dataKey="sales" fill="var(--color-sales)" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="stock" fill="var(--color-stock)" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-                <Card className="col-span-1 lg:col-span-2">
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2"><PieChartIcon /> Stock Distribution</CardTitle>
-                        <CardDescription>Breakdown of current stock by category.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <ChartContainer config={{}} className="min-h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Tooltip
-                                        content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                            return (
-                                            <div className="p-2 text-sm bg-background/80 rounded-md border backdrop-blur-sm">
-                                                <p className="font-medium">{`${payload[0].name}: ${payload[0].value} units`}</p>
-                                            </div>
-                                            );
-                                        }
-                                        return null;
-                                        }}
-                                    />
-                                    <Pie
-                                        data={categoryStockData}
-                                        dataKey="value"
-                                        nameKey="name"
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={100}
-                                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                                    >
-                                        {categoryStockData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
+            <Card className="col-span-1 lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2"><BarChartIcon /> Sales & Stock Overview</CardTitle>
+                <CardDescription>Units sold vs. current stock levels for each product.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={salesData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 12 }}
+                        interval={0}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis />
+                      <Tooltip
+                        content={({ active, payload, label }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="flex flex-col">
+                                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                      {label}
+                                    </span>
+                                    <span className="font-bold text-muted-foreground">
+                                      Sales: {payload[0].value}
+                                    </span>
+                                    <span className="font-bold text-muted-foreground">
+                                      Stock: {payload[1].value}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        }}
+                      />
+                      <Legend />
+                      <Bar dataKey="sales" fill="var(--color-sales)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="stock" fill="var(--color-stock)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+            <Card className="col-span-1 lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2"><PieChartIcon /> Stock Distribution</CardTitle>
+                <CardDescription>Breakdown of current stock by category.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{}} className="min-h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="p-2 text-sm bg-background/80 rounded-md border backdrop-blur-sm">
+                                <p className="font-medium">{`${payload[0].name}: ${payload[0].value} units`}</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Pie
+                        data={categoryStockData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                      >
+                        {categoryStockData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

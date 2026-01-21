@@ -1,66 +1,75 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { PlayerDistributionChart } from '@/components/bi-dashboard/player-distribution-chart';
 import { RevenueVsExpenseChart } from '@/components/bi-dashboard/revenue-vs-expense-chart';
 import {
-  Banknote,
   Users,
   TrendingUp,
-  TrendingDown,
   DollarSign,
   HeartPulse,
   UserCheck,
   ShieldAlert,
   BrainCircuit,
 } from 'lucide-react';
-import { transactions, players } from '@/lib/data';
 
 export default function BiDashboardPage() {
-  const totalRevenue = transactions
-    .filter((t) => t.amount > 0)
-    .reduce((acc, t) => acc + t.amount, 0);
-  const totalExpenses = transactions
-    .filter((t) => t.amount < 0)
-    .reduce((acc, t) => acc + Math.abs(t.amount), 0);
-  const netProfit = totalRevenue - totalExpenses;
-  const activePlayers = players.length;
-  const profitPerPlayer = activePlayers > 0 ? netProfit / activePlayers : 0;
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const averageAttendance =
-    players.reduce((acc, p) => acc + p.attendance, 0) / activePlayers;
-  
-  const totalDisciplineInfractions = players.reduce((acc, p) => acc + p.disciplinaryLog.length, 0);
+  useEffect(() => {
+    async function fetchStats() {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/dashboard/stats');
+        const data = await res.json();
+        if (data.success) {
+          setStats(data.data);
+        }
+      } catch (err) {
+        setStats(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
 
-  const injuryDaysLost = players.reduce((acc, p) => {
-    return acc + p.injuryLog.reduce((injuryAcc, injury) => {
-      if (injury.severity === 'Low') return injuryAcc + 7;
-      if (injury.severity === 'Medium') return injuryAcc + 21;
-      if (injury.severity === 'High') return injuryAcc + 60;
-      return injuryAcc;
-    }, 0);
-  }, 0);
-
-  const averagePlayerRank = players.reduce((acc, p) => acc + p.rank, 0) / activePlayers;
-
-  const averageSkillScore = players.reduce((totalAcc, player) => {
-    const metrics = player.performanceMetrics;
-    const allScores = [
-      ...Object.values(metrics.physical),
-      ...Object.values(metrics.technical),
-      ...Object.values(metrics.tactical),
-      ...Object.values(metrics.psychoSocial),
-    ];
-    const playerAverage = allScores.reduce((acc, score) => acc + score, 0) / allScores.length;
-    return totalAcc + playerAverage;
-  }, 0) / activePlayers;
-
+  // Fallbacks if API fails
+  const totalRevenue = stats?.totalRevenue || 0;
+  const totalPlayers = stats?.totalPlayers || 0;
+  const netProfit = totalRevenue; // If you want to show profit, adjust API to return netProfit
+  const profitPerPlayer = totalPlayers > 0 ? netProfit / totalPlayers : 0;
+  const averageAttendance = stats?.performanceAverages?.avg_attendance || 0;
+  const injuryDaysLost = stats?.injuryDaysLost || 0;
+  const totalDisciplineInfractions = stats?.totalDisciplineInfractions || 0;
+  const averagePlayerRank = stats?.performanceAverages?.avg_rank || 0;
+  const averageSkillScore = (() => {
+    if (!stats?.performanceAverages) return 0;
+    const avg = stats.performanceAverages;
+    const values = [
+      avg.avg_speed,
+      avg.avg_stamina,
+      avg.avg_strength,
+      avg.avg_dribbling,
+      avg.avg_shooting,
+      avg.avg_passing,
+    ].filter((v) => typeof v === 'number');
+    return values.length > 0
+      ? values.reduce((a, b) => a + b, 0) / values.length
+      : 0;
+  })();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Business Intelligence Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight font-headline">
+          Business Intelligence Dashboard
+        </h1>
         <p className="text-muted-foreground">
-          Deep dive into your academy's performance and financial metrics.
+          Deep dive into your academy&apos;s performance and financial metrics.
         </p>
       </div>
 
@@ -68,7 +77,7 @@ export default function BiDashboardPage() {
         <Link href="/finances">
           <KpiCard
             title="Net Profit"
-            value={`KES ${netProfit.toLocaleString()}`}
+            value={netProfit > 0 ? `KES ${netProfit.toLocaleString()}` : '-'}
             icon={<DollarSign className="size-5 text-muted-foreground" />}
             description="YTD"
           />
@@ -76,26 +85,32 @@ export default function BiDashboardPage() {
         <Link href="/players">
           <KpiCard
             title="Profit Per Player"
-            value={`KES ${profitPerPlayer.toLocaleString(undefined, { maximumFractionDigits: 0})}`}
+            value={
+              profitPerPlayer > 0
+                ? `KES ${profitPerPlayer.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}`
+                : '-'
+            }
             icon={<Users className="size-5 text-muted-foreground" />}
             description="YTD Average"
           />
         </Link>
-         <Link href="/players">
-            <KpiCard
-                title="Attendance Rate"
-                value={`${averageAttendance.toFixed(1)}%`}
-                icon={<UserCheck className="size-5 text-muted-foreground" />}
-                description="Average across all players"
-            />
-         </Link>
         <Link href="/players">
-            <KpiCard
-                title="Injury Days Lost"
-                value={String(injuryDaysLost)}
-                icon={<HeartPulse className="size-5 text-muted-foreground" />}
-                description="Total estimated days"
-            />
+          <KpiCard
+            title="Attendance Rate"
+            value={averageAttendance ? `${averageAttendance.toFixed(1)}%` : '-'}
+            icon={<UserCheck className="size-5 text-muted-foreground" />}
+            description="Average across all players"
+          />
+        </Link>
+        <Link href="/players">
+          <KpiCard
+            title="Injury Days Lost"
+            value={injuryDaysLost ? String(injuryDaysLost) : '-'}
+            icon={<HeartPulse className="size-5 text-muted-foreground" />}
+            description="Total estimated days"
+          />
         </Link>
       </div>
 
@@ -107,30 +122,34 @@ export default function BiDashboardPage() {
           <PlayerDistributionChart />
         </div>
       </div>
-       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-         <Link href="/players">
-            <KpiCard
-                title="Discipline Infractions"
-                value={String(totalDisciplineInfractions)}
-                icon={<ShieldAlert className="size-5 text-muted-foreground" />}
-                description="Total logged infractions"
-            />
-         </Link>
-          <Link href="/players">
-            <KpiCard
-                title="Average Skill Score"
-                value={averageSkillScore.toFixed(1)}
-                icon={<BrainCircuit className="size-5 text-muted-foreground" />}
-                description="Across all players &amp; skills"
-            />
-          </Link>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Link href="/players">
+          <KpiCard
+            title="Discipline Infractions"
+            value={
+              totalDisciplineInfractions
+                ? String(totalDisciplineInfractions)
+                : '-'
+            }
+            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
+            description="Total logged infractions"
+          />
+        </Link>
+        <Link href="/players">
+          <KpiCard
+            title="Average Skill Score"
+            value={averageSkillScore ? averageSkillScore.toFixed(1) : '-'}
+            icon={<BrainCircuit className="size-5 text-muted-foreground" />}
+            description="Across all players &amp; skills"
+          />
+        </Link>
         <Link href="/standings">
-            <KpiCard
-                title="Average Player Rank"
-                value={`#${averagePlayerRank.toFixed(1)}`}
-                icon={<TrendingUp className="size-5 text-muted-foreground" />}
-                description="Across all players"
-            />
+          <KpiCard
+            title="Average Player Rank"
+            value={averagePlayerRank ? `#${averagePlayerRank.toFixed(1)}` : '-'}
+            icon={<TrendingUp className="size-5 text-muted-foreground" />}
+            description="Across all players"
+          />
         </Link>
       </div>
     </div>

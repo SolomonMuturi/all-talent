@@ -133,6 +133,11 @@ export function TicketManagement() {
   const totalTickets = tickets.length;
   const eventForBooking = events[0];
 
+  // Calculate total revenue from all confirmed tickets (use ticket.total_amount if available)
+  const totalRevenue = tickets
+    .filter(t => t.ticket_status === 'Confirmed')
+    .reduce((acc, t) => acc + (typeof t.total_amount === 'number' ? t.total_amount : 0), 0);
+
   const handleGenerateAndSend = () => {
     setIsGenerating(true);
     setTimeout(() => {
@@ -219,10 +224,10 @@ export function TicketManagement() {
                     description="Verified participants"
                   />
                   <KpiCard
-                    title="Pending Approval"
-                    value={String(pendingTickets)}
-                    icon={<Users className="h-5 w-5 text-muted-foreground" />}
-                    description="Awaiting confirmation"
+                    title="Total Revenue"
+                    value={`KES ${totalRevenue > 0 ? totalRevenue.toLocaleString() : '-'}`}
+                    icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+                    description="From confirmed tickets"
                   />
                 </div>
                 <div className="mt-6">
@@ -321,14 +326,13 @@ export function TicketManagement() {
                       </TableCell>
                       <TableCell className="text-right">13:04:55</TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell className="font-mono">TKT-4E2F1G</TableCell>
-                      <TableCell>Student</TableCell>
-                      <TableCell>
-                        <Badge>Validated</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">13:04:49</TableCell>
-                    </TableRow>
+                    <TableCell className="font-mono">TKT-4E2F1G</TableCell>
+                    <TableCell>Student</TableCell>
+                    <TableCell>
+                      <Badge>Validated</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">13:04:49</TableCell>
+                  </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>

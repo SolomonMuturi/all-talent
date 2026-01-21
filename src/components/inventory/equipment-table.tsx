@@ -21,8 +21,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { useEffect, useState } from 'react';
 
-import { equipment, type Equipment } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -125,14 +125,39 @@ const columns: ColumnDef<Equipment>[] = [
   }
 ];
 
-export function EquipmentTable() {
-  const [data] = React.useState(() => [...equipment]);
+export function EquipmentTable({ equipment: propEquipment }: { equipment?: any[] }) {
+  // If parent passes equipment as prop, use it. Otherwise, fetch from API.
+  const [equipment, setEquipment] = useState<any[]>(propEquipment || []);
+  const [loading, setLoading] = useState(!propEquipment);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (propEquipment) {
+      setEquipment(propEquipment);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    fetch('/api/equipment')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setEquipment(data.data.equipment || []);
+        } else {
+          setError(data.error || 'Failed to load equipment');
+        }
+      })
+      .catch(() => setError('Failed to load equipment'))
+      .finally(() => setLoading(false));
+  }, [propEquipment]);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
   const table = useReactTable({
-    data,
+    data: equipment,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -147,6 +172,13 @@ export function EquipmentTable() {
       columnVisibility,
     },
   });
+
+  if (loading) {
+    return <div>Loading equipment...</div>;
+  }
+  if (error) {
+    return <div className="text-destructive">{error}</div>;
+  }
 
   return (
     <Card>

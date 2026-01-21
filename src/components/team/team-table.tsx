@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { teamMembers as initialTeamMembers, type TeamMember } from '@/lib/data';
+// Remove mock data import
+// import { teamMembers as initialTeamMembers, type TeamMember } from '@/lib/data';
 import {
   flexRender,
   getCoreRowModel,
@@ -29,8 +30,49 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 
+// Define TeamMember type for database structure
+type TeamMember = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl: string;
+  hoursWorked: number;
+  hourlyRate: number;
+};
+
 export function TeamTable() {
-  const [data, setData] = React.useState(initialTeamMembers);
+  const [data, setData] = React.useState<TeamMember[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function fetchTeam() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/academy-operations?type=team');
+        if (!res.ok) throw new Error('Failed to fetch team members');
+        const json = await res.json();
+        // Adapt API response to TeamMember[]
+        const team = (json.data?.team || []).map((m: any) => ({
+          id: m.id,
+          name: m.name,
+          email: m.email,
+          role: m.role,
+          avatarUrl: m.avatar_url || '',
+          hoursWorked: m.hours_worked || 0,
+          hourlyRate: m.hourly_rate || 0,
+        }));
+        setData(team);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load team');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTeam();
+  }, []);
 
   const columns: ColumnDef<TeamMember>[] = [
     {
@@ -123,6 +165,11 @@ export function TeamTable() {
         </div>
       </CardHeader>
       <CardContent>
+        {loading ? (
+          <div className="p-8 text-center">Loading team members...</div>
+        ) : error ? (
+          <div className="p-8 text-center text-destructive">{error}</div>
+        ) : (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -168,6 +215,7 @@ export function TeamTable() {
             </TableBody>
           </Table>
         </div>
+        )}
       </CardContent>
     </Card>
   );

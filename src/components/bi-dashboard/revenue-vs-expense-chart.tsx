@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer } from 'recharts';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
@@ -17,34 +18,64 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 
-const chartData = [
-  { month: 'Jan', revenue: 186000, expenses: 145000 },
-  { month: 'Feb', revenue: 305000, expenses: 210000 },
-  { month: 'Mar', revenue: 237000, expenses: 190000 },
-  { month: 'Apr', revenue: 173000, expenses: 130000 },
-  { month: 'May', revenue: 209000, expenses: 160000 },
-  { month: 'Jun', revenue: 214000, expenses: 175000 },
-  { month: 'Jul', revenue: 325000, expenses: 230000 },
-];
-
-const chartConfig = {
-  revenue: {
-    label: 'Revenue',
-    color: 'hsl(var(--chart-1))',
-  },
-  expenses: {
-    label: 'Expenses',
-    color: 'hsl(var(--chart-2))',
-  },
-};
-
 export function RevenueVsExpenseChart() {
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchChartData() {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/finances/transactions');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data?.transactions)) {
+          // Group by month and sum revenue/expenses
+          const monthly: Record<string, { revenue: number; expenses: number }> = {};
+          data.data.transactions.forEach((txn: any) => {
+            const date = new Date(txn.date);
+            const month = date.toLocaleString('default', { month: 'short' });
+            if (!monthly[month]) monthly[month] = { revenue: 0, expenses: 0 };
+            if (txn.amount > 0) {
+              monthly[month].revenue += txn.amount;
+            } else {
+              monthly[month].expenses += Math.abs(txn.amount);
+            }
+          });
+          // Sort months by order
+          const monthsOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          const chartArr = monthsOrder
+            .map(month => monthly[month] ? { month, ...monthly[month] } : null)
+            .filter(Boolean);
+          setChartData(chartArr);
+        } else {
+          setChartData([]);
+        }
+      } catch {
+        setChartData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchChartData();
+  }, []);
+
+  const chartConfig = {
+    revenue: {
+      label: 'Revenue',
+      color: 'hsl(var(--chart-1))',
+    },
+    expenses: {
+      label: 'Expenses',
+      color: 'hsl(var(--chart-2))',
+    },
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle className="font-headline">Revenue vs. Expenses</CardTitle>
-          <CardDescription>January - July 2024</CardDescription>
+          <CardDescription>Monthly breakdown</CardDescription>
         </div>
         <Button asChild size="sm" className="ml-auto gap-1" variant="outline">
           <Link href="/finances">

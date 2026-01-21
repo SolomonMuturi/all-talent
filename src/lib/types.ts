@@ -70,3 +70,56 @@ export interface ApiResponse<T = any> {
   message?: string;
   error?: string;
 }
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatar_url?: string;
+  hourly_rate?: number;
+  hours_worked?: number;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AttendanceRecord {
+  id: number;
+  player_id: number;
+  date: string;
+  status: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  category: string;
+  assigned_to?: string;
+  location: string;
+  status: string;
+  maintenance_due?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CommunicationMessage {
+  id: number;
+  content: string;
+  channel: string;
+  recipient_group: string;
+  status: string;
+  timestamp: string;
+  created_at?: string;
+}
+
+export interface ComplianceRecord {
+  id: number;
+  player_id?: number;
+  type: string;
+  description: string;
+  status: string;
+  created_at?: string;
+}

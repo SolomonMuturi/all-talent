@@ -756,5 +756,17 @@ export async function healthCheck() {
   }
 }
 
+// Quick DB check utility for debugging
+export async function quickDbCheck() {
+  try {
+    const [rows] = await query('SELECT 1 as ok, NOW() as now, DATABASE() as db');
+    console.log('DB Check:', rows);
+    return rows;
+  } catch (error: any) {
+    console.error('DB Check error:', error.message);
+    return null;
+  }
+}
+
 // Export pool as default
 export default pool;

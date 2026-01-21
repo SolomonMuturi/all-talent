@@ -8,7 +8,18 @@ import Link from "next/link";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 
 export default function MerchandisePage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([
+    // Mock data example (remove this after DB is working)
+    {
+      id: 'MOCK1',
+      name: 'Sample Jersey',
+      price: 2000,
+      sales: 10,
+      stock: 5,
+      lowStockThreshold: 3,
+      image: '/images/merch/sample-jersey.jpg'
+    }
+  ]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +51,6 @@ export default function MerchandisePage() {
   const totalRevenue = products.reduce((acc, p) => acc + (p.price || 0) * (p.sales || 0), 0);
   const bestSelling = [...products].sort((a, b) => (b.sales || 0) - (a.sales || 0))[0] || { name: "N/A", sales: 0 };
   const lowStockCount = products.filter(p => (p.stock || 0) < (p.lowStockThreshold || 0)).length;
-
 
   return (
     <div className="space-y-6">

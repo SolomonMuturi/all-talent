@@ -35,25 +35,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure table exists (for dev environments)
-    await query(`
-      CREATE TABLE IF NOT EXISTS merchandise (
-        id VARCHAR(50) PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        price DECIMAL(10,2) NOT NULL,
-        category VARCHAR(100) NOT NULL,
-        description TEXT,
-        sizes TEXT,
-        stock INT DEFAULT 0,
-        lowStockThreshold INT DEFAULT 5,
-        sales INT DEFAULT 0,
-        image VARCHAR(500),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
+    // Generate a very short unique id (e.g. 6 random alphanumeric chars)
+    const id = Math.random().toString(36).slice(2, 8).toUpperCase();
 
-    const id = `PRD${Date.now()}${Math.floor(Math.random() * 1000)}`;
     await query(
       `INSERT INTO merchandise (id, name, price, category, description, sizes, created_at)
        VALUES (?, ?, ?, ?, ?, ?, NOW())`,
@@ -73,7 +57,6 @@ export async function POST(request: NextRequest) {
       data: { id }
     }, { status: 201 });
   } catch (error: any) {
-    // Add more detailed error logging for debugging
     console.error('POST /api/merchandise error:', error, error?.stack);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal Server Error' },

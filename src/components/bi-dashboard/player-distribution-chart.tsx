@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Pie, PieChart, Cell, Tooltip, ResponsiveContainer } from 'recharts';
@@ -17,12 +18,6 @@ import {
 } from '@/components/ui/chart';
 import { Button } from '../ui/button';
 
-const data = [
-  { name: 'U-15', value: 45, fill: 'hsl(var(--chart-1))' },
-  { name: 'U-17', value: 62, fill: 'hsl(var(--chart-2))' },
-  { name: 'U-19', value: 45, fill: 'hsl(var(--chart-3))' },
-];
-
 const chartConfig = {
   players: {
     label: 'Players',
@@ -30,6 +25,49 @@ const chartConfig = {
 };
 
 export function PlayerDistributionChart() {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPlayers() {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/players?limit=1000');
+        const result = await res.json();
+        if (result.success && Array.isArray(result.data?.players)) {
+          // Count players per team
+          const teamCounts: Record<string, number> = {};
+          result.data.players.forEach((player: any) => {
+            const team = player.team || 'Unassigned';
+            teamCounts[team] = (teamCounts[team] || 0) + 1;
+          });
+          const colors = [
+            'hsl(var(--chart-1))',
+            'hsl(var(--chart-2))',
+            'hsl(var(--chart-3))',
+            'hsl(var(--chart-4))',
+            'hsl(var(--chart-5))',
+            'hsl(var(--chart-6))',
+          ];
+          setData(
+            Object.entries(teamCounts).map(([team, count], idx) => ({
+              name: team,
+              value: count,
+              fill: colors[idx % colors.length],
+            }))
+          );
+        } else {
+          setData([]);
+        }
+      } catch {
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPlayers();
+  }, []);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center">
