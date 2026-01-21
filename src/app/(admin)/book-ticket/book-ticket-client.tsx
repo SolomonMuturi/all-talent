@@ -1,17 +1,43 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import { TicketBookingForm } from "@/components/ticketing/ticket-booking-form";
-import { events } from "@/lib/data";
 import { notFound, useSearchParams } from "next/navigation";
 
 export function BookTicketClient() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get('event');
-  
-  // For now, we'll default to the first event if none is specified
-  // In a real app, you'd likely want a dedicated page for event selection
-  const event = eventId ? events.find(e => e.id === eventId) : events.find(e => e.title.includes("U-17"));
+  const [event, setEvent] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    async function fetchEvent() {
+      setLoading(true);
+      try {
+        let url = "/api/events";
+        if (eventId) {
+          url += `/${eventId}`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("Event not found");
+          setEvent(await res.json());
+        } else {
+          // Fetch all events and pick the first with "U-17" in the title
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("Events not found");
+          const events = await res.json();
+          const defaultEvent = events.find((e: any) => e.title.includes("U-17"));
+          setEvent(defaultEvent || null);
+        }
+      } catch {
+        setEvent(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEvent();
+  }, [eventId]);
+
+  if (loading) return <div>Loading...</div>;
   if (!event) {
     notFound();
   }
