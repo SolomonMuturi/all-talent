@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { players, teamMembers, events } from '@/lib/data';
+// Remove mock data import
+// import { players, teamMembers, events } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserCheck, UserX, Users, Clock, CheckCheck, RefreshCcw, CalendarCheck, Send } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,9 +26,6 @@ type AttendanceItem = {
   timestamp?: string;
 };
 
-const allPlayers = players.map(p => ({ id: `player-${p.id}`, name: p.name, avatarUrl: p.avatarUrl, team: p.team }));
-const allStaff = teamMembers.map(m => ({ id: `staff-${m.id}`, name: m.name, avatarUrl: m.avatarUrl }));
-
 const initialAttendance = (people: Person[]): AttendanceItem[] => {
   return people.map(p => ({ person: p, status: 'Absent' }));
 };
@@ -42,12 +40,61 @@ const getStatusVariant = (status: Status): 'default' | 'destructive' | 'secondar
 
 export function RollCall() {
   const { toast } = useToast();
-  const [playerAttendance, setPlayerAttendance] = useState<AttendanceItem[]>(initialAttendance(allPlayers));
-  const [staffAttendance, setStaffAttendance] = useState<AttendanceItem[]>(initialAttendance(allStaff));
+  // Use empty arrays initially, will populate from API
+  const [playerAttendance, setPlayerAttendance] = useState<AttendanceItem[]>([]);
+  const [staffAttendance, setStaffAttendance] = useState<AttendanceItem[]>([]);
   const [gameDayAttendance, setGameDayAttendance] = useState<AttendanceItem[]>([]);
   const [liveFeed, setLiveFeed] = useState<AttendanceItem[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [playerFilter, setPlayerFilter] = useState('All');
+  const [eventsList, setEventsList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch players, staff, and events from API on mount
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch players
+        const playersRes = await fetch('/api/players');
+        const playersJson = await playersRes.json();
+        const players = playersJson.data?.players || [];
+        const allPlayers = players.map((p: any) => ({
+          id: `player-${p.id}`,
+          name: p.name,
+          avatarUrl: p.avatar_url || '',
+          team: p.team,
+        }));
+
+        // Fetch staff/team members
+        const staffRes = await fetch('/api/academy-operations?type=team');
+        const staffJson = await staffRes.json();
+        const staff = staffJson.data?.team || [];
+        const allStaff = staff.map((m: any) => ({
+          id: `staff-${m.id}`,
+          name: m.name,
+          avatarUrl: m.avatar_url || '',
+        }));
+
+        // Fetch events
+        const eventsRes = await fetch('/api/events?limit=100');
+        const eventsJson = await eventsRes.json();
+        const events = eventsJson.data?.events || [];
+
+        setPlayerAttendance(initialAttendance(allPlayers));
+        setStaffAttendance(initialAttendance(allStaff));
+        setEventsList(events);
+      } catch (err: any) {
+        setError('Failed to load attendance data');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+    // eslint-disable-next-line
+  }, []);
 
   const updateAttendance = (
     list: AttendanceItem[],
@@ -65,7 +112,7 @@ export function RollCall() {
       return item;
     });
     setList(updatedList);
-    
+
     if(newStatus === 'Present' || newStatus === 'Late') {
       const feedItems = updatedList.filter(item => ids.includes(item.person.id));
       setLiveFeed(prevFeed => [...feedItems, ...prevFeed].slice(0, 5));
@@ -79,18 +126,25 @@ export function RollCall() {
     setList(prevList => prevList.map(item => ({...item, status: status === 'Reset' ? 'Absent' : status})));
   }
 
+  // Use eventsList from API for game day
   const handleGameDaySelect = (eventId: string) => {
-    const event = events.find(e => e.id === eventId);
-    if (event && event.details.lineup) {
-        const gameDayPlayers = event.details.lineup.squad.map(squadMember => {
-            const player = players.find(p => p.name === squadMember.name);
-            return { id: `player-${player?.id}`, name: squadMember.name, avatarUrl: player?.avatarUrl || '' };
-        });
-        setGameDayAttendance(initialAttendance(gameDayPlayers));
+    const event = eventsList.find(e => e.id === eventId);
+    // Try to use event.lineup_squad (array of players)
+    if (event && event.lineup_squad && Array.isArray(event.lineup_squad)) {
+      const gameDayPlayers = event.lineup_squad.map((squadMember: any) => {
+        // Try to find player by name in playerAttendance
+        const player = playerAttendance.find(p => p.person.name === squadMember.name);
+        return {
+          id: player?.person.id || `player-${squadMember.id || squadMember.name}`,
+          name: squadMember.name,
+          avatarUrl: player?.person.avatarUrl || '',
+        };
+      });
+      setGameDayAttendance(initialAttendance(gameDayPlayers));
     } else {
-        setGameDayAttendance([]);
+      setGameDayAttendance([]);
     }
-  }
+  };
 
   const notifyGuardian = (playerNames: string[]) => {
       toast({
@@ -98,7 +152,7 @@ export function RollCall() {
           description: `An SMS has been sent to the guardian(s) of ${playerNames.join(', ')}.`,
       })
   }
-  
+
   const notifyAllAbsentees = (items: AttendanceItem[]) => {
       const absentPlayers = items.filter(item => item.status === 'Absent');
       if (absentPlayers.length > 0) {
@@ -111,7 +165,7 @@ export function RollCall() {
         })
       }
   }
-  
+
   const handleSelectedAction = (action: 'Present' | 'Absent' | 'Notify') => {
     const selectedItems = playerAttendance.filter(item => selectedPlayerIds.includes(item.person.id));
     if (action === 'Notify') {
@@ -244,6 +298,13 @@ export function RollCall() {
     </Card>
   );
 
+  if (loading) {
+    return <div>Loading attendance data...</div>;
+  }
+  if (error) {
+    return <div className="text-destructive">{error}</div>;
+  }
+
   return (
     <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3">
@@ -309,8 +370,10 @@ export function RollCall() {
                                     <SelectValue placeholder="Select a game..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {events.filter(e => e.details.lineup).map(event => (
-                                        <SelectItem key={event.id} value={event.id}>{event.title} - {event.subtitle}</SelectItem>
+                                    {eventsList.filter(e => e.lineup_squad && e.lineup_squad.length > 0).map(event => (
+                                        <SelectItem key={event.id} value={event.id}>
+                                          {event.title} - {event.subtitle}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
