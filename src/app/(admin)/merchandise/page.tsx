@@ -1,16 +1,45 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import { MerchandiseStore } from "@/components/merchandise/merchandise-store";
 import { Button } from "@/components/ui/button";
 import { Settings, DollarSign, TrendingUp, Package } from "lucide-react";
 import Link from "next/link";
 import { KpiCard } from "@/components/dashboard/kpi-card";
-import { products } from "@/lib/merchandise";
 
 export default function MerchandisePage() {
-  const totalRevenue = products.reduce((acc, p) => acc + p.price * p.sales, 0);
-  const bestSelling = [...products].sort((a, b) => b.sales - a.sales)[0];
-  const lowStockCount = products.filter(p => p.stock < p.lowStockThreshold).length;
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/merchandise");
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setProducts(data.data?.products || []);
+      } catch (err: any) {
+        setError(err.message || "Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return <div>Loading merchandise...</div>;
+  }
+  if (error) {
+    return <div className="text-destructive">{error}</div>;
+  }
+
+  const totalRevenue = products.reduce((acc, p) => acc + (p.price || 0) * (p.sales || 0), 0);
+  const bestSelling = [...products].sort((a, b) => (b.sales || 0) - (a.sales || 0))[0] || { name: "N/A", sales: 0 };
+  const lowStockCount = products.filter(p => (p.stock || 0) < (p.lowStockThreshold || 0)).length;
 
 
   return (
@@ -57,7 +86,7 @@ export default function MerchandisePage() {
         </Link>
       </div>
 
-      <MerchandiseStore />
+      <MerchandiseStore products={products} />
     </div>
   );
 }
