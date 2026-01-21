@@ -128,13 +128,9 @@ const NavItem = ({ item, pathname }: { item: any, pathname: string }) => {
             <SidebarMenuSub>
                 {item.subItems.filter((subItem: any) => !subItem.isPublic).map((subItem: any) => (
                     <SidebarMenuSubItem key={subItem.href}>
-                         <Link href={subItem.href}>
-                           {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
-                           }
-                           <SidebarMenuSubButton asChild isActive={pathname === subItem.href}>
-                               <a>{subItem.label}</a>
-                           </SidebarMenuSubButton>
-                         </Link>
+                      <SidebarMenuSubButton asChild isActive={pathname === subItem.href}>
+                        <Link href={subItem.href}>{subItem.label}</Link>
+                      </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                 ))}
             </SidebarMenuSub>
