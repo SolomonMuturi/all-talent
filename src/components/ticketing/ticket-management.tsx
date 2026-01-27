@@ -51,6 +51,7 @@ interface TicketItem {
   participation_type: string;
   ticket_number: string;
   ticket_date: string;
+  total_amount?: number;
 }
 
 interface Event {
@@ -152,9 +153,9 @@ export function TicketManagement() {
   const handleEditableTierChange = (index: number, field: string, value: string) => {
     const updatedTiers = [...editableTiers];
     if (field === 'price' || field === 'total') {
-      updatedTiers[index][field] = Number(value);
+      (updatedTiers[index] as any)[field] = Number(value);
     } else {
-      updatedTiers[index][field] = value;
+      (updatedTiers[index] as any)[field] = value;
     }
     setEditableTiers(updatedTiers);
   };
@@ -326,13 +327,14 @@ export function TicketManagement() {
                       </TableCell>
                       <TableCell className="text-right">13:04:55</TableCell>
                     </TableRow>
-                    <TableCell className="font-mono">TKT-4E2F1G</TableCell>
-                    <TableCell>Student</TableCell>
-                    <TableCell>
-                      <Badge>Validated</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">13:04:49</TableCell>
-                  </TableRow>
+                    <TableRow>
+                      <TableCell className="font-mono">TKT-4E2F1G</TableCell>
+                      <TableCell>Student</TableCell>
+                      <TableCell>
+                        <Badge>Validated</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">13:04:49</TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>
