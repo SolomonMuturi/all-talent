@@ -21,11 +21,21 @@ import { EventList } from '@/components/events/event-list';
 
 // Hero images with sports themes
 const heroImages = [
-  { src: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=1920&q=80', hint: 'Football match action' },
-  { src: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1920&q=80', hint: 'Basketball dunk' },
-  { src: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=80', hint: 'Tennis serve' },
-  { src: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1920&q=80', hint: 'Athletics track' },
-  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=1920&q=80', hint: 'Swimming competition' },
+  { src: '/images/hero/football-action.jpg', hint: 'Football match action' },
+  { src: '/images/hero/basketball-dunk.jpg', hint: 'Basketball dunk' },
+  { src: '/images/hero/tennis-serve.jpg', hint: 'Tennis serve' },
+  { src: '/images/hero/athletics-track.jpg', hint: 'Athletics track' },
+  { src: '/images/hero/swimming-competition.jpg', hint: 'Swimming competition' },
+];
+
+// Persistent sports ball images - using Unsplash URLs directly
+const persistentSportsBalls = [
+  { src: 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?auto=format&fit=crop&w=400&q=80', alt: 'Football ball', style: 'top-20 left-10 w-32 h-32 md:w-48 md:h-48' },
+  { src: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=400&q=80', alt: 'Basketball ball', style: 'top-40 right-10 w-28 h-28 md:w-40 md:h-40' },
+  { src: 'https://images.unsplash.com/photo-1622279457486-d1e78dc1f2d0?auto=format&fit=crop&w=400&q=80', alt: 'Tennis ball', style: 'bottom-40 left-5 w-20 h-20 md:w-32 md:h-32' },
+  { src: 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=400&q=80', alt: 'Baseball ball', style: 'bottom-20 right-20 w-24 h-24 md:w-36 md:h-36' },
+  { src: 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?auto=format&fit=crop&w=400&q=80', alt: 'Golf ball', style: 'top-60 left-1/4 w-16 h-16 md:w-24 md:h-24' },
+  { src: 'https://images.unsplash.com/photo-1596276020582-1fb5b0d5c06f?auto=format&fit=crop&w=400&q=80', alt: 'Volleyball ball', style: 'top-1/4 right-1/4 w-24 h-24 md:w-36 md:h-36' },
 ];
 
 // Stats counter animation
@@ -88,8 +98,8 @@ export function HomePage() {
     },
     {
       id: '3',
-      title: 'The Rise of Women’s Football',
-      summary: 'Explore the growth and impact of women’s football globally and locally.',
+      title: 'The Rise of Women\'s Football',
+      summary: 'Explore the growth and impact of women\'s football globally and locally.',
       image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
       author: 'Analyst Mary',
       date: '2024-05-10',
@@ -159,7 +169,7 @@ export function HomePage() {
       name: 'Marcus Lee',
       role: 'Professional Athlete',
       content: 'This platform helped me get discovered. The exposure to scouts worldwide is incredible.',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w-400&q=80',
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
       rating: 5,
     },
   ];
@@ -216,34 +226,83 @@ export function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section - Full Viewport Height */}
+      {/* Hero Section - Full Viewport Height with Persistent Background */}
       <main className="flex-1 w-full" id="home">
-        <section className="relative w-full min-h-screen flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-background/50 via-background/30 to-background/20 z-10" />
-          <Carousel
-            opts={{ loop: true }}
-            plugins={[Autoplay({ delay: 6000, stopOnInteraction: false })]}
-            className="absolute inset-0 w-full h-full"
-          >
-            <CarouselContent>
-              {heroImages.map((image, index) => (
-                <CarouselItem key={index}>
-                  <Image
-                    src={image.src}
-                    alt={`Hero image ${index + 1}`}
-                    fill
-                    className="object-cover object-center"
-                    data-ai-hint={image.hint}
-                    priority={index === 0}
-                    quality={100}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent"></div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+        <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+          {/* Persistent background with sports balls */}
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-primary/10 z-0">
+            {/* Permanent sports equipment images */}
+            {persistentSportsBalls.map((ball, index) => (
+              <div 
+                key={index}
+                className={`absolute ${ball.style} opacity-20 hover:opacity-30 transition-opacity duration-300`}
+                style={{
+                  animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
+                  animationDelay: `${index * 0.5}s`
+                }}
+              >
+                {/* Using regular img tag instead of Next.js Image for better compatibility */}
+                <img
+                  src={ball.src}
+                  alt={ball.alt}
+                  className="rounded-full object-cover shadow-2xl w-full h-full"
+                  style={{
+                    width: ball.style.includes('w-32') ? '128px' : 
+                           ball.style.includes('w-48') ? '192px' : 
+                           ball.style.includes('w-40') ? '160px' :
+                           ball.style.includes('w-36') ? '144px' :
+                           ball.style.includes('w-28') ? '112px' :
+                           ball.style.includes('w-24') ? '96px' :
+                           ball.style.includes('w-20') ? '80px' :
+                           ball.style.includes('w-16') ? '64px' : '96px',
+                    height: ball.style.includes('h-32') ? '128px' : 
+                            ball.style.includes('h-48') ? '192px' : 
+                            ball.style.includes('h-40') ? '160px' :
+                            ball.style.includes('h-36') ? '144px' :
+                            ball.style.includes('h-28') ? '112px' :
+                            ball.style.includes('h-24') ? '96px' :
+                            ball.style.includes('h-20') ? '80px' :
+                            ball.style.includes('h-16') ? '64px' : '96px'
+                  }}
+                />
+              </div>
+            ))}
+            
+            {/* Animated background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-gradient-to-r from-primary to-accent rounded-full blur-2xl"></div>
+            </div>
+          </div>
+
+          {/* Carousel overlay */}
+          <div className="absolute inset-0 z-10">
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/50 to-transparent z-20"></div>
+            <Carousel
+              opts={{ loop: true }}
+              plugins={[Autoplay({ delay: 8000, stopOnInteraction: false })]}
+              className="absolute inset-0 w-full h-full"
+            >
+              <CarouselContent>
+                {heroImages.map((image, index) => (
+                  <CarouselItem key={index}>
+                    {/* Using img tag for carousel images too */}
+                    <img
+                      src={image.src}
+                      alt={`Hero image ${index + 1}`}
+                      className="object-cover object-center opacity-40 w-full h-full"
+                      data-ai-hint={image.hint}
+                      style={{ position: 'absolute', inset: 0 }}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
           
-          <div className="relative z-20 w-full flex items-center justify-center min-h-screen">
+          {/* Content */}
+          <div className="relative z-30 w-full flex items-center justify-center min-h-screen">
             <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center py-12 px-4 md:px-8">
               <div className="inline-flex items-center space-x-2 mb-6">
                 <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
@@ -334,13 +393,14 @@ export function HomePage() {
           </div>
           
           {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 animate-bounce">
             <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
               <div className="w-1 h-3 bg-white/70 rounded-full mt-2"></div>
             </div>
           </div>
         </section>
 
+        {/* Rest of the sections... */}
         {/* Sports Categories */}
         <section id="sports" className="w-full py-24 min-h-screen bg-gradient-to-b from-background to-card/20 flex items-center">
           <div className="container mx-auto px-4 md:px-8 w-full">
@@ -377,7 +437,7 @@ export function HomePage() {
 
         {/* Features Section */}
         <section id="features" className="w-full py-24 min-h-screen bg-gradient-to-b from-card/20 to-background relative overflow-hidden flex items-center">
-          <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent"></div>
           <div className="container mx-auto px-4 md:px-8 relative z-10 w-full">
             <div className="text-center mb-20">
               <div className="inline-flex items-center space-x-2 mb-4">
@@ -482,11 +542,11 @@ export function HomePage() {
                   >
                     <CardContent className="p-0">
                       <div className="relative h-48 overflow-hidden">
-                        <Image
+                        <img
                           src={event.image}
                           alt={event.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="object-cover group-hover:scale-110 transition-transform duration-500 w-full h-full"
+                          style={{ position: 'absolute', inset: 0 }}
                         />
                         <div className="absolute top-4 left-4 bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                           {event.category}
@@ -546,11 +606,11 @@ export function HomePage() {
                   className="group bg-card/50 backdrop-blur-sm border border-border/30 rounded-3xl overflow-hidden hover:shadow-2xl hover:border-primary/30 transition-all duration-500 hover:scale-105"
                 >
                   <div className="relative h-64 overflow-hidden">
-                    <Image
+                    <img
                       src={blog.image}
                       alt={blog.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="object-cover group-hover:scale-110 transition-transform duration-500 w-full h-full"
+                      style={{ position: 'absolute', inset: 0 }}
                     />
                     <div className="absolute top-4 left-4 bg-primary/90 text-white px-3 py-1 rounded-full text-xs font-bold">
                       {blog.category}
