@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { Card, CardContent } from '../ui/card';
@@ -15,27 +14,23 @@ import {
 import Autoplay from 'embla-carousel-autoplay';
 import { useState, useEffect } from 'react';
 
-// Import blog and event components
-import { BlogList } from '@/components/blog/blog-list';
-import { EventList } from '@/components/events/event-list';
-
-// Hero images with sports themes
+// Hero images with football themes only
 const heroImages = [
   { src: '/images/hero/football-action.jpg', hint: 'Football match action' },
-  { src: '/images/hero/basketball-dunk.jpg', hint: 'Basketball dunk' },
-  { src: '/images/hero/tennis-serve.jpg', hint: 'Tennis serve' },
-  { src: '/images/hero/athletics-track.jpg', hint: 'Athletics track' },
-  { src: '/images/hero/swimming-competition.jpg', hint: 'Swimming competition' },
+  { src: '/images/hero/football-training.jpg', hint: 'Football training session' },
+  { src: '/images/hero/football-stadium.jpg', hint: 'Football stadium' },
+  { src: '/images/hero/football-goal.jpg', hint: 'Football goal celebration' },
+  { src: '/images/hero/football-team.jpg', hint: 'Football team huddle' },
 ];
 
-// Persistent sports ball images - using Unsplash URLs directly
-const persistentSportsBalls = [
+// Persistent football equipment images
+const persistentFootballItems = [
   { src: 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?auto=format&fit=crop&w=400&q=80', alt: 'Football ball', style: 'top-20 left-10 w-32 h-32 md:w-48 md:h-48' },
-  { src: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=400&q=80', alt: 'Basketball ball', style: 'top-40 right-10 w-28 h-28 md:w-40 md:h-40' },
-  { src: 'https://images.unsplash.com/photo-1622279457486-d1e78dc1f2d0?auto=format&fit=crop&w=400&q=80', alt: 'Tennis ball', style: 'bottom-40 left-5 w-20 h-20 md:w-32 md:h-32' },
-  { src: 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=400&q=80', alt: 'Baseball ball', style: 'bottom-20 right-20 w-24 h-24 md:w-36 md:h-36' },
-  { src: 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?auto=format&fit=crop&w=400&q=80', alt: 'Golf ball', style: 'top-60 left-1/4 w-16 h-16 md:w-24 md:h-24' },
-  { src: 'https://images.unsplash.com/photo-1596276020582-1fb5b0d5c06f?auto=format&fit=crop&w=400&q=80', alt: 'Volleyball ball', style: 'top-1/4 right-1/4 w-24 h-24 md:w-36 md:h-36' },
+  { src: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=400&q=80', alt: 'Football boots', style: 'top-40 right-10 w-28 h-28 md:w-40 md:h-40' },
+  { src: 'https://images.unsplash.com/photo-1519861531473-920034658307?auto=format&fit=crop&w=400&q=80', alt: 'Football jersey', style: 'bottom-40 left-5 w-20 h-20 md:w-32 md:h-32' },
+  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=400&q=80', alt: 'Football goalpost', style: 'bottom-20 right-20 w-24 h-24 md:w-36 md:h-36' },
+  { src: 'https://images.unsplash.com/photo-1511204579483-e5c2b1d69acd?auto=format&fit=crop&w=400&q=80', alt: 'Football field', style: 'top-60 left-1/4 w-16 h-16 md:w-24 md:h-24' },
+  { src: 'https://images.unsplash.com/photo-1551645700-ffa2c6c4d0bd?auto=format&fit=crop&w=400&q=80', alt: 'Football trophy', style: 'top-1/4 right-1/4 w-24 h-24 md:w-36 md:h-36' },
 ];
 
 // Stats counter animation
@@ -62,7 +57,7 @@ function Counter({ end, duration = 2000 }: { end: number, duration?: number }) {
     return () => cancelAnimationFrame(animationFrame);
   }, [end, duration]);
   
-  return <span className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{count.toLocaleString()}+</span>;
+  return <span className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">{count.toLocaleString()}+</span>;
 }
 
 export function HomePage() {
@@ -74,11 +69,11 @@ export function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Dummy data for blogs and events
+  // Dummy data for blogs and events - Football only
   const blogs = [
     {
       id: '1',
-      title: 'How to Train Like a Pro',
+      title: 'How to Train Like a Pro Footballer',
       summary: 'Discover the secrets of professional football training and how you can apply them to your daily routine.',
       image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80',
       author: 'Coach Jane',
@@ -88,8 +83,8 @@ export function HomePage() {
     },
     {
       id: '2',
-      title: 'Nutrition for Young Athletes',
-      summary: 'A comprehensive guide to fueling your body for peak performance on and off the pitch.',
+      title: 'Nutrition for Football Players',
+      summary: 'A comprehensive guide to fueling your body for peak performance on the pitch.',
       image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
       author: 'Nutritionist Sam',
       date: '2024-05-20',
@@ -98,8 +93,8 @@ export function HomePage() {
     },
     {
       id: '3',
-      title: 'The Rise of Women\'s Football',
-      summary: 'Explore the growth and impact of women\'s football globally and locally.',
+      title: 'The Rise of African Football Talent',
+      summary: 'Explore the growth and impact of African football talent globally.',
       image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
       author: 'Analyst Mary',
       date: '2024-05-10',
@@ -111,27 +106,27 @@ export function HomePage() {
   const events = [
     {
       id: '1',
-      title: 'U-17 Regional Finals',
+      title: 'U-17 Football Regional Finals',
       date: '2024-07-28',
       location: 'Kasarani Stadium',
       image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
-      description: 'The best U-17 teams compete for the regional trophy.',
+      description: 'The best U-17 football teams compete for the regional trophy.',
       category: 'Football',
       price: 'Free',
     },
     {
       id: '2',
-      title: 'Annual Coaches Conference',
+      title: 'Football Coaches Conference',
       date: '2024-08-15',
       location: 'Nairobi Conference Center',
       image: 'https://images.unsplash.com/photo-1434648957308-5e6a859697e8?auto=format&fit=crop&w=1200&q=80',
-      description: 'A gathering of top coaches to share strategies and insights.',
+      description: 'A gathering of top football coaches to share strategies and insights.',
       category: 'Workshop',
       price: '$199',
     },
     {
       id: '3',
-      title: 'Talent Identification Camp',
+      title: 'Football Talent Identification Camp',
       date: '2024-09-05',
       location: 'Mombasa Sports Complex',
       image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80',
@@ -141,33 +136,24 @@ export function HomePage() {
     },
   ];
 
-  const sports = [
-    { name: 'Football', icon: '⚽', count: '15,240' },
-    { name: 'Basketball', icon: '🏀', count: '8,750' },
-    { name: 'Tennis', icon: '🎾', count: '5,430' },
-    { name: 'Athletics', icon: '🏃', count: '12,890' },
-    { name: 'Swimming', icon: '🏊', count: '4,210' },
-    { name: 'Volleyball', icon: '🏐', count: '3,540' },
-  ];
-
   const testimonials = [
     {
       name: 'Alex Rodriguez',
-      role: 'Professional Scout',
-      content: 'TalantaTrack has revolutionized how we discover talent. The analytics are game-changing!',
+      role: 'Professional Football Scout',
+      content: 'TalantaTrack has revolutionized how we discover football talent. The analytics are game-changing!',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
       rating: 5,
     },
     {
       name: 'Sarah Johnson',
-      role: 'Academy Director',
-      content: 'Managing our academy has never been easier. The platform is intuitive and powerful.',
+      role: 'Football Academy Director',
+      content: 'Managing our football academy has never been easier. The platform is intuitive and powerful.',
       image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=400&q=80',
       rating: 5,
     },
     {
       name: 'Marcus Lee',
-      role: 'Professional Athlete',
+      role: 'Professional Footballer',
       content: 'This platform helped me get discovered. The exposure to scouts worldwide is incredible.',
       image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
       rating: 5,
@@ -175,47 +161,46 @@ export function HomePage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-background via-background to-card/30 text-foreground overflow-x-hidden">
+    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white overflow-x-hidden">
       {/* Header with parallax effect */}
       <header 
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           scrollY > 100 
-            ? 'bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl' 
-            : 'bg-transparent'
+            ? 'bg-black/95 backdrop-blur-xl border-b border-gray-800/50 shadow-xl' 
+            : 'bg-black/80 backdrop-blur-sm'
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-70 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-full blur opacity-70 animate-pulse"></div>
                 <Logo className="relative h-10 w-10 text-white" />
               </div>
               <div>
-                <span className="font-bold text-2xl font-headline bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <span className="font-bold text-2xl font-headline bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
                   TalantaTrack
                 </span>
-                <p className="text-xs text-muted-foreground">Elevating Sports Excellence</p>
+                <p className="text-xs text-gray-400">Elevating Football Excellence</p>
               </div>
             </div>
             
             <nav className="hidden lg:flex items-center space-x-8">
-              <a href="#home" className="text-sm font-semibold hover:text-primary transition-all hover:scale-105">Home</a>
-              <a href="#features" className="text-sm font-semibold hover:text-primary transition-all hover:scale-105">Features</a>
-              <a href="#sports" className="text-sm font-semibold hover:text-primary transition-all hover:scale-105">Sports</a>
-              <a href="#events" className="text-sm font-semibold hover:text-primary transition-all hover:scale-105">Events</a>
-              <a href="#blogs" className="text-sm font-semibold hover:text-primary transition-all hover:scale-105">Blog</a>
-              <a href="#about" className="text-sm font-semibold hover:text-primary transition-all hover:scale-105">About</a>
+              <a href="#home" className="text-sm font-semibold text-gray-300 hover:text-green-500 transition-all hover:scale-105">Home</a>
+              <a href="#features" className="text-sm font-semibold text-gray-300 hover:text-green-500 transition-all hover:scale-105">Features</a>
+              <a href="#events" className="text-sm font-semibold text-gray-300 hover:text-green-500 transition-all hover:scale-105">Events</a>
+              <a href="#blogs" className="text-sm font-semibold text-gray-300 hover:text-green-500 transition-all hover:scale-105">Blog</a>
+              <a href="#about" className="text-sm font-semibold text-gray-300 hover:text-green-500 transition-all hover:scale-105">About</a>
             </nav>
             
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" asChild className="hidden md:flex">
+              <Button variant="ghost" asChild className="hidden md:flex text-gray-300">
                 <Link href="/login">
                   <Shield className="h-4 w-4 mr-2" />
                   Admin Login
                 </Link>
               </Button>
-              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105">
+              <Button asChild className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105">
                 <a href="#join">
                   <Zap className="h-4 w-4 mr-2" />
                   Join Now
@@ -226,59 +211,58 @@ export function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section - Full Viewport Height with Persistent Background */}
+      {/* Hero Section - Full Viewport Height with Black Background */}
       <main className="flex-1 w-full" id="home">
-        <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
-          {/* Persistent background with sports balls */}
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-primary/10 z-0">
-            {/* Permanent sports equipment images */}
-            {persistentSportsBalls.map((ball, index) => (
+        <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-gray-800">
+          {/* Black background with football equipment */}
+          <div className="absolute inset-0 z-0">
+            {/* Permanent football equipment images - Visible on dark background */}
+            {persistentFootballItems.map((item, index) => (
               <div 
                 key={index}
-                className={`absolute ${ball.style} opacity-20 hover:opacity-30 transition-opacity duration-300`}
+                className={`absolute ${item.style} opacity-80 hover:opacity-100 transition-opacity duration-300`}
                 style={{
                   animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
                   animationDelay: `${index * 0.5}s`
                 }}
               >
-                {/* Using regular img tag instead of Next.js Image for better compatibility */}
                 <img
-                  src={ball.src}
-                  alt={ball.alt}
-                  className="rounded-full object-cover shadow-2xl w-full h-full"
+                  src={item.src}
+                  alt={item.alt}
+                  className="rounded-full object-cover shadow-xl w-full h-full border-2 border-green-500/30"
                   style={{
-                    width: ball.style.includes('w-32') ? '128px' : 
-                           ball.style.includes('w-48') ? '192px' : 
-                           ball.style.includes('w-40') ? '160px' :
-                           ball.style.includes('w-36') ? '144px' :
-                           ball.style.includes('w-28') ? '112px' :
-                           ball.style.includes('w-24') ? '96px' :
-                           ball.style.includes('w-20') ? '80px' :
-                           ball.style.includes('w-16') ? '64px' : '96px',
-                    height: ball.style.includes('h-32') ? '128px' : 
-                            ball.style.includes('h-48') ? '192px' : 
-                            ball.style.includes('h-40') ? '160px' :
-                            ball.style.includes('h-36') ? '144px' :
-                            ball.style.includes('h-28') ? '112px' :
-                            ball.style.includes('h-24') ? '96px' :
-                            ball.style.includes('h-20') ? '80px' :
-                            ball.style.includes('h-16') ? '64px' : '96px'
+                    width: item.style.includes('w-32') ? '128px' : 
+                           item.style.includes('w-48') ? '192px' : 
+                           item.style.includes('w-40') ? '160px' :
+                           item.style.includes('w-36') ? '144px' :
+                           item.style.includes('w-28') ? '112px' :
+                           item.style.includes('w-24') ? '96px' :
+                           item.style.includes('w-20') ? '80px' :
+                           item.style.includes('w-16') ? '64px' : '96px',
+                    height: item.style.includes('h-32') ? '128px' : 
+                            item.style.includes('h-48') ? '192px' : 
+                            item.style.includes('h-40') ? '160px' :
+                            item.style.includes('h-36') ? '144px' :
+                            item.style.includes('h-28') ? '112px' :
+                            item.style.includes('h-24') ? '96px' :
+                            item.style.includes('h-20') ? '80px' :
+                            item.style.includes('h-16') ? '64px' : '96px'
                   }}
                 />
               </div>
             ))}
             
-            {/* Animated background pattern */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl"></div>
-              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
-              <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-gradient-to-r from-primary to-accent rounded-full blur-2xl"></div>
+            {/* Dark background pattern */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-green-600 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600 rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-gradient-to-r from-green-600 to-blue-600 rounded-full blur-2xl"></div>
             </div>
           </div>
 
           {/* Carousel overlay */}
           <div className="absolute inset-0 z-10">
-            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/50 to-transparent z-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-20"></div>
             <Carousel
               opts={{ loop: true }}
               plugins={[Autoplay({ delay: 8000, stopOnInteraction: false })]}
@@ -287,11 +271,10 @@ export function HomePage() {
               <CarouselContent>
                 {heroImages.map((image, index) => (
                   <CarouselItem key={index}>
-                    {/* Using img tag for carousel images too */}
                     <img
                       src={image.src}
-                      alt={`Hero image ${index + 1}`}
-                      className="object-cover object-center opacity-40 w-full h-full"
+                      alt={`Football hero image ${index + 1}`}
+                      className="object-cover object-center opacity-60 w-full h-full"
                       data-ai-hint={image.hint}
                       style={{ position: 'absolute', inset: 0 }}
                     />
@@ -304,25 +287,25 @@ export function HomePage() {
           {/* Content */}
           <div className="relative z-30 w-full flex items-center justify-center min-h-screen">
             <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center py-12 px-4 md:px-8">
-              <div className="inline-flex items-center space-x-2 mb-6">
+              <div className="inline-flex items-center space-x-2 mb-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full border border-green-500/30">
                 <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" />
-                <span className="text-sm font-semibold text-primary uppercase tracking-wider">
-                  The Future of Sports
+                <span className="text-sm font-semibold text-green-400 uppercase tracking-wider">
+                  The Future of Football
                 </span>
               </div>
               
               <h1 className="text-center text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold font-headline tracking-tighter leading-tight mb-4">
-                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient block">
-                  Elevate Your Game
+                <span className="bg-gradient-to-r from-green-500 via-blue-500 to-green-500 bg-clip-text text-transparent animate-gradient block">
+                  Elevate Your Football
                 </span>
                 <span className="block text-white drop-shadow-2xl mt-2">With TalantaTrack</span>
               </h1>
               
-              <p className="text-center text-lg sm:text-xl md:text-2xl text-gray-200 mb-10 max-w-2xl leading-relaxed">
-                Join the world&apos;s largest sports ecosystem connecting 
-                <span className="font-bold text-white"> athletes, coaches, scouts, </span>
+              <p className="text-center text-lg sm:text-xl md:text-2xl text-gray-300 mb-10 max-w-2xl leading-relaxed">
+                Join the world&apos;s largest football ecosystem connecting 
+                <span className="font-bold text-white"> players, coaches, scouts, </span>
                 and
-                <span className="font-bold text-white"> fans </span>
+                <span className="font-bold text-white"> clubs </span>
                 through cutting-edge technology and analytics.
               </p>
               
@@ -330,7 +313,7 @@ export function HomePage() {
                 <Button 
                   asChild 
                   size="lg" 
-                  className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white text-lg px-10 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105 group w-full sm:w-auto"
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg px-10 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105 group w-full sm:w-auto"
                 >
                   <Link href="/join">
                     Start Free Trial
@@ -341,7 +324,7 @@ export function HomePage() {
                   variant="outline" 
                   size="lg" 
                   asChild 
-                  className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-black text-lg px-10 py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all w-full sm:w-auto"
+                  className="bg-black/60 backdrop-blur-sm border-gray-600 text-white hover:bg-green-600 hover:border-green-600 text-lg px-10 py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
                 >
                   <a href="#features">
                     <Video className="mr-3 h-6 w-6" />
@@ -350,32 +333,32 @@ export function HomePage() {
                 </Button>
               </div>
               
-              {/* Stats Row - Responsive and Centered */}
-              <div className="w-full flex flex-col sm:flex-row flex-wrap items-center justify-center gap-8 mt-4">
+              {/* Stats Row - Focused on Football */}
+              <div className="w-full flex flex-col sm:flex-row flex-wrap items-center justify-center gap-8 mt-4 bg-black/60 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-green-500/20">
                 <div className="flex flex-col items-center flex-1 min-w-[180px]">
                   <div className="flex items-end gap-1">
                     <span className="text-5xl md:text-6xl font-bold text-white">
                       <Counter end={50} duration={2500} />
                     </span>
-                    <span className="text-2xl md:text-3xl font-bold text-primary mb-1">K+</span>
+                    <span className="text-2xl md:text-3xl font-bold text-green-500 mb-1">K+</span>
                   </div>
-                  <p className="text-base md:text-lg text-gray-300 uppercase tracking-wider mt-2">Active Athletes</p>
+                  <p className="text-base md:text-lg text-gray-300 uppercase tracking-wider mt-2">Football Players</p>
                 </div>
                 <div className="flex flex-col items-center flex-1 min-w-[180px]">
                   <div className="flex items-end gap-1">
                     <span className="text-5xl md:text-6xl font-bold text-white">
                       <Counter end={5} duration={2000} />
                     </span>
-                    <span className="text-2xl md:text-3xl font-bold text-primary mb-1">K+</span>
+                    <span className="text-2xl md:text-3xl font-bold text-green-500 mb-1">K+</span>
                   </div>
-                  <p className="text-base md:text-lg text-gray-300 uppercase tracking-wider mt-2">Professional Clubs</p>
+                  <p className="text-base md:text-lg text-gray-300 uppercase tracking-wider mt-2">Football Clubs</p>
                 </div>
                 <div className="flex flex-col items-center flex-1 min-w-[180px]">
                   <div className="flex items-end gap-1">
                     <span className="text-5xl md:text-6xl font-bold text-white">
                       <Counter end={120} duration={3000} />
                     </span>
-                    <span className="text-2xl md:text-3xl font-bold text-primary mb-1">+</span>
+                    <span className="text-2xl md:text-3xl font-bold text-green-500 mb-1">+</span>
                   </div>
                   <p className="text-base md:text-lg text-gray-300 uppercase tracking-wider mt-2">Countries</p>
                 </div>
@@ -384,7 +367,7 @@ export function HomePage() {
                     <span className="text-5xl md:text-6xl font-bold text-white">
                       <Counter end={98} duration={1800} />
                     </span>
-                    <span className="text-2xl md:text-3xl font-bold text-primary mb-1">%</span>
+                    <span className="text-2xl md:text-3xl font-bold text-green-500 mb-1">%</span>
                   </div>
                   <p className="text-base md:text-lg text-gray-300 uppercase tracking-wider mt-2">Success Rate</p>
                 </div>
@@ -394,60 +377,25 @@ export function HomePage() {
           
           {/* Scroll Indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 animate-bounce">
-            <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/70 rounded-full mt-2"></div>
+            <div className="w-6 h-10 border-2 border-gray-500 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-green-500 rounded-full mt-2"></div>
             </div>
           </div>
         </section>
 
-        {/* Rest of the sections... */}
-        {/* Sports Categories */}
-        <section id="sports" className="w-full py-24 min-h-screen bg-gradient-to-b from-background to-card/20 flex items-center">
-          <div className="container mx-auto px-4 md:px-8 w-full">
-            <div className="text-center mb-16">
-              <div className="inline-block rounded-full bg-gradient-to-r from-primary/20 to-accent/20 px-6 py-3 mb-4">
-                <Target className="h-6 w-6 text-primary inline mr-2" />
-                <span className="text-lg font-semibold text-primary">Multi-Sport Platform</span>
-              </div>
-              <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-6">
-                All Sports, <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">One Platform</span>
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                From grassroots to professional leagues, we cover every sport with dedicated tools and features
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-16">
-              {sports.map((sport, index) => (
-                <div 
-                  key={index}
-                  className="group relative bg-card/50 backdrop-blur-sm border border-border/30 rounded-2xl p-8 text-center hover:bg-card hover:border-primary/30 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer"
-                >
-                  <div className="text-5xl mb-4 transform group-hover:scale-125 transition-transform duration-300">
-                    {sport.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{sport.name}</h3>
-                  <p className="text-lg font-semibold text-primary">{sport.count} Players</p>
-                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-primary/20 transition-all duration-300"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="w-full py-24 min-h-screen bg-gradient-to-b from-card/20 to-background relative overflow-hidden flex items-center">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent"></div>
+        {/* Features Section - Football Focused */}
+        <section id="features" className="w-full py-24 min-h-screen bg-gradient-to-b from-gray-900 to-black relative overflow-hidden flex items-center">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-green-900/20 via-transparent to-transparent"></div>
           <div className="container mx-auto px-4 md:px-8 relative z-10 w-full">
             <div className="text-center mb-20">
               <div className="inline-flex items-center space-x-2 mb-4">
                 <Sparkles className="h-5 w-5 text-yellow-500" />
-                <span className="text-lg font-semibold text-primary uppercase tracking-wider">
-                  Why Choose TalantaTrack
+                <span className="text-lg font-semibold text-green-400 uppercase tracking-wider">
+                  Why Choose TalantaTrack for Football
                 </span>
               </div>
               <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-6">
-                Comprehensive <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Sports Ecosystem</span>
+                Complete <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Football Ecosystem</span>
               </h2>
             </div>
             
@@ -456,54 +404,54 @@ export function HomePage() {
                 {
                   icon: <Users className="h-12 w-12" />,
                   title: "Smart Player Profiles",
-                  description: "Dynamic profiles with performance analytics, video highlights, and real-time stats",
-                  gradient: "from-blue-500 to-cyan-500",
+                  description: "Dynamic football player profiles with performance analytics, video highlights, and match stats",
+                  gradient: "from-green-500 to-blue-500",
                 },
                 {
                   icon: <BarChart className="h-12 w-12" />,
-                  title: "AI-Powered Analytics",
-                  description: "Advanced analytics and predictive insights for performance optimization",
-                  gradient: "from-purple-500 to-pink-500",
+                  title: "AI Match Analysis",
+                  description: "Advanced football analytics and predictive insights for performance optimization",
+                  gradient: "from-green-600 to-emerald-500",
                 },
                 {
                   icon: <ShieldCheck className="h-12 w-12" />,
                   title: "Verified Scouting Network",
-                  description: "Connect with certified scouts and clubs worldwide",
-                  gradient: "from-green-500 to-emerald-500",
+                  description: "Connect with certified football scouts and clubs worldwide",
+                  gradient: "from-blue-500 to-cyan-500",
                 },
                 {
                   icon: <Trophy className="h-12 w-12" />,
-                  title: "Tournament Management",
-                  description: "End-to-end tournament organization with live scoring and streaming",
+                  title: "Football Tournaments",
+                  description: "End-to-end football tournament organization with live scoring and streaming",
                   gradient: "from-yellow-500 to-orange-500",
                 },
                 {
                   icon: <Goal className="h-12 w-12" />,
-                  title: "Training Programs",
-                  description: "Personalized training plans with progress tracking",
-                  gradient: "from-red-500 to-rose-500",
+                  title: "Football Training",
+                  description: "Personalized football training plans with progress tracking",
+                  gradient: "from-green-500 to-emerald-500",
                 },
                 {
                   icon: <Globe className="h-12 w-12" />,
-                  title: "Global Community",
-                  description: "Connect with athletes, coaches, and fans worldwide",
-                  gradient: "from-indigo-500 to-blue-500",
+                  title: "Global Football Community",
+                  description: "Connect with football players, coaches, and fans worldwide",
+                  gradient: "from-blue-500 to-indigo-500",
                 },
               ].map((feature, index) => (
                 <div 
                   key={index}
-                  className="group relative bg-card/80 backdrop-blur-sm border border-border/30 rounded-3xl p-8 hover:shadow-2xl hover:border-transparent transition-all duration-500 hover:scale-105"
+                  className="group relative bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-3xl p-8 hover:shadow-2xl hover:border-green-500/30 hover:shadow-green-500/10 transition-all duration-500 hover:scale-105"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
                   <div className={`relative mb-6 inline-flex p-4 rounded-2xl bg-gradient-to-br ${feature.gradient} bg-opacity-10`}>
                     <div className={`text-gradient bg-gradient-to-br ${feature.gradient} bg-clip-text text-transparent`}>
                       {feature.icon}
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 relative">{feature.title}</h3>
-                  <p className="text-muted-foreground relative">{feature.description}</p>
+                  <h3 className="text-2xl font-bold mb-4 relative text-white">{feature.title}</h3>
+                  <p className="text-gray-300 relative">{feature.description}</p>
                   <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ArrowRight className="h-6 w-6 text-primary" />
+                    <ArrowRight className="h-6 w-6 text-green-500" />
                   </div>
                 </div>
               ))}
@@ -511,26 +459,26 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Events Section */}
-        <section id="events" className="w-full py-24 min-h-screen bg-gradient-to-b from-background via-card/10 to-background flex items-center">
+        {/* Events Section - Football Only */}
+        <section id="events" className="w-full py-24 min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center">
           <div className="container mx-auto px-4 md:px-8 w-full">
             <div className="flex flex-col lg:flex-row items-center justify-between mb-16">
               <div className="lg:w-1/2 mb-12 lg:mb-0">
                 <div className="inline-flex items-center space-x-2 mb-4">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  <span className="text-lg font-semibold text-primary uppercase tracking-wider">
-                    Upcoming Events
+                  <Calendar className="h-5 w-5 text-green-500" />
+                  <span className="text-lg font-semibold text-green-400 uppercase tracking-wider">
+                    Upcoming Football Events
                   </span>
                 </div>
                 <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-6">
-                  Don&apos;t Miss The <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Action</span>
+                  Don&apos;t Miss The <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Football Action</span>
                 </h2>
-                <p className="text-xl text-muted-foreground mb-8">
-                  Join world-class tournaments, workshops, and scouting events across all sports
+                <p className="text-xl text-gray-300 mb-8">
+                  Join world-class football tournaments, workshops, and scouting events
                 </p>
-                <Button size="lg" className="rounded-xl px-8 py-6 text-lg">
+                <Button size="lg" className="rounded-xl px-8 py-6 text-lg bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
                   <Calendar className="mr-3 h-5 w-5" />
-                  View All Events
+                  View All Football Events
                 </Button>
               </div>
               
@@ -538,7 +486,7 @@ export function HomePage() {
                 {events.map((event, index) => (
                   <Card 
                     key={event.id} 
-                    className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105"
+                    className="group relative overflow-hidden border border-gray-800 bg-gray-900/80 shadow-xl hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 hover:scale-105"
                   >
                     <CardContent className="p-0">
                       <div className="relative h-48 overflow-hidden">
@@ -548,13 +496,13 @@ export function HomePage() {
                           className="object-cover group-hover:scale-110 transition-transform duration-500 w-full h-full"
                           style={{ position: 'absolute', inset: 0 }}
                         />
-                        <div className="absolute top-4 left-4 bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                        <div className="absolute top-4 left-4 bg-green-600/90 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                           {event.category}
                         </div>
                       </div>
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center text-sm text-muted-foreground">
+                          <div className="flex items-center text-sm text-gray-400">
                             <Clock className="h-4 w-4 mr-1" />
                             {new Date(event.date).toLocaleDateString('en-US', { 
                               month: 'short', 
@@ -562,17 +510,17 @@ export function HomePage() {
                               year: 'numeric'
                             })}
                           </div>
-                          <div className="text-lg font-bold text-primary">
+                          <div className="text-lg font-bold text-green-500">
                             {event.price}
                           </div>
                         </div>
-                        <h3 className="text-xl font-bold mb-3">{event.title}</h3>
-                        <div className="flex items-center text-muted-foreground mb-4">
+                        <h3 className="text-xl font-bold mb-3 text-white">{event.title}</h3>
+                        <div className="flex items-center text-gray-400 mb-4">
                           <MapPin className="h-4 w-4 mr-2" />
                           <span className="text-sm">{event.location}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-4">{event.description}</p>
-                        <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-white transition-colors">
+                        <p className="text-sm text-gray-300 mb-4">{event.description}</p>
+                        <Button variant="outline" className="w-full border-green-600 text-green-500 hover:bg-green-600 hover:text-white transition-colors">
                           Register Now
                         </Button>
                       </div>
@@ -584,18 +532,18 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Blog Section */}
-        <section id="blogs" className="w-full py-24 min-h-screen bg-gradient-to-b from-card/20 to-background flex items-center">
+        {/* Blog Section - Football Focused */}
+        <section id="blogs" className="w-full py-24 min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center">
           <div className="container mx-auto px-4 md:px-8 w-full">
             <div className="text-center mb-16">
               <div className="inline-flex items-center space-x-2 mb-4">
-                <Newspaper className="h-5 w-5 text-primary" />
-                <span className="text-lg font-semibold text-primary uppercase tracking-wider">
-                  Latest Insights
+                <Newspaper className="h-5 w-5 text-green-500" />
+                <span className="text-lg font-semibold text-green-400 uppercase tracking-wider">
+                  Latest Football Insights
                 </span>
               </div>
               <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-6">
-                Sports <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Intelligence</span>
+                Football <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Intelligence</span>
               </h2>
             </div>
             
@@ -603,7 +551,7 @@ export function HomePage() {
               {blogs.map((blog) => (
                 <article 
                   key={blog.id}
-                  className="group bg-card/50 backdrop-blur-sm border border-border/30 rounded-3xl overflow-hidden hover:shadow-2xl hover:border-primary/30 transition-all duration-500 hover:scale-105"
+                  className="group bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-3xl overflow-hidden hover:shadow-2xl hover:border-green-500/30 hover:shadow-green-500/10 transition-all duration-500 hover:scale-105"
                 >
                   <div className="relative h-64 overflow-hidden">
                     <img
@@ -612,26 +560,26 @@ export function HomePage() {
                       className="object-cover group-hover:scale-110 transition-transform duration-500 w-full h-full"
                       style={{ position: 'absolute', inset: 0 }}
                     />
-                    <div className="absolute top-4 left-4 bg-primary/90 text-white px-3 py-1 rounded-full text-xs font-bold">
+                    <div className="absolute top-4 left-4 bg-green-600/90 text-white px-3 py-1 rounded-full text-xs font-bold">
                       {blog.category}
                     </div>
-                    <div className="absolute bottom-4 left-4 bg-background/90 text-foreground px-3 py-1 rounded-full text-xs">
+                    <div className="absolute bottom-4 left-4 bg-black/90 text-white px-3 py-1 rounded-full text-xs">
                       {blog.readTime} read
                     </div>
                   </div>
                   <div className="p-8">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{blog.author}</span>
+                        <User className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="text-sm text-gray-400">{blog.author}</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">{blog.date}</span>
+                      <span className="text-sm text-gray-400">{blog.date}</span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">
+                    <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-green-500 transition-colors">
                       {blog.title}
                     </h3>
-                    <p className="text-muted-foreground mb-6">{blog.summary}</p>
-                    <Button variant="ghost" className="group-hover:text-primary p-0">
+                    <p className="text-gray-300 mb-6">{blog.summary}</p>
+                    <Button variant="ghost" className="group-hover:text-green-500 p-0 text-gray-300">
                       Read More
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
                     </Button>
@@ -641,26 +589,26 @@ export function HomePage() {
             </div>
             
             <div className="text-center">
-              <Button size="lg" variant="outline" className="rounded-full px-10 py-6 text-lg">
+              <Button size="lg" variant="outline" className="rounded-full px-10 py-6 text-lg border-green-600 text-green-500 hover:bg-green-600 hover:text-white">
                 <Newspaper className="mr-3 h-5 w-5" />
-                View All Articles
+                View All Football Articles
               </Button>
             </div>
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section className="w-full py-24 min-h-screen bg-gradient-to-b from-background to-card/20 flex items-center">
+        {/* Testimonials - Football Focused */}
+        <section className="w-full py-24 min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center">
           <div className="container mx-auto px-4 md:px-8 w-full">
             <div className="text-center mb-16">
               <div className="inline-flex items-center space-x-2 mb-4">
-                <Award className="h-5 w-5 text-primary" />
-                <span className="text-lg font-semibold text-primary uppercase tracking-wider">
-                  Trusted By Champions
+                <Award className="h-5 w-5 text-green-500" />
+                <span className="text-lg font-semibold text-green-400 uppercase tracking-wider">
+                  Trusted By Football Champions
                 </span>
               </div>
               <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-6">
-                What The <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Pros Say</span>
+                What The <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Football Pros Say</span>
               </h2>
             </div>
             
@@ -668,22 +616,22 @@ export function HomePage() {
               {testimonials.map((testimonial, index) => (
                 <div 
                   key={index}
-                  className="bg-card/80 backdrop-blur-sm border border-border/30 rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                  className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-3xl p-8 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 hover:scale-105"
                 >
                   <div className="flex items-center mb-6">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 text-yellow-500 fill-yellow-500" />
                     ))}
                   </div>
-                  <p className="text-lg italic text-muted-foreground mb-8">&ldquo;{testimonial.content}&rdquo;</p>
+                  <p className="text-lg italic text-gray-300 mb-8">&ldquo;{testimonial.content}&rdquo;</p>
                   <div className="flex items-center">
                     <Avatar className="h-12 w-12 mr-4">
                       <AvatarImage src={testimonial.image} />
                       <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h4 className="font-bold">{testimonial.name}</h4>
-                      <p className="text-sm text-primary">{testimonial.role}</p>
+                      <h4 className="font-bold text-white">{testimonial.name}</h4>
+                      <p className="text-sm text-green-500">{testimonial.role}</p>
                     </div>
                   </div>
                 </div>
@@ -693,29 +641,28 @@ export function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="w-full py-32 min-h-screen relative overflow-hidden flex items-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/10"></div>
+        <section className="w-full py-32 min-h-screen relative overflow-hidden flex items-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
           <div className="container mx-auto px-4 md:px-8 relative z-10 w-full">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center space-x-2 mb-6">
+              <div className="inline-flex items-center space-x-2 mb-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full border border-green-500/30">
                 <Zap className="h-6 w-6 text-yellow-500 animate-pulse" />
-                <span className="text-xl font-semibold text-primary uppercase tracking-wider">
-                  Ready to Transform Your Sports Journey?
+                <span className="text-xl font-semibold text-green-400 uppercase tracking-wider">
+                  Ready to Transform Your Football Journey?
                 </span>
               </div>
               
               <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-8">
-                Join <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">50,000+</span> Athletes Worldwide
+                Join <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">50,000+</span> Football Players Worldwide
               </h2>
               
-              <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-                Start your 14-day free trial today. No credit card required. Experience the future of sports management.
+              <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+                Start your 14-day free trial today. No credit card required. Experience the future of football management.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white text-lg px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
                 >
                   <Sparkles className="mr-3 h-6 w-6" />
                   Start Free Trial
@@ -723,15 +670,15 @@ export function HomePage() {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="text-lg px-12 py-7 rounded-2xl border-2 hover:bg-primary hover:text-white transition-all"
+                  className="text-lg px-12 py-7 rounded-2xl border-2 border-green-600 text-green-500 hover:bg-green-600 hover:text-white transition-all"
                 >
                   <Mic className="mr-3 h-6 w-6" />
                   Book a Demo
                 </Button>
               </div>
               
-              <p className="text-sm text-muted-foreground mt-8">
-                Trusted by top academies, professional clubs, and national federations
+              <p className="text-sm text-gray-400 mt-8">
+                Trusted by top football academies, professional clubs, and national federations
               </p>
             </div>
           </div>
@@ -739,39 +686,39 @@ export function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-card border-t border-border/50">
+      <footer className="w-full bg-gray-900 border-t border-gray-800">
         <div className="container mx-auto px-4 md:px-8 py-16 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full blur"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-full blur"></div>
                   <Logo className="relative h-10 w-10 text-white" />
                 </div>
                 <div>
-                  <span className="font-bold text-2xl font-headline bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  <span className="font-bold text-2xl font-headline bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
                     TalantaTrack
                   </span>
-                  <p className="text-sm text-muted-foreground">The Ultimate Sports Platform</p>
+                  <p className="text-sm text-gray-400">The Ultimate Football Platform</p>
                 </div>
               </div>
-              <p className="text-muted-foreground mb-8 max-w-md">
-                Empowering athletes, coaches, and scouts worldwide with cutting-edge technology and comprehensive sports management solutions.
+              <p className="text-gray-400 mb-8 max-w-md">
+                Empowering football players, coaches, and scouts worldwide with cutting-edge technology and comprehensive football management solutions.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="p-2 bg-background rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-green-600 hover:text-white transition-colors text-gray-300">
                   <Twitter className="h-5 w-5" />
                 </a>
-                <a href="#" className="p-2 bg-background rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-green-600 hover:text-white transition-colors text-gray-300">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="#" className="p-2 bg-background rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-green-600 hover:text-white transition-colors text-gray-300">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="#" className="p-2 bg-background rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-green-600 hover:text-white transition-colors text-gray-300">
                   <Linkedin className="h-5 w-5" />
                 </a>
-                <a href="#" className="p-2 bg-background rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-green-600 hover:text-white transition-colors text-gray-300">
                   <Youtube className="h-5 w-5" />
                 </a>
               </div>
@@ -779,11 +726,11 @@ export function HomePage() {
             
             {['Platform', 'Company', 'Resources', 'Legal'].map((section) => (
               <div key={section}>
-                <h3 className="font-bold text-lg mb-6">{section}</h3>
+                <h3 className="font-bold text-lg mb-6 text-white">{section}</h3>
                 <ul className="space-y-3">
                   {['Features', 'Pricing', 'API', 'Status'].map((item) => (
                     <li key={item}>
-                      <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                      <a href="#" className="text-gray-400 hover:text-green-500 transition-colors">
                         {item}
                       </a>
                     </li>
@@ -793,15 +740,15 @@ export function HomePage() {
             ))}
           </div>
           
-          <div className="border-t border-border/50 pt-8">
+          <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-muted-foreground mb-4 md:mb-0">
+              <p className="text-gray-400 mb-4 md:mb-0">
                 &copy; {new Date().getFullYear()} TalantaTrack. All rights reserved.
               </p>
               <div className="flex space-x-6">
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Cookie Policy</a>
+                <a href="#" className="text-sm text-gray-400 hover:text-green-500 transition-colors">Privacy Policy</a>
+                <a href="#" className="text-sm text-gray-400 hover:text-green-500 transition-colors">Terms of Service</a>
+                <a href="#" className="text-sm text-gray-400 hover:text-green-500 transition-colors">Cookie Policy</a>
               </div>
             </div>
           </div>
