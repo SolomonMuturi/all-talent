@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
 import { Card, CardContent } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { ArrowRight, BarChart, ShieldCheck, Users, Trophy, Globe, Calendar, Newspaper, Star, Goal, MapPin, User, Sparkles, Target, TrendingUp, Award, Heart, Zap, Clock, Shield, Video, Mic, Twitter, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { ArrowRight, BarChart, ShieldCheck, Users, Trophy, Globe, Calendar, Newspaper, Star, Goal, MapPin, User, Sparkles, Target, TrendingUp, Award, Heart, Zap, Clock, Shield, Video, Mic, Twitter, Facebook, Instagram, Linkedin, Youtube, X } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -14,24 +14,101 @@ import {
 import Autoplay from 'embla-carousel-autoplay';
 import { useState, useEffect } from 'react';
 
-// Hero images with football themes only
-const heroImages = [
-  { src: '/images/hero/football-action.jpg', hint: 'Football match action' },
-  { src: '/images/hero/football-training.jpg', hint: 'Football training session' },
-  { src: '/images/hero/football-stadium.jpg', hint: 'Football stadium' },
-  { src: '/images/hero/football-goal.jpg', hint: 'Football goal celebration' },
-  { src: '/images/hero/football-team.jpg', hint: 'Football team huddle' },
-];
+// Video Modal Component
+function VideoModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  // Close modal on Escape key and prevent background scrolling
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
 
-// Persistent football equipment images
-const persistentFootballItems = [
-  { src: 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?auto=format&fit=crop&w=400&q=80', alt: 'Football ball', style: 'top-20 left-10 w-32 h-32 md:w-48 md:h-48' },
-  { src: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=400&q=80', alt: 'Football boots', style: 'top-40 right-10 w-28 h-28 md:w-40 md:h-40' },
-  { src: 'https://images.unsplash.com/photo-1519861531473-920034658307?auto=format&fit=crop&w=400&q=80', alt: 'Football jersey', style: 'bottom-40 left-5 w-20 h-20 md:w-32 md:h-32' },
-  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=400&q=80', alt: 'Football goalpost', style: 'bottom-20 right-20 w-24 h-24 md:w-36 md:h-36' },
-  { src: 'https://images.unsplash.com/photo-1511204579483-e5c2b1d69acd?auto=format&fit=crop&w=400&q=80', alt: 'Football field', style: 'top-60 left-1/4 w-16 h-16 md:w-24 md:h-24' },
-  { src: 'https://images.unsplash.com/photo-1551645700-ffa2c6c4d0bd?auto=format&fit=crop&w=400&q=80', alt: 'Football trophy', style: 'top-1/4 right-1/4 w-24 h-24 md:w-36 md:h-36' },
-];
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+      <div className="relative w-full max-w-6xl mx-auto">
+        {/* Close button */}
+        <Button
+          onClick={onClose}
+          variant="ghost"
+          size="icon"
+          className="absolute -top-16 right-0 md:-right-16 text-white hover:bg-white/20 z-10 rounded-full p-3"
+        >
+          <X className="h-8 w-8" />
+          <span className="sr-only">Close video</span>
+        </Button>
+
+        {/* Video container */}
+        <div className="relative bg-gradient-to-br from-green-900/20 to-blue-900/20 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="p-2 bg-gradient-to-r from-green-500/20 via-blue-500/20 to-green-500/20">
+            <div className="relative aspect-video bg-black rounded-2xl overflow-hidden">
+              <video
+                src="/videos/demo.mp4"
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+                poster="/images/video-poster.jpg"
+              >
+                Your browser does not support the video tag.
+                <a href="/videos/demo.mp4" className="text-green-500 underline">
+                  Download the video
+                </a>
+              </video>
+            </div>
+          </div>
+
+          {/* Video info */}
+          <div className="p-8 text-center bg-gradient-to-b from-gray-900/90 to-black/90">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+              TalantaTrack Platform Demo
+            </h3>
+            <p className="text-gray-300 text-lg">
+              See how we revolutionize football talent management with AI-powered analytics,
+              comprehensive player profiles, and global scouting networks.
+            </p>
+            
+            {/* Video chapters/timestamps */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+              <div className="bg-gray-900/50 p-4 rounded-xl border border-green-500/20">
+                <div className="text-green-500 font-bold mb-2">00:30</div>
+                <h4 className="font-semibold text-white">Player Profiles</h4>
+                <p className="text-sm text-gray-400">Dynamic stats & highlights</p>
+              </div>
+              <div className="bg-gray-900/50 p-4 rounded-xl border border-blue-500/20">
+                <div className="text-blue-500 font-bold mb-2">02:15</div>
+                <h4 className="font-semibold text-white">AI Match Analysis</h4>
+                <p className="text-sm text-gray-400">Performance insights</p>
+              </div>
+              <div className="bg-gray-900/50 p-4 rounded-xl border border-purple-500/20">
+                <div className="text-purple-500 font-bold mb-2">04:45</div>
+                <h4 className="font-semibold text-white">Scouting Network</h4>
+                <p className="text-sm text-gray-400">Global talent discovery</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Click outside to close */}
+        <div
+          className="absolute inset-0 -z-10 cursor-pointer"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  );
+}
 
 // Stats counter animation
 function Counter({ end, duration = 2000 }: { end: number, duration?: number }) {
@@ -60,8 +137,28 @@ function Counter({ end, duration = 2000 }: { end: number, duration?: number }) {
   return <span className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">{count.toLocaleString()}+</span>;
 }
 
+// Hero images with football themes only
+const heroImages = [
+  { src: '/images/hero/football-action.jpg', hint: 'Football match action' },
+  { src: '/images/hero/football-training.jpg', hint: 'Football training session' },
+  { src: '/images/hero/football-stadium.jpg', hint: 'Football stadium' },
+  { src: '/images/hero/football-goal.jpg', hint: 'Football goal celebration' },
+  { src: '/images/hero/football-team.jpg', hint: 'Football team huddle' },
+];
+
+// Persistent football equipment images
+const persistentFootballItems = [
+  { src: 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?auto=format&fit=crop&w=400&q=80', alt: 'Football ball', style: 'top-20 left-10 w-32 h-32 md:w-48 md:h-48' },
+  { src: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=400&q=80', alt: 'Football boots', style: 'top-40 right-10 w-28 h-28 md:w-40 md:h-40' },
+  { src: 'https://images.unsplash.com/photo-1519861531473-920034658307?auto=format&fit=crop&w=400&q=80', alt: 'Football jersey', style: 'bottom-40 left-5 w-20 h-20 md:w-32 md:h-32' },
+  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=400&q=80', alt: 'Football goalpost', style: 'bottom-20 right-20 w-24 h-24 md:w-36 md:h-36' },
+  { src: 'https://images.unsplash.com/photo-1511204579483-e5c2b1d69acd?auto=format&fit=crop&w=400&q=80', alt: 'Football field', style: 'top-60 left-1/4 w-16 h-16 md:w-24 md:h-24' },
+  { src: 'https://images.unsplash.com/photo-1551645700-ffa2c6c4d0bd?auto=format&fit=crop&w=400&q=80', alt: 'Football trophy', style: 'top-1/4 right-1/4 w-24 h-24 md:w-36 md:h-36' },
+];
+
 export function HomePage() {
   const [scrollY, setScrollY] = useState(0);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -162,6 +259,9 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white overflow-x-hidden">
+      {/* Video Modal */}
+      <VideoModal isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
+
       {/* Header with parallax effect */}
       <header 
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
@@ -201,10 +301,10 @@ export function HomePage() {
                 </Link>
               </Button>
               <Button asChild className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                <a href="#join">
+                <Link href="/join">
                   <Zap className="h-4 w-4 mr-2" />
                   Join Now
-                </a>
+                </Link>
               </Button>
             </div>
           </div>
@@ -323,13 +423,11 @@ export function HomePage() {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  asChild 
-                  className="bg-black/60 backdrop-blur-sm border-gray-600 text-white hover:bg-green-600 hover:border-green-600 text-lg px-10 py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+                  className="bg-black/60 backdrop-blur-sm border-gray-600 text-white hover:bg-green-600 hover:border-green-600 text-lg px-10 py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all w-full sm:w-auto group"
+                  onClick={() => setIsVideoOpen(true)}
                 >
-                  <a href="#features">
-                    <Video className="mr-3 h-6 w-6" />
-                    Watch Demo
-                  </a>
+                  <Video className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform" />
+                  Watch Demo
                 </Button>
               </div>
               
@@ -456,6 +554,24 @@ export function HomePage() {
                 </div>
               ))}
             </div>
+
+            {/* CTA within Features */}
+            <div className="text-center">
+              <Button 
+                asChild
+                size="lg" 
+                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105 group"
+              >
+                <Link href="/join">
+                  <Sparkles className="mr-3 h-6 w-6 group-hover:rotate-180 transition-transform duration-500" />
+                  Start Your Free Trial
+                  <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                </Link>
+              </Button>
+              <p className="text-gray-400 mt-4 text-sm">
+                14-day free trial • No credit card required • Cancel anytime
+              </p>
+            </div>
           </div>
         </section>
 
@@ -476,9 +592,11 @@ export function HomePage() {
                 <p className="text-xl text-gray-300 mb-8">
                   Join world-class football tournaments, workshops, and scouting events
                 </p>
-                <Button size="lg" className="rounded-xl px-8 py-6 text-lg bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
-                  <Calendar className="mr-3 h-5 w-5" />
-                  View All Football Events
+                <Button asChild size="lg" className="rounded-xl px-8 py-6 text-lg bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
+                  <Link href="/join">
+                    <Calendar className="mr-3 h-5 w-5" />
+                    Register for Events
+                  </Link>
                 </Button>
               </div>
               
@@ -520,14 +638,37 @@ export function HomePage() {
                           <span className="text-sm">{event.location}</span>
                         </div>
                         <p className="text-sm text-gray-300 mb-4">{event.description}</p>
-                        <Button variant="outline" className="w-full border-green-600 text-green-500 hover:bg-green-600 hover:text-white transition-colors">
-                          Register Now
+                        <Button asChild variant="outline" className="w-full border-green-600 text-green-500 hover:bg-green-600 hover:text-white transition-colors">
+                          <Link href="/join">
+                            Register Now
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
+            </div>
+
+            {/* CTA within Events */}
+            <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 backdrop-blur-sm border border-green-500/30 rounded-3xl p-12 text-center">
+              <h3 className="text-3xl font-bold mb-4 text-white">
+                Ready to Showcase Your Football Talent?
+              </h3>
+              <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+                Join thousands of players who have been discovered through TalantaTrack events. 
+                Get your free trial and start registering for tournaments today.
+              </p>
+              <Button 
+                asChild
+                size="lg" 
+                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+              >
+                <Link href="/join">
+                  <Trophy className="mr-3 h-6 w-6" />
+                  Get Free Trial for Events
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
@@ -589,9 +730,11 @@ export function HomePage() {
             </div>
             
             <div className="text-center">
-              <Button size="lg" variant="outline" className="rounded-full px-10 py-6 text-lg border-green-600 text-green-500 hover:bg-green-600 hover:text-white">
-                <Newspaper className="mr-3 h-5 w-5" />
-                View All Football Articles
+              <Button asChild size="lg" variant="outline" className="rounded-full px-10 py-6 text-lg border-green-600 text-green-500 hover:bg-green-600 hover:text-white">
+                <Link href="/join">
+                  <Newspaper className="mr-3 h-5 w-5" />
+                  Get Full Access to Insights
+                </Link>
               </Button>
             </div>
           </div>
@@ -637,49 +780,117 @@ export function HomePage() {
                 </div>
               ))}
             </div>
+
+            {/* CTA within Testimonials */}
+            <div className="mt-20 text-center">
+              <div className="max-w-3xl mx-auto bg-gradient-to-r from-green-900/20 to-blue-900/20 backdrop-blur-sm border border-green-500/30 rounded-3xl p-12">
+                <h3 className="text-3xl font-bold mb-4 text-white">
+                  Join These Success Stories
+                </h3>
+                <p className="text-gray-300 mb-8">
+                  Be the next football star discovered through TalantaTrack. Start your journey today with our free trial.
+                </p>
+                <Button 
+                  asChild
+                  size="lg" 
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+                >
+                  <Link href="/join">
+                    <Award className="mr-3 h-6 w-6" />
+                    Start Your Success Story
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="w-full py-32 min-h-screen relative overflow-hidden flex items-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        {/* Final CTA Section */}
+        <section id="join" className="w-full py-32 min-h-screen relative overflow-hidden flex items-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
+          <div className="absolute inset-0 z-0">
+            {/* Animated background elements */}
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
+          </div>
+          
           <div className="container mx-auto px-4 md:px-8 relative z-10 w-full">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center space-x-2 mb-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full border border-green-500/30">
                 <Zap className="h-6 w-6 text-yellow-500 animate-pulse" />
                 <span className="text-xl font-semibold text-green-400 uppercase tracking-wider">
-                  Ready to Transform Your Football Journey?
+                  Limited Time Offer
                 </span>
               </div>
               
               <h2 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter mb-8">
-                Join <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">50,000+</span> Football Players Worldwide
+                Start Your <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Football Journey</span> Today
               </h2>
               
+              <div className="bg-black/60 backdrop-blur-sm border border-green-500/30 rounded-3xl p-8 mb-12 max-w-3xl mx-auto">
+                <h3 className="text-2xl font-bold mb-6 text-green-500">What You Get in Your Free Trial:</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                  {[
+                    "✓ 14-day full platform access",
+                    "✓ AI-powered player analysis",
+                    "✓ Connect with 100+ verified scouts",
+                    "✓ Upload match videos & highlights",
+                    "✓ Access to football tournaments",
+                    "✓ Performance tracking dashboard",
+                    "✓ Training plan generator",
+                    "✓ Priority email support"
+                  ].map((benefit, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      </div>
+                      <span className="text-gray-300">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
               <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-                Start your 14-day free trial today. No credit card required. Experience the future of football management.
+                Join 50,000+ football players, coaches, and scouts worldwide. Experience the future of football talent management.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
                 <Button 
+                  asChild
                   size="lg" 
-                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105"
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg px-12 py-7 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-105 group"
                 >
-                  <Sparkles className="mr-3 h-6 w-6" />
-                  Start Free Trial
+                  <Link href="/join">
+                    <Sparkles className="mr-3 h-6 w-6 group-hover:rotate-180 transition-transform duration-500" />
+                    Request Free Trial Now
+                    <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                  </Link>
                 </Button>
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="text-lg px-12 py-7 rounded-2xl border-2 border-green-600 text-green-500 hover:bg-green-600 hover:text-white transition-all"
+                  className="text-lg px-12 py-7 rounded-2xl border-2 border-green-600 text-green-500 hover:bg-green-600 hover:text-white transition-all group"
+                  onClick={() => setIsVideoOpen(true)}
                 >
-                  <Mic className="mr-3 h-6 w-6" />
-                  Book a Demo
+                  <Video className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform" />
+                  Watch Platform Demo
                 </Button>
               </div>
               
-              <p className="text-sm text-gray-400 mt-8">
-                Trusted by top football academies, professional clubs, and national federations
-              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-400">
+                <div className="flex items-center">
+                  <ShieldCheck className="h-4 w-4 mr-2 text-green-500" />
+                  <span>No credit card required</span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2 text-green-500" />
+                  <span>14-day free trial</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 mr-2 text-green-500" />
+                  <span>Trusted by 5,000+ clubs</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -724,13 +935,29 @@ export function HomePage() {
               </div>
             </div>
             
-            {['Platform', 'Company', 'Resources', 'Legal'].map((section) => (
-              <div key={section}>
-                <h3 className="font-bold text-lg mb-6 text-white">{section}</h3>
+            {[
+              {
+                title: 'Platform',
+                items: ['Features', 'Pricing', 'API', 'Status', 'Free Trial']
+              },
+              {
+                title: 'Company',
+                items: ['About', 'Careers', 'Press', 'Partners', 'Contact']
+              },
+              {
+                title: 'Resources',
+                items: ['Blog', 'Events', 'Help Center', 'Community', 'Documentation']
+              }
+            ].map((section) => (
+              <div key={section.title}>
+                <h3 className="font-bold text-lg mb-6 text-white">{section.title}</h3>
                 <ul className="space-y-3">
-                  {['Features', 'Pricing', 'API', 'Status'].map((item) => (
+                  {section.items.map((item) => (
                     <li key={item}>
-                      <a href="#" className="text-gray-400 hover:text-green-500 transition-colors">
+                      <a 
+                        href="#" 
+                        className="text-gray-400 hover:text-green-500 transition-colors hover:pl-2 block transition-all"
+                      >
                         {item}
                       </a>
                     </li>

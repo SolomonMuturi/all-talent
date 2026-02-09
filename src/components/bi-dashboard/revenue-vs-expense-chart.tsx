@@ -21,37 +21,59 @@ import {
 export function RevenueVsExpenseChart() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchChartData() {
       setLoading(true);
+      setError(null);
       try {
         const res = await fetch('/api/finances/transactions');
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`);
+        }
+        
         const data = await res.json();
+        
         if (data.success && Array.isArray(data.data?.transactions)) {
           // Group by month and sum revenue/expenses
           const monthly: Record<string, { revenue: number; expenses: number }> = {};
+          
           data.data.transactions.forEach((txn: any) => {
             const date = new Date(txn.date);
             const month = date.toLocaleString('default', { month: 'short' });
-            if (!monthly[month]) monthly[month] = { revenue: 0, expenses: 0 };
+            
+            if (!monthly[month]) {
+              monthly[month] = { revenue: 0, expenses: 0 };
+            }
+            
             if (txn.amount > 0) {
               monthly[month].revenue += txn.amount;
             } else {
               monthly[month].expenses += Math.abs(txn.amount);
             }
           });
+          
           // Sort months by order
           const monthsOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
           const chartArr = monthsOrder
-            .map(month => monthly[month] ? { month, ...monthly[month] } : null)
+            .map(month => monthly[month] ? { 
+              month, 
+              revenue: monthly[month].revenue,
+              expenses: monthly[month].expenses
+            } : { month, revenue: 0, expenses: 0 })
             .filter(Boolean);
+          
           setChartData(chartArr);
         } else {
           setChartData([]);
+          setError('No transaction data available');
         }
-      } catch {
+      } catch (err) {
+        console.error('Failed to fetch chart data:', err);
         setChartData([]);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
       } finally {
         setLoading(false);
       }
@@ -70,8 +92,66 @@ export function RevenueVsExpenseChart() {
     },
   };
 
+  // Add these styles to your global CSS or component
+  const chartStyle = {
+    '--color-revenue': 'hsl(var(--chart-1))',
+    '--color-expenses': 'hsl(var(--chart-2))',
+  } as React.CSSProperties;
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Revenue vs. Expenses</CardTitle>
+          <CardDescription>Monthly breakdown</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="min-h-[280px] flex items-center justify-center">
+            <p>Loading chart data...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Revenue vs. Expenses</CardTitle>
+          <CardDescription>Monthly breakdown</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="min-h-[280px] flex flex-col items-center justify-center text-center p-4">
+            <p className="text-red-500 mb-2">Error loading data</p>
+            <p className="text-sm text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Revenue vs. Expenses</CardTitle>
+          <CardDescription>Monthly breakdown</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="min-h-[280px] flex items-center justify-center">
+            <p className="text-muted-foreground">No transaction data available</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card>
+    <Card style={chartStyle}>
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle className="font-headline">Revenue vs. Expenses</CardTitle>
@@ -100,7 +180,7 @@ export function RevenueVsExpenseChart() {
               />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dot" />}
+                content={(props) => <ChartTooltipContent indicator="dot" {...props} />}
               />
               <Legend />
               <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
