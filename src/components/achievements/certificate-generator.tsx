@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -60,11 +60,17 @@ const onPitchModules = [
     'Advanced Dribbling & Ball Control',
     'Defensive Positioning Masterclass',
     'Finishing & Shot Power',
+    'Passing Accuracy & Vision',
+    'Goalkeeping Fundamentals',
+    'Set Piece Specialist',
 ];
 
 const tacticalModules = [
-    'Tactical Awareness & Game Reading'
-]
+    'Tactical Awareness & Game Reading',
+    'Team Formation & Strategy',
+    'Counter-Attack Execution',
+    'Press Resistance Training'
+];
 
 const offPitchModules = courses.map(course => course.title);
 
@@ -110,15 +116,17 @@ export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
         if(selectedPlayer && selectedModule) {
             const player = players.find(p => p.id === parseInt(selectedPlayer));
             if (player) {
-              const query = new URLSearchParams({
-                  academyName: branding.academyName,
-                  contactInfo: branding.contactInfo,
-                  s1Name: branding.signatory1.name,
-                  s1Title: branding.signatory1.title,
-                  s2Name: branding.signatory2.name,
-                  s2Title: branding.signatory2.title,
-              });
-              router.push(`/achievements/certificate/${encodeURIComponent(player.name)}/${encodeURIComponent(selectedModule)}?${query.toString()}`);
+                const query = new URLSearchParams({
+                    playerName: player.name,
+                    moduleName: selectedModule,
+                    academyName: branding.academyName,
+                    contactInfo: branding.contactInfo,
+                    s1Name: branding.signatory1.name,
+                    s1Title: branding.signatory1.title,
+                    s2Name: branding.signatory2.name,
+                    s2Title: branding.signatory2.title,
+                });
+                router.push(`/achievements/certificate?${query.toString()}`);
             }
         }
     }
@@ -193,6 +201,7 @@ export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
             <div className="mt-4 border rounded-lg p-4 bg-muted/20 text-center text-sm text-muted-foreground">
                 <p>Preview for <strong>{players.find(p => p.id === parseInt(selectedPlayer))?.name}</strong></p>
                 <p>Module: <strong>{selectedModule}</strong></p>
+                <p className="text-xs mt-2">Certificate will open in a new page for download</p>
             </div>
         )}
       </CardContent>
