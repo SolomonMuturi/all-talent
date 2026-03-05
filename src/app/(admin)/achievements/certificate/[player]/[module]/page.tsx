@@ -1,6 +1,6 @@
 'use client';
 
-import { CertificateTemplate } from '@/components/certificate-template';
+import { CertificateTemplate } from '@/components/achievements/certificate-template';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
