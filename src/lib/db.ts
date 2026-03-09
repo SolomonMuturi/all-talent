@@ -32,7 +32,7 @@ export async function testConnection() {
   let connection: mysql.PoolConnection | null = null;
   try {
     connection = await pool.getConnection();
-    const [rows] = await connection.query('SELECT 1 + 1 AS result, NOW() as timestamp, DATABASE() as database');
+    const [rows] = await connection.query('SELECT 1 + 1 AS result, NOW() AS timestamp, DATABASE() AS `database`');
     console.log('✅ Database connection successful');
     return { 
       success: true, 
@@ -689,7 +689,7 @@ export async function healthCheck() {
 // Quick DB check utility for debugging
 export async function quickDbCheck() {
   try {
-    const [rows] = await query('SELECT 1 as ok, NOW() as now, DATABASE() as db');
+    const [rows] = await query('SELECT 1 as ok, NOW() AS now, DATABASE() AS `db`');
     console.log('DB Check:', rows);
     return rows;
   } catch (error: any) {
