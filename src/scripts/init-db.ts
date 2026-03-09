@@ -1,4 +1,4 @@
-// src/scripts/init-db.ts
+import 'dotenv/config';
 import { initDatabase, testConnection } from '../lib/db';
 
 async function runInit() {
