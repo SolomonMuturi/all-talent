@@ -23,7 +23,6 @@ try {
   console.log('✅ MySQL connection pool created successfully');
 } catch (error) {
   console.error('❌ Failed to create MySQL pool:', error);
-  // Create pool without database first for initialization
   pool = mysql.createPool({ ...dbConfig, database: undefined });
 }
 
@@ -34,9 +33,9 @@ export async function testConnection() {
     connection = await pool.getConnection();
     const [rows] = await connection.query('SELECT 1 + 1 AS result, NOW() AS timestamp, DATABASE() AS `database`');
     console.log('✅ Database connection successful');
-    return { 
-      success: true, 
-      data: rows, 
+    return {
+      success: true,
+      data: rows,
       timestamp: new Date().toISOString(),
       env: {
         host: process.env.DB_HOST,
@@ -46,8 +45,8 @@ export async function testConnection() {
     };
   } catch (error: any) {
     console.error('❌ Database connection failed:', error.message);
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: error.message,
       code: error.code,
       sqlState: error.sqlState
@@ -57,7 +56,7 @@ export async function testConnection() {
   }
 }
 
-// Execute query helper with better error handling
+// Execute query helper
 export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
   let connection: mysql.PoolConnection | null = null;
   try {
@@ -65,12 +64,7 @@ export async function query<T = any>(sql: string, params?: any[]): Promise<T> {
     const [rows] = await connection.execute(sql, params || []);
     return rows as T;
   } catch (error: any) {
-    console.error('❌ Query error:', {
-      sql,
-      params,
-      error: error.message,
-      code: error.code
-    });
+    console.error('❌ Query error:', { sql, params, error: error.message, code: error.code });
     throw error;
   } finally {
     if (connection) connection.release();
@@ -95,12 +89,10 @@ export async function transaction<T>(
   }
 }
 
-// Get connection from pool
 export async function getConnection(): Promise<mysql.PoolConnection> {
   return await pool.getConnection();
 }
 
-// Check if database exists, create if not
 export async function ensureDatabaseExists() {
   try {
     const connection = await getConnection();
@@ -115,19 +107,18 @@ export async function ensureDatabaseExists() {
   }
 }
 
-// Initialize database with all TalentTrack tables
+// Initialize database with ALL tables
 export async function initDatabase() {
   const connection = await pool.getConnection();
-  
+
   try {
     await connection.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'alltalent_db'}`);
     await connection.query(`USE ${process.env.DB_NAME || 'alltalent_db'}`);
-    
-    // Create all tables (same as your structure)
+
     const tables = [
-      // Players
-      `
-      CREATE TABLE IF NOT EXISTS players (
+      // ── Players ────────────────────────────────────────────────────────────────
+      // NOTE: "rank" is reserved in MySQL 8 — using player_rank instead
+      `CREATE TABLE IF NOT EXISTS players (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
         age INT,
@@ -136,7 +127,7 @@ export async function initDatabase() {
         team VARCHAR(100),
         attendance INT DEFAULT 0,
         discipline_score INT DEFAULT 100,
-        rank INT DEFAULT 0,
+        player_rank INT DEFAULT 0,
         points INT DEFAULT 0,
         stats_played INT DEFAULT 0,
         stats_wins INT DEFAULT 0,
@@ -161,22 +152,20 @@ export async function initDatabase() {
         date_of_birth DATE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-      `,
-      // Certificates
-      `
-      CREATE TABLE IF NOT EXISTS certificates (
+      )`,
+
+      // ── Certificates ───────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS certificates (
         id VARCHAR(50) PRIMARY KEY,
         player_id INT NOT NULL,
         module_name VARCHAR(255) NOT NULL,
         date DATE NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
-      )
-      `,
-      // Disciplinary Infractions
-      `
-      CREATE TABLE IF NOT EXISTS disciplinary_infractions (
+      )`,
+
+      // ── Disciplinary Infractions ───────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS disciplinary_infractions (
         id INT PRIMARY KEY AUTO_INCREMENT,
         player_id INT NOT NULL,
         date DATE NOT NULL,
@@ -185,11 +174,10 @@ export async function initDatabase() {
         sanction VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
-      )
-      `,
-      // Injuries
-      `
-      CREATE TABLE IF NOT EXISTS injuries (
+      )`,
+
+      // ── Injuries ───────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS injuries (
         id INT PRIMARY KEY AUTO_INCREMENT,
         player_id INT NOT NULL,
         date DATE NOT NULL,
@@ -199,11 +187,24 @@ export async function initDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
-      )
-      `,
-      // Transactions
-      `
-      CREATE TABLE IF NOT EXISTS transactions (
+      )`,
+
+      // ── Courses ────────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS courses (
+        id VARCHAR(50) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        category VARCHAR(100),
+        duration_hours DECIMAL(5,2),
+        instructor VARCHAR(255),
+        thumbnail_url VARCHAR(255),
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )`,
+
+      // ── Transactions ───────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS transactions (
         id VARCHAR(50) PRIMARY KEY,
         player_name VARCHAR(255) NOT NULL,
         date DATE NOT NULL,
@@ -212,11 +213,10 @@ export async function initDatabase() {
         description TEXT,
         status VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-      `,
-      // Team Members
-      `
-      CREATE TABLE IF NOT EXISTS team_members (
+      )`,
+
+      // ── Team Members ───────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS team_members (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
@@ -227,11 +227,10 @@ export async function initDatabase() {
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-      `,
-      // Equipment
-      `
-      CREATE TABLE IF NOT EXISTS equipment (
+      )`,
+
+      // ── Equipment ──────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS equipment (
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         category VARCHAR(100) NOT NULL,
@@ -242,19 +241,18 @@ export async function initDatabase() {
         description TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-      `,
-      // Consumables
-      `
-      CREATE TABLE IF NOT EXISTS consumables (
+      )`,
+
+      // ── Consumables ────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS consumables (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         category VARCHAR(100) NOT NULL,
         unit VARCHAR(50) NOT NULL,
-        current_stock DECIMAL(10, 2) NOT NULL DEFAULT 0,
-        low_stock_threshold DECIMAL(10, 2) NOT NULL DEFAULT 10,
-        min_order_quantity DECIMAL(10, 2) NOT NULL DEFAULT 5,
-        price_per_unit DECIMAL(10, 2) DEFAULT 0,
+        current_stock DECIMAL(10,2) NOT NULL DEFAULT 0,
+        low_stock_threshold DECIMAL(10,2) NOT NULL DEFAULT 10,
+        min_order_quantity DECIMAL(10,2) NOT NULL DEFAULT 5,
+        price_per_unit DECIMAL(10,2) DEFAULT 0,
         supplier VARCHAR(255),
         last_restocked DATE,
         next_restock_date DATE,
@@ -262,11 +260,10 @@ export async function initDatabase() {
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-      `,
-      // Messages
-      `
-      CREATE TABLE IF NOT EXISTS messages (
+      )`,
+
+      // ── Messages ───────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS messages (
         id INT PRIMARY KEY AUTO_INCREMENT,
         content TEXT NOT NULL,
         channel VARCHAR(50) NOT NULL,
@@ -274,11 +271,10 @@ export async function initDatabase() {
         status VARCHAR(50) NOT NULL,
         timestamp DATETIME NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-      `,
-      // Academy Events
-      `
-      CREATE TABLE IF NOT EXISTS academy_events (
+      )`,
+
+      // ── Academy Events ─────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS academy_events (
         id VARCHAR(50) PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         subtitle VARCHAR(255),
@@ -293,11 +289,10 @@ export async function initDatabase() {
         tournament_type VARCHAR(100),
         team_count INT DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-      `,
-      // Event Participants
-      `
-      CREATE TABLE IF NOT EXISTS event_participants (
+      )`,
+
+      // ── Event Participants ─────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS event_participants (
         id INT PRIMARY KEY AUTO_INCREMENT,
         event_id VARCHAR(50) NOT NULL,
         player_id INT NOT NULL,
@@ -306,11 +301,10 @@ export async function initDatabase() {
         status VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
-      )
-      `,
-      // Tickets
-      `
-      CREATE TABLE IF NOT EXISTS tickets (
+      )`,
+
+      // ── Tickets ────────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS tickets (
         id INT PRIMARY KEY AUTO_INCREMENT,
         event_id VARCHAR(50) NOT NULL,
         ticket_type VARCHAR(100) NOT NULL,
@@ -319,11 +313,10 @@ export async function initDatabase() {
         available INT NOT NULL,
         description TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-      `,
-      // Merchandise
-      `
-      CREATE TABLE IF NOT EXISTS merchandise (
+      )`,
+
+      // ── Merchandise ────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS merchandise (
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         price DECIMAL(10,2) NOT NULL,
@@ -331,21 +324,57 @@ export async function initDatabase() {
         description TEXT,
         sizes JSON,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-      `,
-      // Clubs
-      `
-      CREATE TABLE IF NOT EXISTS clubs (
+      )`,
+
+      // ── Clubs ──────────────────────────────────────────────────────────────────
+      // FIX: Full column set matching clubs API route
+      `CREATE TABLE IF NOT EXISTS clubs (
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         logo_url VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-      `,
-      
-      // ADD INVITATIONS TABLE
-      `
-      CREATE TABLE IF NOT EXISTS invitations (
+        admin_email VARCHAR(255),
+        subscription_plan_id VARCHAR(50),
+        mrr DECIMAL(10,2) DEFAULT 0,
+        player_count INT DEFAULT 0,
+        status VARCHAR(50) DEFAULT 'Trialing',
+        renewal_date DATE,
+        sms_credits INT DEFAULT 0,
+        ai_credits INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )`,
+
+      // ── Settings ───────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS settings (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        setting_key VARCHAR(255) NOT NULL UNIQUE,
+        setting_value TEXT,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_key (setting_key)
+      )`,
+
+      // ── Audit Logs ─────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS audit_logs (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT,
+        action VARCHAR(255) NOT NULL,
+        table_name VARCHAR(100),
+        record_id VARCHAR(50),
+        old_values JSON,
+        new_values JSON,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_user_id (user_id),
+        INDEX idx_action (action),
+        INDEX idx_table_name (table_name),
+        INDEX idx_created_at (created_at)
+      )`,
+
+      // ── Invitations ────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS invitations (
         id INT PRIMARY KEY AUTO_INCREMENT,
         token VARCHAR(64) NOT NULL UNIQUE,
         name VARCHAR(255) NOT NULL,
@@ -363,12 +392,10 @@ export async function initDatabase() {
         INDEX idx_email (email),
         INDEX idx_expires_at (expires_at),
         INDEX idx_used (used)
-      )
-      `,
-      
-      // ADD USERS TABLE (updated to use 'users' instead of 'talantatrack_users')
-      `
-      CREATE TABLE IF NOT EXISTS users (
+      )`,
+
+      // ── Users ──────────────────────────────────────────────────────────────────
+      `CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
@@ -389,11 +416,9 @@ export async function initDatabase() {
         INDEX idx_invitation_token (invitation_token),
         INDEX idx_trial_ends_at (trial_ends_at),
         INDEX idx_user_type (user_type)
-      )
-      `,
+      )`,
     ];
-    
-    // Execute all table creation queries
+
     for (const tableSql of tables) {
       try {
         await connection.query(tableSql);
@@ -401,7 +426,7 @@ export async function initDatabase() {
         console.error(`Error creating table: ${error.message}`);
       }
     }
-    
+
     console.log('✅ All database tables created successfully');
     return { success: true, message: 'Database initialized successfully' };
   } catch (error: any) {
@@ -412,13 +437,10 @@ export async function initDatabase() {
   }
 }
 
-// Helper functions for common operations
+// ── DB helper functions ────────────────────────────────────────────────────────
 export const db = {
-  // ... your existing db functions ...
 
-  // INVITATION FUNCTIONS
   invitations: {
-    // Create a new invitation
     async create(data: {
       token: string;
       name: string;
@@ -430,110 +452,59 @@ export const db = {
       expires_at: Date;
     }) {
       const result = await query(
-        `INSERT INTO invitations (
-          token, name, email, phone, location, 
-          user_type, message, expires_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          data.token,
-          data.name,
-          data.email,
-          data.phone || null,
-          data.location,
-          data.user_type,
-          data.message || null,
-          data.expires_at
-        ]
+        `INSERT INTO invitations (token, name, email, phone, location, user_type, message, expires_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [data.token, data.name, data.email, data.phone || null, data.location,
+         data.user_type, data.message || null, data.expires_at]
       );
       return (result as any).insertId;
     },
 
-    // Validate token and get invitation
     async validateToken(token: string) {
-      const invitations = await query<any[]>(
-        `SELECT 
-          id, token, name, email, phone, location,
-          user_type, message, expires_at, used, used_at
-        FROM invitations 
-        WHERE token = ?`,
+      const rows = await query<any[]>(
+        `SELECT id, token, name, email, phone, location, user_type, message, expires_at, used, used_at
+         FROM invitations WHERE token = ?`,
         [token]
       );
-      
-      return invitations[0] || null;
+      return rows[0] || null;
     },
 
-    // Mark invitation as used
     async markAsUsed(token: string) {
-      await query(
-        `UPDATE invitations 
-         SET used = 1, used_at = NOW() 
-         WHERE token = ?`,
-        [token]
-      );
+      await query(`UPDATE invitations SET used = 1, used_at = NOW() WHERE token = ?`, [token]);
       return true;
     },
 
-    // Check if invitation is valid (not expired and not used)
     async isValid(token: string) {
       const invitation = await this.validateToken(token);
-      
-      if (!invitation) {
-        return { valid: false, reason: 'Token not found' };
-      }
-
-      if (invitation.used) {
-        return { valid: false, reason: 'Token already used' };
-      }
-
-      const now = new Date();
-      const expiresAt = new Date(invitation.expires_at);
-      
-      if (now > expiresAt) {
-        return { valid: false, reason: 'Token expired' };
-      }
-
+      if (!invitation) return { valid: false, reason: 'Token not found' };
+      if (invitation.used) return { valid: false, reason: 'Token already used' };
+      if (new Date() > new Date(invitation.expires_at)) return { valid: false, reason: 'Token expired' };
       return { valid: true, invitation };
     },
 
-    // Get all invitations (for admin)
     async getAll(limit = 50, offset = 0) {
       return await query(
-        `SELECT 
-          id, token, name, email, user_type, 
-          location, expires_at, used, used_at,
-          created_at
-        FROM invitations 
-        ORDER BY created_at DESC 
-        LIMIT ? OFFSET ?`,
+        `SELECT id, token, name, email, user_type, location, expires_at, used, used_at, created_at
+         FROM invitations ORDER BY created_at DESC LIMIT ? OFFSET ?`,
         [limit, offset]
       );
     },
 
-    // Get invitations by email
     async getByEmail(email: string) {
       return await query(
-        `SELECT * FROM invitations 
-         WHERE email = ? 
-         ORDER BY created_at DESC`,
-        [email]
+        `SELECT * FROM invitations WHERE email = ? ORDER BY created_at DESC`, [email]
       );
     },
 
-    // Clean up expired invitations (cron job)
     async cleanupExpired() {
       const result = await query(
-        `DELETE FROM invitations 
-         WHERE expires_at < NOW() 
-         AND used = 0`,
-        []
+        `DELETE FROM invitations WHERE expires_at < NOW() AND used = 0`
       );
       return (result as any).affectedRows || 0;
     }
   },
 
-  // USERS FUNCTIONS (updated to use 'users' table)
   users: {
-    // Create new user from invitation
     async create(data: {
       name: string;
       email: string;
@@ -543,134 +514,80 @@ export const db = {
       user_type: 'player' | 'coach' | 'scout' | 'academy';
       invitation_token: string;
     }) {
-      // Calculate trial dates
       const trialStartedAt = new Date();
       const trialEndsAt = new Date();
       trialEndsAt.setDate(trialEndsAt.getDate() + 14);
 
       const result = await query(
-        `INSERT INTO users (
-          name, email, password_hash, phone, location,
-          user_type, invitation_token, trial_started_at, trial_ends_at, is_active
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          data.name,
-          data.email,
-          data.password_hash,
-          data.phone || null,
-          data.location || null,
-          data.user_type,
-          data.invitation_token,
-          trialStartedAt,
-          trialEndsAt,
-          true
-        ]
+        `INSERT INTO users (name, email, password_hash, phone, location, user_type,
+           invitation_token, trial_started_at, trial_ends_at, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [data.name, data.email, data.password_hash, data.phone || null,
+         data.location || null, data.user_type, data.invitation_token,
+         trialStartedAt, trialEndsAt, true]
       );
       return (result as any).insertId;
     },
 
-    // Check if email already exists
     async emailExists(email: string) {
-      const users = await query<any[]>(
-        'SELECT id FROM users WHERE email = ?',
-        [email]
-      );
-      return users.length > 0;
+      const rows = await query<any[]>('SELECT id FROM users WHERE email = ?', [email]);
+      return rows.length > 0;
     },
 
-    // Get user by email
     async findByEmail(email: string) {
-      const users = await query<any[]>(
-        `SELECT * FROM users WHERE email = ?`,
-        [email]
-      );
-      return users[0] || null;
+      const rows = await query<any[]>(`SELECT * FROM users WHERE email = ?`, [email]);
+      return rows[0] || null;
     },
 
-    // Get user by ID
     async findById(id: number) {
-      const users = await query<any[]>(
-        `SELECT * FROM users WHERE id = ?`,
-        [id]
-      );
-      return users[0] || null;
+      const rows = await query<any[]>(`SELECT * FROM users WHERE id = ?`, [id]);
+      return rows[0] || null;
     },
 
-    // Get user by invitation token
     async findByInvitationToken(token: string) {
-      const users = await query<any[]>(
-        `SELECT * FROM users WHERE invitation_token = ?`,
-        [token]
-      );
-      return users[0] || null;
+      const rows = await query<any[]>(`SELECT * FROM users WHERE invitation_token = ?`, [token]);
+      return rows[0] || null;
     },
 
-    // Update user profile
     async update(id: number, data: Partial<{
-      name: string;
-      phone: string;
-      location: string;
-      profile_image: string;
+      name: string; phone: string; location: string; profile_image: string;
     }>) {
       const updates: string[] = [];
       const values: any[] = [];
-
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined) {
-          updates.push(`${key} = ?`);
-          values.push(value);
-        }
+        if (value !== undefined) { updates.push(`${key} = ?`); values.push(value); }
       });
-
       if (updates.length === 0) return false;
-
       values.push(id);
-      const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
-      await query(sql, values);
+      await query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values);
       return true;
     },
 
-    // Verify email
     async verifyEmail(id: number) {
-      await query(
-        `UPDATE users SET email_verified = TRUE WHERE id = ?`,
-        [id]
-      );
+      await query(`UPDATE users SET email_verified = TRUE WHERE id = ?`, [id]);
       return true;
     },
 
-    // Update last login
     async updateLastLogin(id: number) {
-      await query(
-        `UPDATE users SET last_login = NOW() WHERE id = ?`,
-        [id]
-      );
+      await query(`UPDATE users SET last_login = NOW() WHERE id = ?`, [id]);
       return true;
     }
   },
-
-  // ... rest of your existing db functions (players, transactions, events, etc.) ...
 };
 
-// Health check endpoint
+// Health check
 export async function healthCheck() {
   try {
     const [dbResult] = await query('SELECT 1 as status, NOW() as timestamp');
-    const tables = await query(`
-      SELECT TABLE_NAME, TABLE_ROWS, CREATE_TIME, UPDATE_TIME 
-      FROM INFORMATION_SCHEMA.TABLES 
-      WHERE TABLE_SCHEMA = ?
-      ORDER BY TABLE_NAME
-    `, [process.env.DB_NAME || 'alltalent_db']);
-    
+    const tables = await query(
+      `SELECT TABLE_NAME, TABLE_ROWS, CREATE_TIME, UPDATE_TIME
+       FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? ORDER BY TABLE_NAME`,
+      [process.env.DB_NAME || 'alltalent_db']
+    );
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      database: {
-        connected: true,
-        name: process.env.DB_NAME || 'alltalent_db',
-        tables: tables.length
-      },
+      database: { connected: true, name: process.env.DB_NAME || 'alltalent_db', tables: (tables as any[]).length },
       environment: process.env.NODE_ENV || 'development'
     };
   } catch (error: any) {
@@ -678,15 +595,11 @@ export async function healthCheck() {
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: error.message,
-      database: {
-        connected: false,
-        name: process.env.DB_NAME || 'alltalent_db'
-      }
+      database: { connected: false, name: process.env.DB_NAME || 'alltalent_db' }
     };
   }
 }
 
-// Quick DB check utility for debugging
 export async function quickDbCheck() {
   try {
     const [rows] = await query('SELECT 1 as ok, NOW() AS now, DATABASE() AS `db`');
@@ -698,5 +611,4 @@ export async function quickDbCheck() {
   }
 }
 
-// Export pool as default
 export default pool;

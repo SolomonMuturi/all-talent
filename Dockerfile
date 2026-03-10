@@ -16,8 +16,8 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 
-# If you use .env.local, copy it
-COPY .env.local .
+#Copy envirtonem variables
+
 
 # Copy built assets and node_modules
 COPY --from=builder /app/.next ./.next
