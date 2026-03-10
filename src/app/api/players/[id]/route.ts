@@ -106,8 +106,8 @@ export async function PUT(
     const values = [];
     
     for (const [key, value] of Object.entries(data)) {
-      if (key === 'rank') {
-        fields.push('`rank` = ?');
+      if (key === 'player_rank') {
+        fields.push('player_rank = ?');
       } else if (key === 'performanceMetrics') {
         // Handle nested performance metrics
         const metrics = value as any;

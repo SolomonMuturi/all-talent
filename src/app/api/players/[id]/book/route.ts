@@ -73,7 +73,7 @@ export async function GET(
         team: player.team,
         attendance: player.attendance,
         disciplineScore: player.discipline_score,
-        rank: player.rank,
+        player_rank: player.player_rank,
         points: player.points,
         phoneNumber: player.phone_number,
         email: player.email,
