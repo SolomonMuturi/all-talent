@@ -1,0 +1,210 @@
+'use client';
+
+import { Download, Award } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from '@/components/ui/select';
+import { courses } from '@/lib/courses';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface DatabasePlayer {
+  id: number;
+  name: string;
+  age: number;
+  position: string;
+  avatar_url: string | null;
+  team: string;
+  attendance: number;
+  discipline_score: number;
+  rank: number;
+  points: number;
+  stats_played: number;
+  stats_wins: number;
+  stats_draws: number;
+  stats_losses: number;
+  highlights: string;
+  gps_max_speed: number | null;
+  gps_distance_covered: number | null;
+  gps_player_load: number | null;
+  physical_speed: number;
+  physical_stamina: number;
+  physical_strength: number;
+  technical_dribbling: number;
+  technical_shooting: number;
+  technical_passing: number;
+  tactical_positioning: number;
+  tactical_game_reading: number;
+  psycho_leadership: number;
+  psycho_teamwork: number;
+  certificate_count: number;
+  infraction_count: number;
+  injury_count: number;
+}
+
+const onPitchModules = [
+    'Advanced Dribbling & Ball Control',
+    'Defensive Positioning Masterclass',
+    'Finishing & Shot Power',
+    'Passing Accuracy & Vision',
+    'Goalkeeping Fundamentals',
+    'Set Piece Specialist',
+];
+
+const tacticalModules = [
+    'Tactical Awareness & Game Reading',
+    'Team Formation & Strategy',
+    'Counter-Attack Execution',
+    'Press Resistance Training'
+];
+
+const offPitchModules = courses.map(course => course.title);
+
+interface CertificateGeneratorProps {
+    branding: {
+        academyName: string;
+        contactInfo: string;
+        signatory1: { name: string; title: string };
+        signatory2: { name: string; title: string };
+    }
+}
+
+export function CertificateGenerator({ branding }: CertificateGeneratorProps) {
+    const router = useRouter();
+    const [players, setPlayers] = useState<DatabasePlayer[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+    const [selectedModule, setSelectedModule] = useState<string | null>(null);
+    
+    useEffect(() => {
+      fetchPlayers();
+    }, []);
+
+    const fetchPlayers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/players?limit=1000');
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.players) {
+            setPlayers(data.data.players);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch players:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    const handleGenerate = () => {
+        if(selectedPlayer && selectedModule) {
+            const player = players.find(p => p.id === parseInt(selectedPlayer));
+            if (player) {
+                const query = new URLSearchParams({
+                    playerName: player.name,
+                    moduleName: selectedModule,
+                    academyName: branding.academyName,
+                    contactInfo: branding.contactInfo,
+                    s1Name: branding.signatory1.name,
+                    s1Title: branding.signatory1.title,
+                    s2Name: branding.signatory2.name,
+                    s2Title: branding.signatory2.title,
+                });
+                router.push(`/achievements/certificate?${query.toString()}`);
+            }
+        }
+    }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-headline flex items-center gap-2">
+            <Award className="size-5" /> Certificate Generation
+        </CardTitle>
+        <CardDescription>
+          Generate and download certificates for players who have completed training modules.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+            <label className="text-sm font-medium">Player</label>
+            <Select onValueChange={setSelectedPlayer} disabled={loading}>
+                <SelectTrigger>
+                    <SelectValue placeholder={loading ? "Loading players..." : "Select a player"} />
+                </SelectTrigger>
+                <SelectContent>
+                {players.map((player) => (
+                    <SelectItem key={player.id} value={String(player.id)}>
+                    {player.name}
+                    </SelectItem>
+                ))}
+                </SelectContent>
+            </Select>
+        </div>
+         <div>
+            <label className="text-sm font-medium">Training Module</label>
+            <Select onValueChange={setSelectedModule}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Select a module" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>On-Pitch Skills</SelectLabel>
+                    {onPitchModules.map((module) => (
+                        <SelectItem key={module} value={module}>
+                        {module}
+                        </SelectItem>
+                    ))}
+                  </SelectGroup>
+                   <SelectGroup>
+                    <SelectLabel>Tactical & Mental</SelectLabel>
+                    {tacticalModules.map((module) => (
+                        <SelectItem key={module} value={module}>
+                        {module}
+                        </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Off-Pitch Development</SelectLabel>
+                    {offPitchModules.map((module) => (
+                        <SelectItem key={module} value={module}>
+                        {module}
+                        </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+            </Select>
+        </div>
+
+        <Button className="w-full" disabled={!selectedPlayer || !selectedModule || loading} onClick={handleGenerate}>
+            <Download className="mr-2 h-4 w-4" />
+            Generate Certificate
+        </Button>
+
+        {selectedPlayer && selectedModule && (
+            <div className="mt-4 border rounded-lg p-4 bg-muted/20 text-center text-sm text-muted-foreground">
+                <p>Preview for <strong>{players.find(p => p.id === parseInt(selectedPlayer))?.name}</strong></p>
+                <p>Module: <strong>{selectedModule}</strong></p>
+                <p className="text-xs mt-2">Certificate will open in a new page for download</p>
+            </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

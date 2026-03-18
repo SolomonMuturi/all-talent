@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g>
+    <rect width="100" height="100" fill="#1E88E5"/>
+    <path d="M30 40 L50 20 L70 40 L50 60 Z" fill="#FFFFFF"/>
+    <path d="M30 60 L50 40 L70 60 L50 80 Z" fill="#BBDEFB"/>
+  </g>
+  <text x="50" y="92" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="#FFFFFF">FINTECH SUMMIT</text>
+</svg>
