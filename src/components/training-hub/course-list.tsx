@@ -13,11 +13,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, DollarSign } from "lucide-react";
+import { Loader2, DollarSign, ImageIcon } from "lucide-react";
 
 interface CourseListProps {
   courses: Course[];
@@ -101,6 +100,37 @@ function PaymentDialog({ course, open, onOpenChange }: PaymentDialogProps) {
   );
 }
 
+// Image with fallback component
+function CourseImage({ src, alt, hint }: { src: string; alt: string; hint?: string }) {
+  const [imgError, setImgError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Default placeholder image (data URI for a simple gray placeholder)
+  const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23666'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23fff' font-size='20'%3EImage Not Available%3C/text%3E%3C/svg%3E";
+
+  // If the image fails to load, use placeholder
+  const imageSrc = imgError ? placeholderImage : src;
+
+  return (
+    <div className="relative aspect-video bg-muted">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <ImageIcon className="h-8 w-8 animate-pulse text-muted-foreground" />
+        </div>
+      )}
+      <Image
+        src={imageSrc}
+        alt={alt}
+        fill
+        className={`rounded-t-lg object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        data-ai-hint={hint}
+        onError={() => setImgError(true)}
+        onLoad={() => setIsLoading(false)}
+        unoptimized={src.startsWith('data:')}
+      />
+    </div>
+  );
+}
 
 export function CourseList({ courses }: CourseListProps) {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -117,26 +147,26 @@ export function CourseList({ courses }: CourseListProps) {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {courses.map((course) => (
-          <Card key={course.id} className="flex flex-col">
-            <CardHeader>
-              <div className="relative aspect-video">
-                  <Image
-                      src={course.thumbnailUrl}
-                      alt={course.title}
-                      fill
-                      className="rounded-t-lg object-cover"
-                      data-ai-hint={course.thumbnailHint}
-                  />
+          <Card key={course.id} className="flex flex-col overflow-hidden">
+            <CardHeader className="p-0">
+              <CourseImage 
+                src={course.thumbnailUrl || '/images/placeholder-course.jpg'} 
+                alt={course.title}
+                hint={course.thumbnailHint}
+              />
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <CardTitle className="font-headline text-lg line-clamp-1">{course.title}</CardTitle>
                   {course.price && course.price > 0 && (
-                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-full">
-                        KES {course.price.toLocaleString()}
+                    <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                      KES {course.price.toLocaleString()}
                     </div>
                   )}
+                </div>
+                <CardDescription className="line-clamp-2">{course.description}</CardDescription>
               </div>
-              <CardTitle className="mt-4 font-headline text-lg">{course.title}</CardTitle>
-              <CardDescription className="line-clamp-2">{course.description}</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow flex flex-col justify-end">
+            <CardContent className="flex-grow flex flex-col justify-end p-4 pt-0">
                 {course.price && course.price > 0 ? (
                     <Button onClick={() => handleCourseAction(course)} className="w-full mt-auto">
                         Buy Course

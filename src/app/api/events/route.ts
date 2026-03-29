@@ -25,12 +25,14 @@ export async function GET(request: NextRequest) {
 
     const events = await query(sql, params);
 
-    // Ensure all events have properly formatted dates
     const formattedEvents = events.map((event: any) => ({
       ...event,
       event_date: event.event_date ? new Date(event.event_date).toISOString() : null,
       created_at: event.created_at ? new Date(event.created_at).toISOString() : null,
       updated_at: event.updated_at ? new Date(event.updated_at).toISOString() : null,
+      lineup_squad: event.lineup_squad ? 
+        (typeof event.lineup_squad === 'string' ? JSON.parse(event.lineup_squad) : event.lineup_squad) 
+        : []
     }));
 
     return NextResponse.json({
@@ -70,9 +72,10 @@ export async function POST(request: NextRequest) {
       description
     } = data;
 
-    if (!title || !organizer || !event_date || !category) {
+    // Validate required fields
+    if (!title || !organizer || !event_date || !category || !venue || !location) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Missing required fields: title, organizer, event_date, category, venue, location' },
         { status: 400 }
       );
     }
@@ -92,8 +95,8 @@ export async function POST(request: NextRequest) {
         category, 
         logo_url || null, 
         country || null, 
-        location || null, 
-        venue || null, 
+        location, 
+        venue, 
         game_type || null, 
         tournament_type || 'N/A', 
         team_count || 0, 
