@@ -2,23 +2,28 @@
 
 import { Logo } from '@/components/icons';
 import { Button } from '../ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Printer, Download, Mail, CreditCard, Calendar, FileText, CheckCircle } from 'lucide-react';
 import { Club, ADDON_PRICES, subscriptionPlans } from '@/lib/platform-data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Separator } from '../ui/separator';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { toPng } from 'html-to-image';
 
 interface InvoiceTemplateProps {
   club: Club;
 }
 
 export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
+  const invoiceRef = useRef<HTMLDivElement>(null);
   const [invoice, setInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isPreviewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -88,7 +93,31 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(paymentData)}`;
 
   const handlePrint = () => window.print();
-  const handleDownload = () => console.log('Downloading invoice...');
+  const handlePreview = () => {
+    if (invoiceRef.current) {
+      setPreviewHtml(invoiceRef.current.outerHTML);
+    }
+    setPreviewOpen(true);
+  };
+  const handleDownload = async () => {
+    if (!invoiceRef.current) return;
+
+    try {
+      const dataUrl = await toPng(invoiceRef.current, {
+        quality: 0.95,
+        cacheBust: true,
+        pixelRatio: 2,
+      });
+
+      const link = document.createElement('a');
+      const invoiceNumber = invoice?.number || `INV-${String(club.id.split('_')[1] || '0000').padStart(4, '0')}-${invoiceDate.getFullYear()}`;
+      link.href = dataUrl;
+      link.download = `${invoiceNumber}.png`;
+      link.click();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+    }
+  };
   const handleEmail = () => console.log('Sending invoice via email...');
 
   if (loading) {
@@ -106,20 +135,32 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
     <>
       <style jsx global>{`
         @media print {
+          html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
           body * { visibility: hidden; }
           #invoice-print, #invoice-print * { visibility: visible; }
           #invoice-print {
             position: absolute;
             left: 0;
             top: 0;
-            width: 100%;
-            min-height: 100vh;
+            width: 210mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            padding: 16mm;
+            margin: 0;
             background: white;
-            padding: 2rem;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            overflow: hidden;
+            transform: scale(0.98);
+            transform-origin: top left;
           }
-          .no-print { display: none !important; }
+          #invoice-print .no-print { display: none !important; }
+          #invoice-print .shadow-xl { box-shadow: none !important; }
+          #invoice-print .border { border: none !important; }
+          #invoice-print img { max-width: 100%; height: auto !important; }
         }
-        @page { margin: 20mm; }
+        @page { size: A4 portrait; margin: 14mm; }
       `}</style>
 
       <div className="max-w-4xl mx-auto p-4">
@@ -141,10 +182,14 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
               </Badge>
             </div>
           </div>
-          <div className="flex gap-2 no-print">
+          <div className="flex flex-wrap gap-2 no-print">
             <Button variant="outline" onClick={handlePrint} className="gap-2">
               <Printer className="h-4 w-4" />
               Print
+            </Button>
+            <Button variant="outline" onClick={handlePreview} className="gap-2">
+              <FileText className="h-4 w-4" />
+              Print Preview
             </Button>
             <Button variant="outline" onClick={handleDownload} className="gap-2">
               <Download className="h-4 w-4" />
@@ -158,7 +203,7 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
         </div>
 
         {/* Invoice Card */}
-        <Card id="invoice-print" className="shadow-xl overflow-hidden">
+        <Card id="invoice-print" ref={invoiceRef} className="shadow-xl overflow-hidden">
           {/* Invoice Header */}
           <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-6 md:p-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -187,13 +232,19 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
                   BILL TO
                 </h3>
                 <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
-                  <div className="relative h-14 w-14 flex-shrink-0">
-                    <Image
-                      src={club.logoUrl}
-                      alt={`${club.name} logo`}
-                      fill
-                      className="rounded-lg object-cover border"
-                    />
+                  <div className="relative h-14 w-14 flex-shrink-0 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg border flex items-center justify-center">
+                    {club.logoUrl ? (
+                      <Image
+                        src={club.logoUrl}
+                        alt={`${club.name} logo`}
+                        fill
+                        className="rounded-lg object-cover border"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold text-primary">
+                        {clubName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <p className="font-bold text-lg">{clubName}</p>
@@ -323,6 +374,33 @@ export function InvoiceTemplate({ club }: InvoiceTemplateProps) {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={isPreviewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden">
+          <div className="flex items-center justify-between border-b px-6 py-4 bg-background">
+            <DialogHeader>
+              <DialogTitle>Invoice Print Preview</DialogTitle>
+              <DialogDescription>Review the invoice layout before printing or downloading.</DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handlePrint} className="gap-2">
+                <Printer className="h-4 w-4" />
+                Print
+              </Button>
+              <Button variant="outline" onClick={() => setPreviewOpen(false)} className="gap-2">
+                Close
+              </Button>
+            </div>
+          </div>
+          <div className="h-[calc(95vh-88px)] overflow-auto bg-muted/10 p-4">
+            {previewHtml ? (
+              <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+            ) : (
+              <div className="p-6 text-center text-muted-foreground">Preparing preview…</div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

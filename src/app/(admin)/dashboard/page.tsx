@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
   Banknote,
   Users,
@@ -6,71 +9,90 @@ import {
   ShieldAlert,
   Coins,
   Wallet,
+  Calendar,
+  Package,
+  TrendingUp,
 } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import { RecentTransactions } from '@/components/dashboard/recent-transactions';
-import { transactions, players } from '@/lib/data';
 
 export default function DashboardPage() {
-  const totalExpenses = transactions
-    .filter(t => t.type === 'Expense')
-    .reduce((acc, t) => acc + Math.abs(t.amount), 0);
-  const activePlayers = players.length;
-  const avgExpensePerPlayer = activePlayers > 0 ? totalExpenses / activePlayers : 0;
-  const totalRevenue = transactions
-    .filter((t) => t.type === 'Fee Payment')
-    .reduce((acc, t) => acc + t.amount, 0);
-  const netProfit = totalRevenue - totalExpenses;
-  const profitPerPlayer = activePlayers > 0 ? netProfit / activePlayers : 0;
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/dashboard/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStats();
+  }, []);
+
+  if (loading || !stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-muted-foreground">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  const avgRevenuePerPlayer = stats.totalPlayers > 0 ? stats.totalRevenue / stats.totalPlayers : 0;
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Primary KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link href="/finances">
           <KpiCard
             title="Total Revenue"
-            value={`KES ${totalRevenue.toLocaleString()}`}
+            value={`KES ${(stats.totalRevenue || 0).toLocaleString()}`}
             change="+11.5%"
             icon={<Banknote className="size-5 text-muted-foreground" />}
-            description="from last month"
-          />
-        </Link>
-        <Link href="/finances">
-          <KpiCard
-            title="Cost Per Player"
-            value={`KES ${avgExpensePerPlayer.toLocaleString(undefined, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            })}`}
-            change="+3%"
-            icon={<Coins className="size-5 text-muted-foreground" />}
-            description="from last month"
-          />
-        </Link>
-        <Link href="/finances">
-          <KpiCard
-            title="Profit Per Player"
-            value={`KES ${profitPerPlayer.toLocaleString(undefined, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            })}`}
-            change="-2%"
-            icon={<Wallet className="size-5 text-muted-foreground" />}
             description="from last month"
           />
         </Link>
         <Link href="/players">
           <KpiCard
             title="Players Enrolled"
-            value={String(activePlayers)}
+            value={String(stats.totalPlayers || 0)}
             change="+2"
             icon={<Users className="size-5 text-muted-foreground" />}
             description="since last week"
           />
         </Link>
+        <Link href="/team">
+          <KpiCard
+            title="Active Staff"
+            value={String(stats.activeStaff || 0)}
+            change="+1"
+            icon={<TrendingUp className="size-5 text-muted-foreground" />}
+            description="team members"
+          />
+        </Link>
+        <Link href="/events">
+          <KpiCard
+            title="Upcoming Events"
+            value={String(stats.upcomingEvents || 0)}
+            change="+3"
+            icon={<Calendar className="size-5 text-muted-foreground" />}
+            description="scheduled"
+          />
+        </Link>
       </div>
+
+      {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="col-span-1 lg:col-span-3">
           <RevenueChart />
@@ -79,25 +101,48 @@ export default function DashboardPage() {
           <RecentTransactions />
         </div>
       </div>
+
+      {/* Secondary KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Link href="/inventory">
+          <KpiCard
+            title="Total Equipment"
+            value={String(stats.totalEquipment || 0)}
+            change={`${stats.lowStockItems || 0} low`}
+            icon={<Package className="size-5 text-muted-foreground" />}
+            description="items in inventory"
+          />
+        </Link>
+        <Link href="/inventory">
+          <KpiCard
+            title="Low Stock Items"
+            value={String(stats.lowStockItems || 0)}
+            change="Action needed"
+            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
+            description="below threshold"
+          />
+        </Link>
         <Link href="/players">
           <KpiCard
-            title="Attendance Rate"
-            value="92.8%"
-            change="-1.2%"
-            icon={<ScanLine className="size-5 text-muted-foreground" />}
-            description="from last month"
+            title="Revenue Per Player"
+            value={`KES ${avgRevenuePerPlayer.toLocaleString(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}`}
+            change="+3%"
+            icon={<Coins className="size-5 text-muted-foreground" />}
+            description="average per player"
           />
         </Link>
-        <Link href="/fraud-detection">
+        {stats.performanceAverages && (
           <KpiCard
-            title="Fraud Alerts"
-            value="3"
-            change="+1"
-            icon={<ShieldAlert className="size-5 text-muted-foreground" />}
-            description="in the last 24 hours"
+            title="Avg Player Speed"
+            value={`${(stats.performanceAverages[0]?.avg_speed || 0).toFixed(1)} km/h`}
+            change="+2.1%"
+            icon={<Wallet className="size-5 text-muted-foreground" />}
+            description="performance metric"
           />
-        </Link>
+        )}
       </div>
     </div>
   );

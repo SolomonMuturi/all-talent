@@ -165,7 +165,7 @@ export default function PlayersPage() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {teamPlayers.sort((a, b) => a.rank - b.rank).map((player) => (
-              <Link key={player.id} href={`/admin/players/${player.id}`}>
+              <Link key={player.id} href={`/players/${player.id}`}>
                 <Card className="hover:bg-muted/50 transition-colors cursor-pointer text-center relative">
                   <Badge className="absolute top-2 right-2 flex gap-1 items-center" 
                          variant={player.rank === 1 ? 'default' : 'secondary'}>

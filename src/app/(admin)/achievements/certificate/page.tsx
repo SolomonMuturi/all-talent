@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// TEMPORARY INLINE COMPONENT - Copy this ENTIRE file
 function CertificateTemplate({ 
   playerName, 
   moduleName,
@@ -43,7 +42,7 @@ function CertificateTemplate({
           body {
             background-color: white !important;
             -webkit-print-color-adjust: exact;
-            color-adjust: exact;
+            print-color-adjust: exact;
           }
           .no-print {
             display: none;
@@ -64,10 +63,16 @@ function CertificateTemplate({
             background-color: white !important;
             color: black !important;
           }
+          img {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
         }
       `}</style>
-      <div className="absolute top-4 right-4 no-print">
-        <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4"/> Download PDF</Button>
+      <div className="absolute top-4 right-4 no-print z-20">
+        <Button onClick={handleDownload} className="shadow-lg">
+          <Download className="mr-2 h-4 w-4"/> Download PDF
+        </Button>
       </div>
       <div id="certificate-to-print" className="bg-background p-4 sm:p-8 flex items-center justify-center min-h-[calc(100vh-4rem)] print:p-0">
         <div className="w-full max-w-4xl mx-auto p-8 border-4 border-primary bg-white text-black rounded-lg shadow-2xl relative overflow-hidden printable-content">
@@ -87,12 +92,16 @@ function CertificateTemplate({
                   ))}
                 </div>
               </div>
-              <div className="w-20 h-20 flex items-center justify-center">
+              <div className="w-24 h-24 flex items-center justify-center">
                 <div className="text-xs text-center">
-                  <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mx-auto mb-1">
-                    QR
-                  </div>
-                  <span>Scan to verify</span>
+                  <img 
+                    src={qrCodeUrl}
+                    alt="Verification QR Code"
+                    className="w-20 h-20 mx-auto mb-1 border border-gray-300 rounded-lg"
+                    width="150"
+                    height="150"
+                  />
+                  <span className="text-gray-600 text-xs">Scan to verify</span>
                 </div>
               </div>
             </div>
@@ -102,28 +111,38 @@ function CertificateTemplate({
               <p className="text-gray-600 text-lg">This certificate is proudly presented to</p>
             </div>
 
-            <h2 className="text-5xl font-bold border-b-2 border-primary pb-4">{playerName}</h2>
+            <h2 className="text-5xl font-bold border-b-2 border-primary pb-4 inline-block px-8">{playerName}</h2>
             
             <p className="text-gray-600 text-lg">for successfully completing the training module</p>
             
-            <h3 className="text-3xl font-semibold italic border-t-2 border-b-2 border-accent py-4">{moduleName}</h3>
+            <h3 className="text-3xl font-semibold italic border-t-2 border-b-2 border-accent py-4 inline-block px-8">{moduleName}</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 items-end">
               <div className="flex flex-col items-center">
                 <p className="font-bold text-lg">{signatory1Name}</p>
-                <hr className="w-full border-t border-gray-400 my-1" />
+                <hr className="w-full border-t-2 border-gray-400 my-1" />
                 <p className="text-sm text-gray-600">{signatory1Title}</p>
               </div>
               <div className="flex flex-col items-center">
                 <p className="font-bold text-lg">{issueDate}</p>
-                <hr className="w-full border-t border-gray-400 my-1" />
+                <hr className="w-full border-t-2 border-gray-400 my-1" />
                 <p className="text-sm text-gray-600">Date of Issue</p>
               </div>
               <div className="flex flex-col items-center">
                 <p className="font-bold text-lg">{signatory2Name}</p>
-                <hr className="w-full border-t border-gray-400 my-1" />
+                <hr className="w-full border-t-2 border-gray-400 my-1" />
                 <p className="text-sm text-gray-600">{signatory2Title}</p>
               </div>
+            </div>
+
+            {/* Certificate Footer */}
+            <div className="pt-8 mt-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500">
+                Certificate ID: {`${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 8)}`.toUpperCase()}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                This certificate can be verified by scanning the QR code above
+              </p>
             </div>
           </div>
         </div>
@@ -140,13 +159,13 @@ function CertificatePageContent() {
   const playerName = searchParams.get('playerName') || 'Player Name';
   const moduleName = searchParams.get('moduleName') || 'Training Module';
   const academyName = searchParams.get('academyName') || 'TalantaTrack Academy';
-  const contactInfo = searchParams.get('contactInfo') || '123 Football Lane, Nairobi, Kenya | +254 700 000 000';
+  const contactInfo = searchParams.get('contactInfo') || '123 Football Lane, Nairobi, Kenya | +254 700 000 000 | info@talantatrack.com';
   const signatory1Name = searchParams.get('s1Name') || 'John Omondi';
   const signatory1Title = searchParams.get('s1Title') || 'Head Coach';
   const signatory2Name = searchParams.get('s2Name') || 'Esther Chepkoech';
   const signatory2Title = searchParams.get('s2Title') || 'Academy Director';
 
-  // Decode URL parameters (important!)
+  // Decode URL parameters (important for special characters)
   const decodedPlayerName = decodeURIComponent(playerName);
   const decodedModuleName = decodeURIComponent(moduleName);
   const decodedAcademyName = decodeURIComponent(academyName);
@@ -157,13 +176,13 @@ function CertificatePageContent() {
   const decodedSignatory2Title = decodeURIComponent(signatory2Title);
 
   return (
-    <div className="relative">
-      <div className="absolute top-4 left-4 z-10">
+    <div className="relative min-h-screen bg-gray-100">
+      <div className="absolute top-4 left-4 z-20 no-print">
         <Button 
           variant="outline" 
           size="sm" 
           onClick={() => router.push('/achievements')}
-          className="no-print"
+          className="bg-white shadow-lg hover:bg-gray-50"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Achievements
@@ -186,9 +205,9 @@ function CertificatePageContent() {
 export default function CertificatePage() {
   return (
     <Suspense fallback={
-      <div className="flex flex-col items-center justify-center h-screen">
-        <div className="text-lg font-medium mb-4">Loading certificate...</div>
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
+        <div className="text-lg font-medium text-gray-700 mb-4">Loading certificate...</div>
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>
       <CertificatePageContent />
