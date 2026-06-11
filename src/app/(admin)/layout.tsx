@@ -17,6 +17,7 @@ import {
   GraduationCap,
   Building,
   UserCheck,
+  Bell,
 } from 'lucide-react';
 
 import {
@@ -48,6 +49,7 @@ import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons';
 import { Breadcrumb } from '@/components/layout/breadcrumb';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { NotificationBell } from '@/components/notification-bell';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -103,6 +105,7 @@ const navItems = [
   },
   { href: '/training-hub', icon: GraduationCap, label: 'Training Hub' },
   { href: '/blog', icon: Newspaper, label: 'Blog' },
+  { href: '/messages', icon: Bell, label: 'Messages' },
   { href: '/platform', icon: Building, label: 'Platform Management' },
 ];
 
@@ -226,6 +229,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <NotificationBell />
       </SidebarInset>
     </SidebarProvider>
   );

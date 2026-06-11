@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       query('SELECT COUNT(*) as count FROM players'),
       query('SELECT SUM(amount) as total FROM transactions WHERE status = "Completed"'),
       query('SELECT COUNT(*) as count FROM academy_events WHERE event_date >= CURDATE()'),
-      query('SELECT COUNT(*) as count FROM team_members WHERE is_active = TRUE'),
+      query('SELECT COUNT(*) as count FROM team_members'),
       query('SELECT COUNT(*) as count FROM equipment'),
       query('SELECT COUNT(*) as count FROM consumables WHERE current_stock <= low_stock_threshold'),
       query('SELECT team, COUNT(*) as count FROM players GROUP BY team'),
@@ -38,15 +38,15 @@ export async function GET(request: NextRequest) {
     `);
     
     const stats = {
-      totalPlayers: totalPlayersResult[0]?.[0]?.count || 0,
-      totalRevenue: totalRevenueResult[0]?.[0]?.total || 0,
-      upcomingEvents: upcomingEventsResult[0]?.[0]?.count || 0,
-      activeStaff: activeStaffResult[0]?.[0]?.count || 0,
-      totalEquipment: totalEquipmentResult[0]?.[0]?.count || 0,
-      lowStockItems: lowStockResult[0]?.[0]?.count || 0,
-      teamDistribution: teamDistributionResult[0],
-      recentEnrollments: recentEnrollmentsResult[0],
-      performanceAverages: performanceAverages[0],
+      totalPlayers: totalPlayersResult?.[0]?.count || 0,
+      totalRevenue: totalRevenueResult?.[0]?.total || 0,
+      upcomingEvents: upcomingEventsResult?.[0]?.count || 0,
+      activeStaff: activeStaffResult?.[0]?.count || 0,
+      totalEquipment: totalEquipmentResult?.[0]?.count || 0,
+      lowStockItems: lowStockResult?.[0]?.count || 0,
+      teamDistribution: teamDistributionResult,
+      recentEnrollments: recentEnrollmentsResult,
+      performanceAverages: performanceAverages?.[0],
       updatedAt: new Date().toISOString()
     };
     
