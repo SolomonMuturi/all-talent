@@ -16,9 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TeamFormation } from './team-formation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Define the interface based on your actual API response
 interface AcademyEvent {
   id: string;
   title: string;
@@ -65,7 +64,6 @@ const DetailItem = ({
 );
 
 export function EventDetails({ event }: EventDetailsProps) {
-  // Safe defaults for all properties
   const safeEvent = {
     ...event,
     subtitle: event.subtitle || '',
@@ -115,7 +113,6 @@ export function EventDetails({ event }: EventDetailsProps) {
     },
   ];
 
-  // Format date safely
   const formatEventDate = () => {
     if (!safeEvent.event_date) return 'Date not set';
     
@@ -133,19 +130,16 @@ export function EventDetails({ event }: EventDetailsProps) {
     }
   };
 
-  // Parse lineup_squad safely (it might be JSON string or already parsed)
   const getLineupSquad = () => {
     try {
       if (!safeEvent.lineup_squad || safeEvent.lineup_squad.length === 0) {
         return [];
       }
       
-      // If it's a string, try to parse it as JSON
       if (typeof safeEvent.lineup_squad === 'string') {
         return JSON.parse(safeEvent.lineup_squad);
       }
       
-      // If it's already an array, return it
       if (Array.isArray(safeEvent.lineup_squad)) {
         return safeEvent.lineup_squad;
       }
@@ -162,7 +156,6 @@ export function EventDetails({ event }: EventDetailsProps) {
   return (
     <Card>
       <CardHeader className="text-center">
-        {/* FIXED: Only show Image if logo_url exists and is not empty */}
         {safeEvent.logo_url && safeEvent.logo_url.trim() !== '' ? (
           <div className="flex justify-center mb-4">
             <div className="relative h-20 w-20">
@@ -173,7 +166,6 @@ export function EventDetails({ event }: EventDetailsProps) {
                 height={80}
                 className="object-contain"
                 onError={(e) => {
-                  // Hide image if it fails to load
                   e.currentTarget.style.display = 'none';
                 }}
               />
@@ -222,7 +214,6 @@ export function EventDetails({ event }: EventDetailsProps) {
               ))}
             </div>
             
-            {/* Event Description */}
             {safeEvent.description && safeEvent.description.trim() !== '' && (
               <div className="mt-6">
                 <h3 className="font-semibold mb-2">Event Description</h3>
@@ -232,7 +223,6 @@ export function EventDetails({ event }: EventDetailsProps) {
               </div>
             )}
             
-            {/* Country Information */}
             {safeEvent.country && safeEvent.country !== 'Not specified' && (
               <div className="mt-4">
                 <h3 className="font-semibold mb-2">Country</h3>
@@ -251,7 +241,6 @@ export function EventDetails({ event }: EventDetailsProps) {
           </TabsContent>
           
           <TabsContent value="lineup" className="mt-4">
-            {/* FIXED: Pass parsed lineup data */}
             {lineupSquad.length > 0 ? (
               <TeamFormation 
                 lineup={{
