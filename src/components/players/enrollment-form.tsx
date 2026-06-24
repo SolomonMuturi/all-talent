@@ -1,9 +1,10 @@
+// components/players/enrollment-form.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
-import { CalendarIcon, UploadCloud, FileText, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarIcon, UploadCloud, FileText, User, ChevronLeft, ChevronRight, Trash2, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,18 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { EnrollmentSteps } from './enrollment-steps';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const steps = [
   { id: '01', name: 'Personal Details' },
@@ -27,24 +40,39 @@ const steps = [
   { id: '04', name: 'Review & Submit' },
 ];
 
-export function EnrollmentForm() {
+interface EnrollmentFormProps {
+  existingPlayer?: {
+    id: number;
+    name: string;
+    dateOfBirth: string;
+    position: string;
+    team: string;
+    phoneNumber: string;
+    email: string;
+    avatar_url?: string;
+  };
+  mode?: 'create' | 'edit';
+}
+
+export function EnrollmentForm({ existingPlayer, mode = 'create' }: EnrollmentFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   
   // Form state
   const [formData, setFormData] = useState({
-    name: '',
-    dateOfBirth: new Date(new Date().getFullYear() - 16, 0, 1), // Default to 16 years ago
-    position: '',
-    team: '',
-    phoneNumber: '',
-    email: ''
+    name: existingPlayer?.name || '',
+    dateOfBirth: existingPlayer?.dateOfBirth ? new Date(existingPlayer.dateOfBirth) : new Date(new Date().getFullYear() - 16, 0, 1),
+    position: existingPlayer?.position || '',
+    team: existingPlayer?.team || '',
+    phoneNumber: existingPlayer?.phoneNumber || '',
+    email: existingPlayer?.email || ''
   });
   
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(existingPlayer?.avatar_url || null);
   const [birthCertificate, setBirthCertificate] = useState<File | null>(null);
   const [releaseLetter, setReleaseLetter] = useState<File | null>(null);
 
@@ -124,7 +152,7 @@ export function EnrollmentForm() {
         return true;
       
       case 1:
-        if (!birthCertificate) {
+        if (!birthCertificate && mode === 'create') {
           toast({
             variant: "destructive",
             title: "Validation Error",
@@ -161,6 +189,53 @@ export function EnrollmentForm() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!existingPlayer?.id) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No player selected to delete"
+      });
+      return;
+    }
+
+    try {
+      setDeleteLoading(true);
+      const response = await fetch(`/api/players?id=${existingPlayer.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "✅ Player Deleted",
+          description: `${existingPlayer.name} has been removed from the academy.`,
+        });
+        
+        // Redirect to players list
+        setTimeout(() => {
+          router.push('/players');
+        }, 1500);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Delete Failed",
+          description: data.message || "Failed to delete player"
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting player:', error);
+      toast({
+        variant: "destructive",
+        title: "Delete Failed",
+        description: "An unexpected error occurred"
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -180,13 +255,13 @@ export function EnrollmentForm() {
         avatar_url: avatarUrl,
         attendance: 0,
         discipline_score: 100,
-        rank: 0,
+        player_rank: 0,
         points: 0,
         stats_played: 0,
         stats_wins: 0,
         stats_draws: 0,
         stats_losses: 0,
-        highlights: JSON.stringify([]),
+        highlights: '[]',
         physical_speed: 50,
         physical_stamina: 50,
         physical_strength: 50,
@@ -196,13 +271,24 @@ export function EnrollmentForm() {
         tactical_positioning: 50,
         tactical_game_reading: 50,
         psycho_leadership: 50,
-        psycho_teamwork: 50
+        psycho_teamwork: 50,
+        phone_number: formData.phoneNumber || null,
+        email: formData.email || null,
+        date_of_birth: format(formData.dateOfBirth, 'yyyy-MM-dd'),
       };
 
-      console.log('Submitting player data:', playerData);
+      let url = '/api/players';
+      let method = 'POST';
+      
+      // If editing, use PUT
+      if (mode === 'edit' && existingPlayer?.id) {
+        url = `/api/players`;
+        method = 'PUT';
+        playerData.id = existingPlayer.id;
+      }
 
-      const response = await fetch('/api/players', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -213,8 +299,8 @@ export function EnrollmentForm() {
 
       if (data.success) {
         toast({ 
-          title: "Player Enrolled", 
-          description: "The new player has been successfully registered." 
+          title: mode === 'edit' ? "✅ Player Updated" : "✅ Player Enrolled", 
+          description: `${formData.name} has been successfully ${mode === 'edit' ? 'updated' : 'registered'}.` 
         });
         
         // Redirect to player details or players list
@@ -228,15 +314,15 @@ export function EnrollmentForm() {
       } else {
         toast({
           variant: "destructive",
-          title: "Enrollment Failed",
-          description: data.message || "Failed to enroll player"
+          title: mode === 'edit' ? "Update Failed" : "Enrollment Failed",
+          description: data.message || `Failed to ${mode === 'edit' ? 'update' : 'enroll'} player`
         });
       }
     } catch (error) {
-      console.error('Error enrolling player:', error);
+      console.error('Error saving player:', error);
       toast({
         variant: "destructive",
-        title: "Enrollment Failed",
+        title: mode === 'edit' ? "Update Failed" : "Enrollment Failed",
         description: "An unexpected error occurred"
       });
     } finally {
@@ -244,52 +330,77 @@ export function EnrollmentForm() {
     }
   };
 
-  const StepIndicator = () => (
-    <div className="flex items-center justify-between mb-8">
-      {steps.map((step, index) => (
-        <div key={step.id} className="flex items-center">
-          <div className={cn(
-            "flex items-center justify-center w-8 h-8 rounded-full border-2",
-            index === currentStep 
-              ? "border-primary bg-primary text-primary-foreground" 
-              : index < currentStep
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-muted-foreground/30 text-muted-foreground"
-          )}>
-            {index < currentStep ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <span className="text-sm font-medium">{step.id}</span>
-            )}
-          </div>
-          <span className={cn(
-            "ml-2 text-sm font-medium",
-            index === currentStep 
-              ? "text-primary" 
-              : index < currentStep
-                ? "text-primary"
-                : "text-muted-foreground"
-          )}>
-            {step.name}
-          </span>
-          {index < steps.length - 1 && (
-            <div className={cn(
-              "w-12 h-0.5 mx-4",
-              index < currentStep ? "bg-primary" : "bg-muted-foreground/30"
-            )} />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="container max-w-4xl mx-auto py-8">
       <Card>
         <CardContent className="p-6">
-          <StepIndicator />
+          {/* Header with Action Buttons */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold font-headline">
+                {mode === 'edit' ? 'Edit Player' : 'Enroll New Player'}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {mode === 'edit' ? `Editing ${existingPlayer?.name}` : 'Register a new player to the academy'}
+              </p>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              {/* Cancel Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/players')}
+                className="gap-1"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Cancel
+              </Button>
+
+              {/* Delete Button (only in edit mode) */}
+              {mode === 'edit' && existingPlayer && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="gap-1"
+                      disabled={deleteLoading}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {deleteLoading ? 'Deleting...' : 'Delete'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertCircle className="h-5 w-5 text-destructive" />
+                        Delete Player
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete <strong>{existingPlayer.name}</strong>? 
+                        This action cannot be undone and will remove all associated data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {deleteLoading ? 'Deleting...' : 'Delete Player'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
+          </div>
+
+          <EnrollmentSteps currentStep={currentStep} steps={steps} />
           
           <div className="mt-8">
             {currentStep === 0 && (
@@ -695,7 +806,7 @@ export function EnrollmentForm() {
                 </>
               ) : currentStep === steps.length - 1 ? (
                 <>
-                  Submit Enrollment
+                  {mode === 'edit' ? 'Update Player' : 'Submit Enrollment'}
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
