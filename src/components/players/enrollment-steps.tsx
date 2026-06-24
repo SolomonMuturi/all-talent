@@ -1,3 +1,4 @@
+// components/players/enrollment-steps.tsx
 'use client';
 
 import { cn } from '@/lib/utils';
@@ -66,7 +67,7 @@ export function EnrollmentSteps({ currentStep, steps }: EnrollmentStepsProps) {
                 </a>
               </>
             )}
-             <p className="absolute -bottom-6 w-max -left-2 text-xs font-medium text-center">{step.name}</p>
+            <p className="absolute -bottom-6 w-max -left-2 text-xs font-medium text-center">{step.name}</p>
           </li>
         ))}
       </ol>
