@@ -1,3 +1,4 @@
+// app/finances/pay/page.tsx
 import { PaymentForm } from "@/components/finances/payment-form";
 
 export default function PayPage() {
@@ -6,7 +7,7 @@ export default function PayPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight font-headline">Make a Payment</h1>
         <p className="text-muted-foreground">
-          Initiate a new M-Pesa C2B payment for a player.
+          Record a new payment for a player.
         </p>
       </div>
       <PaymentForm />

@@ -1,3 +1,4 @@
+// app/api/finances/transactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
@@ -7,6 +8,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const type = searchParams.get('type');
     const playerName = searchParams.get('playerName');
+    const limit = parseInt(searchParams.get('limit') || '50');
 
     let sql = 'SELECT * FROM transactions WHERE 1=1';
     const params: any[] = [];
@@ -26,7 +28,8 @@ export async function GET(request: NextRequest) {
       params.push(`%${playerName}%`);
     }
 
-    sql += ' ORDER BY date DESC, created_at DESC';
+    sql += ' ORDER BY date DESC, created_at DESC LIMIT ?';
+    params.push(limit);
 
     const transactions = await query(sql, params);
 
@@ -55,33 +58,86 @@ export async function POST(request: NextRequest) {
       amount,
       type,
       description,
-      status = 'Pending'
+      status = 'Pending',
+      phone_number
     } = data;
 
+    // Validate required fields
     if (!player_name || !date || !amount || !type) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { 
+          success: false, 
+          error: 'Missing required fields: player_name, date, amount, type are required' 
+        },
         { status: 400 }
       );
     }
 
-    const transactionId = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    // Validate amount
+    if (amount <= 0) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Amount must be greater than 0' 
+        },
+        { status: 400 }
+      );
+    }
 
+    // Validate phone number if provided
+    if (phone_number && !phone_number.match(/^254\d{9}$/)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid phone number format. Use 254XXXXXXXXX' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Generate transaction ID
+    const transactionId = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    
+    // Determine payment method
+    const paymentMethod = phone_number ? 'M-Pesa' : 'Cash';
+
+    // Insert transaction
     await query(
-      `INSERT INTO transactions (id, player_name, date, amount, type, description, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [transactionId, player_name, date, amount, type, description || null, status]
+      `INSERT INTO transactions 
+       (id, player_name, date, amount, type, description, status, payment_method, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        transactionId, 
+        player_name, 
+        date, 
+        amount, 
+        type, 
+        description || null, 
+        status,
+        paymentMethod,
+        new Date()
+      ]
     );
 
     return NextResponse.json({
       success: true,
       message: 'Transaction created successfully',
-      data: { id: transactionId }
+      data: { 
+        id: transactionId,
+        player_name,
+        amount,
+        date,
+        status,
+        payment_method: paymentMethod
+      }
     }, { status: 201 });
   } catch (error: any) {
     console.error('Create transaction error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { 
+        success: false, 
+        error: error.message || 'Failed to create transaction' 
+      },
       { status: 500 }
     );
   }

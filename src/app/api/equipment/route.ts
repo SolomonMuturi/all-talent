@@ -1,4 +1,3 @@
-// app/api/equipment/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
@@ -18,17 +17,10 @@ async function query(sql: string, params: any[] = []) {
   let connection;
   try {
     connection = await pool.getConnection();
-    console.log('🔌 Database connection established');
-    console.log('📝 Executing SQL:', sql);
-    console.log('📝 With params:', params);
-    
     const [results] = await connection.execute(sql, params);
-    console.log('✅ Query successful');
     return results;
   } catch (error: any) {
-    console.error('❌ Database query error:', error.message);
-    console.error('❌ SQL:', sql);
-    console.error('❌ Params:', params);
+    console.error('Database query error:', error.message);
     throw error;
   } finally {
     if (connection) connection.release();
@@ -38,13 +30,9 @@ async function query(sql: string, params: any[] = []) {
 // Initialize database table if not exists
 async function initializeDatabase() {
   try {
-    console.log('🔍 Checking table structure...');
-    
-    // Check if table exists
     const [tables] = await query("SHOW TABLES LIKE 'equipment'") as any[];
     
     if (!tables || tables.length === 0) {
-      console.log('📋 Creating equipment table...');
       await query(`
         CREATE TABLE IF NOT EXISTS equipment (
           id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,13 +47,9 @@ async function initializeDatabase() {
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )
       `);
-      console.log('✅ Equipment table created');
-    } else {
-      console.log('✅ Equipment table already exists');
     }
-    
   } catch (error) {
-    console.error('❌ Error initializing database:', error);
+    console.error('Error initializing database:', error);
     throw error;
   }
 }
@@ -80,7 +64,6 @@ function transformToCamelCase(dbData: any) {
     const result: any = {};
     
     for (const [key, value] of Object.entries(dbData)) {
-      // Convert snake_case to camelCase
       let camelKey = key;
       if (key.includes('_')) {
         camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -94,38 +77,10 @@ function transformToCamelCase(dbData: any) {
   return dbData;
 }
 
-// Validate equipment data
-function validateEquipmentData(data: any): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  
-  if (!data.name || data.name.trim() === '') {
-    errors.push('Name is required');
-  }
-  
-  if (!data.category || data.category.trim() === '') {
-    errors.push('Category is required');
-  }
-  
-  if (!data.location || data.location.trim() === '') {
-    errors.push('Location is required');
-  }
-  
-  if (data.status && !['In Use', 'In Storage', 'Maintenance', 'Damaged'].includes(data.status)) {
-    errors.push('Status must be one of: In Use, In Storage, Maintenance, Damaged');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
-// GET all equipment with optional filters
+// GET all equipment
 export async function GET(request: NextRequest) {
   try {
     await initializeDatabase();
-    
-    console.log('📋 Fetching equipment...');
     
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
@@ -155,8 +110,6 @@ export async function GET(request: NextRequest) {
     const equipment = await query(sql, params);
     const transformedEquipment = transformToCamelCase(equipment);
     
-    console.log(`✅ Found ${transformedEquipment.length} equipment items`);
-    
     return NextResponse.json({
       success: true,
       data: {
@@ -166,8 +119,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('❌ GET equipment error:', error.message);
-    
+    console.error('GET equipment error:', error.message);
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch equipment',
@@ -181,26 +133,26 @@ export async function POST(request: NextRequest) {
   try {
     await initializeDatabase();
     
-    console.log('📨 POST /api/equipment called');
-    
-    // Parse request data
     const data = await request.json();
-    console.log('📦 Received data:', data);
+    console.log('📦 POST /api/equipment - Received data:', data);
     
     // Validate required fields
-    const validation = validateEquipmentData(data);
-    if (!validation.isValid) {
-      console.log('❌ Validation failed:', validation.errors);
+    if (!data.name || !data.category || !data.location) {
       return NextResponse.json({
         success: false,
-        error: 'Validation failed',
-        errors: validation.errors
+        error: 'Name, category, and location are required'
       }, { status: 400 });
     }
     
-    console.log('✅ Data validation passed');
+    // Validate status
+    const validStatuses = ['In Use', 'In Storage', 'Maintenance', 'Damaged'];
+    if (data.status && !validStatuses.includes(data.status)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid status. Must be one of: In Use, In Storage, Maintenance, Damaged'
+      }, { status: 400 });
+    }
     
-    // Prepare insert query
     const sql = `
       INSERT INTO equipment (name, category, assigned_to, location, status, maintenance_due, description)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -216,13 +168,8 @@ export async function POST(request: NextRequest) {
       data.description?.trim() || null
     ];
     
-    console.log('💾 Executing INSERT:', sql);
-    console.log('💾 With values:', params);
-    
     const result = await query(sql, params) as any;
     const insertId = result.insertId;
-    
-    console.log(`🆕 Inserted equipment ID: ${insertId}`);
     
     // Fetch the newly created equipment
     const [newEquipment] = await query(
@@ -232,7 +179,7 @@ export async function POST(request: NextRequest) {
     
     const transformedEquipment = transformToCamelCase(newEquipment);
     
-    console.log('✅ Equipment created successfully');
+    console.log('✅ POST /api/equipment - Created equipment ID:', insertId);
     
     return NextResponse.json({
       success: true,
@@ -244,7 +191,6 @@ export async function POST(request: NextRequest) {
     
   } catch (error: any) {
     console.error('❌ POST equipment error:', error.message);
-    
     return NextResponse.json({
       success: false,
       error: 'Failed to add equipment',
@@ -258,12 +204,10 @@ export async function PUT(request: NextRequest) {
   try {
     await initializeDatabase();
     
-    console.log('📨 PUT /api/equipment called');
-    
-    // Parse request data
     const data = await request.json();
-    console.log('📦 Received update data:', data);
+    console.log('📦 PUT /api/equipment - Received data:', data);
     
+    // Validate ID
     if (!data.id) {
       return NextResponse.json({
         success: false,
@@ -271,65 +215,55 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // Validate data
-    const validation = validateEquipmentData(data);
-    if (!validation.isValid) {
-      return NextResponse.json({
-        success: false,
-        error: 'Validation failed',
-        errors: validation.errors
-      }, { status: 400 });
-    }
+    // Check if equipment exists
+    const [existing] = await query(
+      'SELECT * FROM equipment WHERE id = ?',
+      [data.id]
+    ) as any[];
     
-    // Build update query dynamically
-    const fields = [];
-    const params = [];
-    
-    fields.push('name = ?');
-    params.push(data.name.trim());
-    
-    fields.push('category = ?');
-    params.push(data.category.trim());
-    
-    fields.push('assigned_to = ?');
-    params.push(data.assignedTo?.trim() || null);
-    
-    fields.push('location = ?');
-    params.push(data.location.trim());
-    
-    fields.push('status = ?');
-    params.push(data.status || 'In Storage');
-    
-    if (data.maintenanceDue !== undefined) {
-      fields.push('maintenance_due = ?');
-      params.push(data.maintenanceDue);
-    }
-    
-    if (data.description !== undefined) {
-      fields.push('description = ?');
-      params.push(data.description?.trim() || null);
-    }
-    
-    // Add ID as last parameter
-    params.push(data.id);
-    
-    const sql = `
-      UPDATE equipment 
-      SET ${fields.join(', ')}
-      WHERE id = ?
-    `;
-    
-    console.log('✏️ Executing UPDATE:', sql);
-    console.log('✏️ With values:', params);
-    
-    const result = await query(sql, params) as any;
-    
-    if (result.affectedRows === 0) {
+    if (!existing) {
       return NextResponse.json({
         success: false,
         error: 'Equipment not found'
       }, { status: 404 });
     }
+    
+    // Validate required fields
+    if (!data.name || !data.category || !data.location) {
+      return NextResponse.json({
+        success: false,
+        error: 'Name, category, and location are required'
+      }, { status: 400 });
+    }
+    
+    // Validate status
+    const validStatuses = ['In Use', 'In Storage', 'Maintenance', 'Damaged'];
+    if (data.status && !validStatuses.includes(data.status)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid status. Must be one of: In Use, In Storage, Maintenance, Damaged'
+      }, { status: 400 });
+    }
+    
+    const sql = `
+      UPDATE equipment 
+      SET name = ?, category = ?, assigned_to = ?, location = ?, 
+          status = ?, maintenance_due = ?, description = ?
+      WHERE id = ?
+    `;
+    
+    const params = [
+      data.name.trim(),
+      data.category.trim(),
+      data.assignedTo?.trim() || null,
+      data.location.trim(),
+      data.status || 'In Storage',
+      data.maintenanceDue || null,
+      data.description?.trim() || null,
+      data.id
+    ];
+    
+    await query(sql, params);
     
     // Fetch updated equipment
     const [updatedEquipment] = await query(
@@ -339,7 +273,7 @@ export async function PUT(request: NextRequest) {
     
     const transformedEquipment = transformToCamelCase(updatedEquipment);
     
-    console.log('✅ Equipment updated successfully');
+    console.log('✅ PUT /api/equipment - Updated equipment ID:', data.id);
     
     return NextResponse.json({
       success: true,
@@ -351,7 +285,6 @@ export async function PUT(request: NextRequest) {
     
   } catch (error: any) {
     console.error('❌ PUT equipment error:', error.message);
-    
     return NextResponse.json({
       success: false,
       error: 'Failed to update equipment',
@@ -365,10 +298,10 @@ export async function DELETE(request: NextRequest) {
   try {
     await initializeDatabase();
     
-    console.log('📨 DELETE /api/equipment called');
-    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    
+    console.log('🗑️ DELETE /api/equipment - ID:', id);
     
     if (!id) {
       return NextResponse.json({
@@ -377,9 +310,7 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
     
-    console.log(`🗑️ Deleting equipment ID: ${id}`);
-    
-    // First, check if equipment exists
+    // Check if equipment exists
     const [existing] = await query(
       'SELECT * FROM equipment WHERE id = ?',
       [id]
@@ -393,12 +324,12 @@ export async function DELETE(request: NextRequest) {
     }
     
     // Delete the equipment
-    const result = await query(
+    await query(
       'DELETE FROM equipment WHERE id = ?',
       [id]
-    ) as any;
+    );
     
-    console.log(`✅ Equipment deleted, affected rows: ${result.affectedRows}`);
+    console.log('✅ DELETE /api/equipment - Deleted equipment ID:', id);
     
     return NextResponse.json({
       success: true,
@@ -410,7 +341,6 @@ export async function DELETE(request: NextRequest) {
     
   } catch (error: any) {
     console.error('❌ DELETE equipment error:', error.message);
-    
     return NextResponse.json({
       success: false,
       error: 'Failed to delete equipment',
@@ -419,12 +349,10 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// PATCH - Update specific fields (like status, assignment)
+// PATCH - Update specific fields
 export async function PATCH(request: NextRequest) {
   try {
     await initializeDatabase();
-    
-    console.log('📨 PATCH /api/equipment called');
     
     const data = await request.json();
     const id = data.id;
@@ -449,7 +377,7 @@ export async function PATCH(request: NextRequest) {
       }, { status: 404 });
     }
     
-    // Build partial update query
+    // Build dynamic update query
     const fields = [];
     const params = [];
     
@@ -474,7 +402,8 @@ export async function PATCH(request: NextRequest) {
     }
     
     if (data.status !== undefined) {
-      if (!['In Use', 'In Storage', 'Maintenance', 'Damaged'].includes(data.status)) {
+      const validStatuses = ['In Use', 'In Storage', 'Maintenance', 'Damaged'];
+      if (!validStatuses.includes(data.status)) {
         return NextResponse.json({
           success: false,
           error: 'Invalid status value'
@@ -509,9 +438,6 @@ export async function PATCH(request: NextRequest) {
       WHERE id = ?
     `;
     
-    console.log('🔄 Executing PATCH:', sql);
-    console.log('🔄 With values:', params);
-    
     await query(sql, params);
     
     // Fetch updated equipment
@@ -521,8 +447,6 @@ export async function PATCH(request: NextRequest) {
     ) as any[];
     
     const transformedEquipment = transformToCamelCase(updatedEquipment);
-    
-    console.log('✅ Equipment patched successfully');
     
     return NextResponse.json({
       success: true,
@@ -534,7 +458,6 @@ export async function PATCH(request: NextRequest) {
     
   } catch (error: any) {
     console.error('❌ PATCH equipment error:', error.message);
-    
     return NextResponse.json({
       success: false,
       error: 'Failed to update equipment',
@@ -554,4 +477,3 @@ export async function OPTIONS() {
     },
   });
 }
-

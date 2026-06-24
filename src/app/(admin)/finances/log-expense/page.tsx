@@ -1,3 +1,4 @@
+// app/(admin)/finances/log-expense/page.tsx
 import { ExpenseForm } from "@/components/finances/expense-form";
 
 export default function LogExpensePage() {

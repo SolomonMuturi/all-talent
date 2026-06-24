@@ -14,7 +14,7 @@ interface AcademyEvent {
   title: string;
   subtitle?: string;
   organizer: string;
-  event_date: string | null; // Changed to allow null
+  event_date: string | null;
   category: string;
   logo_url?: string;
   country?: string;
@@ -25,6 +25,7 @@ interface AcademyEvent {
   team_count?: number;
   lineup_formation?: string;
   lineup_squad?: any[];
+  description?: string;
   created_at: string;
   updated_at: string;
 }
@@ -42,7 +43,7 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      setError(null); // Reset error on retry
+      setError(null);
       
       const response = await fetch('/api/events?limit=100');
       
@@ -53,11 +54,10 @@ export default function EventsPage() {
       const data = await response.json();
       
       if (data.success) {
-        // Ensure all events have proper date handling
         const formattedEvents = data.data.events.map((event: any) => ({
           ...event,
-          event_date: event.event_date || null, // Handle null dates
-          subtitle: event.subtitle || '', // Ensure string
+          event_date: event.event_date || null,
+          subtitle: event.subtitle || '',
           location: event.location || '',
           venue: event.venue || '',
           country: event.country || '',
@@ -66,10 +66,13 @@ export default function EventsPage() {
           team_count: event.team_count || 0,
           lineup_formation: event.lineup_formation || '',
           lineup_squad: event.lineup_squad || [],
+          description: event.description || '',
         }));
         
         setEvents(formattedEvents);
-        setSelectedEvent(formattedEvents[0] || null);
+        if (formattedEvents.length > 0) {
+          setSelectedEvent(formattedEvents[0]);
+        }
       } else {
         setError(data.error || 'Failed to load events from API');
       }
@@ -81,7 +84,6 @@ export default function EventsPage() {
     }
   };
 
-  // Handle loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -93,7 +95,6 @@ export default function EventsPage() {
     );
   }
 
-  // Handle error state
   if (error) {
     return (
       <div className="space-y-6">
@@ -121,7 +122,6 @@ export default function EventsPage() {
     );
   }
 
-  // Handle empty events
   if (events.length === 0) {
     return (
       <div className="space-y-6">

@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 'use client';
 
 import Link from 'next/link';
@@ -5,13 +6,13 @@ import { useEffect, useState } from 'react';
 import {
   Banknote,
   Users,
-  ScanLine,
   ShieldAlert,
   Coins,
-  Wallet,
   Calendar,
   Package,
   TrendingUp,
+  TrendingDown,
+  DollarSign,
 } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
@@ -20,18 +21,28 @@ import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchStats() {
       try {
         setLoading(true);
+        setError(null);
         const res = await fetch('/api/dashboard/stats');
-        if (res.ok) {
-          const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error('Failed to fetch dashboard stats');
+        }
+        
+        const data = await res.json();
+        if (data.success) {
           setStats(data.data);
+        } else {
+          throw new Error(data.error || 'Failed to fetch dashboard stats');
         }
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load dashboard');
       } finally {
         setLoading(false);
       }
@@ -40,7 +51,7 @@ export default function DashboardPage() {
     fetchStats();
   }, []);
 
-  if (loading || !stats) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-muted-foreground">Loading dashboard...</div>
@@ -48,10 +59,26 @@ export default function DashboardPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-muted-foreground">No data available</div>
+      </div>
+    );
+  }
+
   const avgRevenuePerPlayer = stats.totalPlayers > 0 ? stats.totalRevenue / stats.totalPlayers : 0;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 p-4 md:p-6">
       {/* Primary KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link href="/finances">
@@ -63,6 +90,24 @@ export default function DashboardPage() {
             description="from last month"
           />
         </Link>
+        <Link href="/finances">
+          <KpiCard
+            title="Total Expenses"
+            value={`KES ${(stats.totalExpenses || 0).toLocaleString()}`}
+            change="+5.2%"
+            icon={<TrendingDown className="size-5 text-muted-foreground" />}
+            description="from last month"
+          />
+        </Link>
+        <Link href="/finances">
+          <KpiCard
+            title="Net Profit"
+            value={`KES ${(stats.netProfit || 0).toLocaleString()}`}
+            change="+18.3%"
+            icon={<DollarSign className="size-5 text-muted-foreground" />}
+            description="revenue minus expenses"
+          />
+        </Link>
         <Link href="/players">
           <KpiCard
             title="Players Enrolled"
@@ -72,27 +117,9 @@ export default function DashboardPage() {
             description="since last week"
           />
         </Link>
-        <Link href="/team">
-          <KpiCard
-            title="Active Staff"
-            value={String(stats.activeStaff || 0)}
-            change="+1"
-            icon={<TrendingUp className="size-5 text-muted-foreground" />}
-            description="team members"
-          />
-        </Link>
-        <Link href="/events">
-          <KpiCard
-            title="Upcoming Events"
-            value={String(stats.upcomingEvents || 0)}
-            change="+3"
-            icon={<Calendar className="size-5 text-muted-foreground" />}
-            description="scheduled"
-          />
-        </Link>
       </div>
 
-      {/* Charts */}
+      {/* Charts Section */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="col-span-1 lg:col-span-3">
           <RevenueChart />
@@ -134,15 +161,15 @@ export default function DashboardPage() {
             description="average per player"
           />
         </Link>
-        {stats.performanceAverages && (
+        <Link href="/events">
           <KpiCard
-            title="Avg Player Speed"
-            value={`${(stats.performanceAverages[0]?.avg_speed || 0).toFixed(1)} km/h`}
-            change="+2.1%"
-            icon={<Wallet className="size-5 text-muted-foreground" />}
-            description="performance metric"
+            title="Upcoming Events"
+            value={String(stats.upcomingEvents || 0)}
+            change="+3"
+            icon={<Calendar className="size-5 text-muted-foreground" />}
+            description="scheduled"
           />
-        )}
+        </Link>
       </div>
     </div>
   );
