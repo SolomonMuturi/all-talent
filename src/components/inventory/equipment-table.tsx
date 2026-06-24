@@ -8,6 +8,8 @@ import {
   Search,
   QrCode,
   Wrench,
+  Edit,
+  Trash2,
 } from 'lucide-react';
 import {
   ColumnDef,
@@ -41,7 +43,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import {
   Dialog,
   DialogContent,
@@ -51,6 +53,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -69,7 +81,7 @@ type Equipment = {
   category: string;
   assignedTo?: string;
   location: string;
-  status: 'In Use' | 'In Storage' | 'Maintenance';
+  status: 'In Use' | 'In Storage' | 'Maintenance' | 'Damaged';
   maintenanceDue?: string;
   description?: string;
   serialNumber?: string;
@@ -79,13 +91,223 @@ type Equipment = {
   updatedAt?: string;
 };
 
+// Edit Equipment Form Component
+function EditEquipmentForm({
+  equipment,
+  onClose,
+  onSuccess
+}: {
+  equipment: Equipment;
+  onClose: () => void;
+  onSuccess: (equipment: Equipment) => void;
+}) {
+  const [formData, setFormData] = useState({
+    name: equipment.name || '',
+    category: equipment.category || '',
+    assignedTo: equipment.assignedTo || '',
+    location: equipment.location || '',
+    status: equipment.status || 'In Storage',
+    maintenanceDue: equipment.maintenanceDue || '',
+    description: equipment.description || '',
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const requestData: any = {
+        id: equipment.id,
+        name: formData.name.trim(),
+        category: formData.category,
+        location: formData.location.trim(),
+        status: formData.status,
+      };
+
+      if (formData.assignedTo.trim()) {
+        requestData.assignedTo = formData.assignedTo.trim();
+      }
+
+      if (formData.maintenanceDue) {
+        requestData.maintenanceDue = formData.maintenanceDue;
+      }
+
+      if (formData.description.trim()) {
+        requestData.description = formData.description.trim();
+      }
+
+      console.log('📤 Sending PUT request:', requestData);
+
+      const response = await fetch('/api/equipment', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const result = await response.json();
+      console.log('📥 PUT response:', result);
+
+      if (response.ok && result.success) {
+        toast.success('Equipment updated successfully!');
+        onSuccess(result.data.equipment);
+        onClose();
+      } else {
+        setError(result.error || 'Failed to update equipment');
+        toast.error(result.error || 'Failed to update equipment');
+      }
+    } catch (err: any) {
+      console.error('❌ Update error:', err);
+      setError(err.message || 'Network error. Please try again.');
+      toast.error(err.message || 'Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="grid gap-4 py-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-name">Item Name *</Label>
+            <Input
+              id="edit-name"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-category">Category *</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) => handleChange('category', value)}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Tools">Tools</SelectItem>
+                <SelectItem value="Furniture">Furniture</SelectItem>
+                <SelectItem value="Vehicles">Vehicles</SelectItem>
+                <SelectItem value="Safety">Safety Equipment</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value: any) => handleChange('status', value)}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="In Use">In Use</SelectItem>
+                <SelectItem value="In Storage">In Storage</SelectItem>
+                <SelectItem value="Maintenance">Maintenance</SelectItem>
+                <SelectItem value="Damaged">Damaged</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-location">Location *</Label>
+            <Input
+              id="edit-location"
+              value={formData.location}
+              onChange={(e) => handleChange('location', e.target.value)}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-assignedTo">Assigned To</Label>
+            <Input
+              id="edit-assignedTo"
+              value={formData.assignedTo}
+              onChange={(e) => handleChange('assignedTo', e.target.value)}
+              placeholder="Person or department"
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-maintenanceDue">Next Maintenance</Label>
+            <Input
+              id="edit-maintenanceDue"
+              type="date"
+              value={formData.maintenanceDue}
+              onChange={(e) => handleChange('maintenanceDue', e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="edit-description">Description</Label>
+          <Textarea
+            id="edit-description"
+            value={formData.description}
+            onChange={(e) => handleChange('description', e.target.value)}
+            placeholder="Equipment description, specifications, etc."
+            rows={3}
+            disabled={isSubmitting}
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <span className="animate-spin mr-2">⟳</span>
+              Saving...
+            </>
+          ) : (
+            'Save Changes'
+          )}
+        </Button>
+      </DialogFooter>
+    </form>
+  );
+}
+
 // Add Equipment Form Component
-function AddEquipmentForm({ 
-  onClose, 
-  onSuccess 
-}: { 
-  onClose: () => void; 
-  onSuccess: (equipment: Equipment) => void 
+function AddEquipmentForm({
+  onClose,
+  onSuccess
+}: {
+  onClose: () => void;
+  onSuccess: (equipment: Equipment) => void;
 }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -109,9 +331,6 @@ function AddEquipmentForm({
     setIsSubmitting(true);
 
     try {
-      console.log('Submitting form data:', formData);
-      
-      // Prepare data for API - only send fields that are filled
       const requestData: any = {
         name: formData.name.trim(),
         category: formData.category,
@@ -119,7 +338,6 @@ function AddEquipmentForm({
         status: formData.status,
       };
 
-      // Only include optional fields if they have values
       if (formData.assignedTo.trim()) {
         requestData.assignedTo = formData.assignedTo.trim();
       }
@@ -132,9 +350,8 @@ function AddEquipmentForm({
         requestData.description = formData.description.trim();
       }
 
-      console.log('Sending to API:', requestData);
-      
-      // Send to API
+      console.log('📤 Sending POST request:', requestData);
+
       const response = await fetch('/api/equipment', {
         method: 'POST',
         headers: {
@@ -143,27 +360,19 @@ function AddEquipmentForm({
         body: JSON.stringify(requestData),
       });
 
-      // Check if response is OK
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API error response:', errorText);
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
       const result = await response.json();
-      console.log('API response:', result);
+      console.log('📥 POST response:', result);
 
-      if (result.success) {
+      if (response.ok && result.success) {
         toast.success('Equipment added successfully!');
         onSuccess(result.data.equipment);
         onClose();
       } else {
-        const errorMsg = result.error || 'Failed to add equipment';
-        setError(errorMsg);
-        toast.error(errorMsg);
+        setError(result.error || 'Failed to add equipment');
+        toast.error(result.error || 'Failed to add equipment');
       }
     } catch (err: any) {
-      console.error('Error adding equipment:', err);
+      console.error('❌ Add error:', err);
       setError(err.message || 'Network error. Please try again.');
       toast.error(err.message || 'Network error. Please try again.');
     } finally {
@@ -176,9 +385,9 @@ function AddEquipmentForm({
       <div className="grid gap-4 py-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Item Name *</Label>
+            <Label htmlFor="add-name">Item Name *</Label>
             <Input
-              id="name"
+              id="add-name"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Enter item name"
@@ -187,7 +396,7 @@ function AddEquipmentForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
+            <Label htmlFor="add-category">Category *</Label>
             <Select
               value={formData.category}
               onValueChange={(value) => handleChange('category', value)}
@@ -210,7 +419,7 @@ function AddEquipmentForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="add-status">Status</Label>
             <Select
               value={formData.status}
               onValueChange={(value: Equipment['status']) => handleChange('status', value)}
@@ -223,13 +432,14 @@ function AddEquipmentForm({
                 <SelectItem value="In Use">In Use</SelectItem>
                 <SelectItem value="In Storage">In Storage</SelectItem>
                 <SelectItem value="Maintenance">Maintenance</SelectItem>
+                <SelectItem value="Damaged">Damaged</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location">Location *</Label>
+            <Label htmlFor="add-location">Location *</Label>
             <Input
-              id="location"
+              id="add-location"
               value={formData.location}
               onChange={(e) => handleChange('location', e.target.value)}
               placeholder="e.g., Room 101, Warehouse A"
@@ -241,9 +451,9 @@ function AddEquipmentForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="assignedTo">Assigned To</Label>
+            <Label htmlFor="add-assignedTo">Assigned To</Label>
             <Input
-              id="assignedTo"
+              id="add-assignedTo"
               value={formData.assignedTo}
               onChange={(e) => handleChange('assignedTo', e.target.value)}
               placeholder="Person or department"
@@ -251,9 +461,9 @@ function AddEquipmentForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="maintenanceDue">Next Maintenance</Label>
+            <Label htmlFor="add-maintenanceDue">Next Maintenance</Label>
             <Input
-              id="maintenanceDue"
+              id="add-maintenanceDue"
               type="date"
               value={formData.maintenanceDue}
               onChange={(e) => handleChange('maintenanceDue', e.target.value)}
@@ -263,9 +473,9 @@ function AddEquipmentForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="add-description">Description</Label>
           <Textarea
-            id="description"
+            id="add-description"
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
             placeholder="Equipment description, specifications, etc."
@@ -282,18 +492,10 @@ function AddEquipmentForm({
       )}
 
       <DialogFooter>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onClose}
-          disabled={isSubmitting}
-        >
+        <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button 
-          type="submit" 
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
               <span className="animate-spin mr-2">⟳</span>
@@ -309,208 +511,277 @@ function AddEquipmentForm({
 }
 
 const getStatusVariant = (status: Equipment['status']) => {
-    switch (status) {
-        case 'In Use':
-            return 'default';
-        case 'In Storage':
-            return 'secondary';
-        case 'Maintenance':
-            return 'destructive';
-        default:
-            return 'outline';
-    }
-};
-
-const columns: ColumnDef<Equipment>[] = [
-  {
-    accessorKey: 'name',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Item Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <QrCode className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>QR Code: {row.original.id}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <div className="font-medium">{row.getValue('name')}</div>
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'category',
-    header: 'Category',
-    cell: ({ row }) => (
-      <span className="capitalize">{row.getValue('category')}</span>
-    ),
-  },
-  {
-    accessorKey: 'assignedTo',
-    header: 'Assigned To',
-    cell: ({ row }) => {
-      const assignedTo = row.getValue('assignedTo');
-      return assignedTo ? (
-        <span>{assignedTo as string}</span>
-      ) : (
-        <span className="text-muted-foreground italic">N/A</span>
-      );
-    },
-  },
-  {
-    accessorKey: 'location',
-    header: 'Location',
-    cell: ({ row }) => (
-      <span className="font-medium">{row.getValue('location')}</span>
-    ),
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => {
-      const status = row.getValue('status') as Equipment['status'];
-      return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-    },
-  },
-  {
-      accessorKey: 'maintenanceDue',
-      header: 'Next Maintenance',
-      cell: ({ row }) => {
-          const maintenanceDue = row.getValue('maintenanceDue');
-          if (!maintenanceDue) return <span className="text-muted-foreground italic">N/A</span>;
-          
-          try {
-            const dueDate = new Date(maintenanceDue as string);
-            const today = new Date();
-            const isOverdue = dueDate < today;
-            
-            return (
-              <div className={`flex items-center gap-2 ${isOverdue ? 'text-destructive' : 'text-amber-600'}`}>
-                  <Wrench className="h-4 w-4" />
-                  <span className={isOverdue ? 'font-semibold' : ''}>
-                    {dueDate.toLocaleDateString()}
-                    {isOverdue && ' (Overdue)'}
-                  </span>
-              </div>
-            );
-          } catch {
-            return <span className="text-muted-foreground">Invalid date</span>;
-          }
-      }
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const equipment = row.original;
-      
-      return (
-        <div className="flex gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    // Edit functionality
-                    console.log('Edit equipment:', equipment.id);
-                  }}
-                >
-                  Edit
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit equipment details</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      );
-    },
+  switch (status) {
+    case 'In Use':
+      return 'default';
+    case 'In Storage':
+      return 'secondary';
+    case 'Maintenance':
+      return 'destructive';
+    case 'Damaged':
+      return 'destructive';
+    default:
+      return 'outline';
   }
-];
+};
 
 export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equipment[] }) {
   const [equipment, setEquipment] = useState<Equipment[]>(propEquipment || []);
   const [loading, setLoading] = useState(!propEquipment);
   const [error, setError] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
-  // Fetch equipment data
+  const fetchEquipment = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/equipment');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        const processedEquipment = (data.data.equipment || []).map((item: any) => ({
+          id: item.id || `EQP-${Date.now()}`,
+          name: item.name || 'Unnamed Item',
+          category: item.category || 'Uncategorized',
+          assignedTo: item.assignedTo || '',
+          location: item.location || 'Unknown',
+          status: (item.status || 'In Storage') as Equipment['status'],
+          maintenanceDue: item.maintenanceDue || '',
+          description: item.description || '',
+          serialNumber: item.serialNumber || '',
+          purchaseDate: item.purchaseDate || '',
+          value: item.value || 0,
+          createdAt: item.createdAt || '',
+          updatedAt: item.updatedAt || '',
+        }));
+
+        setEquipment(processedEquipment);
+      } else {
+        setError(data.error || 'Failed to load equipment');
+      }
+    } catch (err: any) {
+      console.error('Fetch error:', err);
+      setError(err.message || 'Failed to load equipment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (propEquipment) {
       setEquipment(propEquipment);
       setLoading(false);
       return;
     }
-    
-    const fetchEquipment = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        console.log('Fetching equipment data...');
-        const response = await fetch('/api/equipment');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Equipment data received:', data);
-        
-        if (data.success) {
-          // Ensure all equipment items have the required fields
-          const processedEquipment = (data.data.equipment || []).map((item: any) => ({
-            id: item.id || `EQP-${Date.now()}`,
-            name: item.name || 'Unnamed Item',
-            category: item.category || 'Uncategorized',
-            assignedTo: item.assignedTo || '',
-            location: item.location || 'Unknown',
-            status: (item.status || 'In Storage') as Equipment['status'],
-            maintenanceDue: item.maintenanceDue || '',
-            description: item.description || '',
-            serialNumber: item.serialNumber || '',
-            purchaseDate: item.purchaseDate || '',
-            value: item.value || 0,
-            createdAt: item.createdAt || '',
-            updatedAt: item.updatedAt || '',
-          }));
-          
-          setEquipment(processedEquipment);
-        } else {
-          setError(data.error || 'Failed to load equipment');
-        }
-      } catch (err: any) {
-        console.error('Fetch error:', err);
-        setError(err.message || 'Failed to load equipment');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEquipment();
   }, [propEquipment, refetchTrigger]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+
+  const handleEditClick = (equipment: Equipment) => {
+    setSelectedEquipment(equipment);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteClick = (equipment: Equipment) => {
+    setSelectedEquipment(equipment);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleAddEquipment = (newEquipment: Equipment) => {
+    setEquipment(prev => [newEquipment, ...prev]);
+    setRefetchTrigger(prev => prev + 1);
+  };
+
+  const handleEditEquipment = (updatedEquipment: Equipment) => {
+    setEquipment(prev => prev.map(item => 
+      item.id === updatedEquipment.id ? updatedEquipment : item
+    ));
+    setRefetchTrigger(prev => prev + 1);
+  };
+
+  const handleDeleteEquipment = async () => {
+    if (!selectedEquipment) return;
+
+    try {
+      console.log('🗑️ Deleting equipment ID:', selectedEquipment.id);
+      
+      const response = await fetch(`/api/equipment?id=${selectedEquipment.id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+      console.log('📥 DELETE response:', result);
+
+      if (response.ok && result.success) {
+        toast.success(`${selectedEquipment.name} has been deleted.`);
+        setEquipment(prev => prev.filter(item => item.id !== selectedEquipment.id));
+        setIsDeleteDialogOpen(false);
+        setSelectedEquipment(null);
+        setRefetchTrigger(prev => prev + 1);
+      } else {
+        toast.error(result.error || 'Failed to delete equipment');
+      }
+    } catch (err: any) {
+      console.error('❌ Delete error:', err);
+      toast.error(err.message || 'Network error. Please try again.');
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefetchTrigger(prev => prev + 1);
+  };
+
+  const columns: ColumnDef<Equipment>[] = [
+    {
+      accessorKey: 'name',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Item Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <QrCode className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>ID: {row.original.id}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="font-medium">{row.getValue('name')}</div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'category',
+      header: 'Category',
+      cell: ({ row }) => (
+        <span className="capitalize">{row.getValue('category')}</span>
+      ),
+    },
+    {
+      accessorKey: 'assignedTo',
+      header: 'Assigned To',
+      cell: ({ row }) => {
+        const assignedTo = row.getValue('assignedTo');
+        return assignedTo ? (
+          <span>{assignedTo as string}</span>
+        ) : (
+          <span className="text-muted-foreground italic">N/A</span>
+        );
+      },
+    },
+    {
+      accessorKey: 'location',
+      header: 'Location',
+      cell: ({ row }) => (
+        <span className="font-medium">{row.getValue('location')}</span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.getValue('status') as Equipment['status'];
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+      },
+    },
+    {
+      accessorKey: 'maintenanceDue',
+      header: 'Next Maintenance',
+      cell: ({ row }) => {
+        const maintenanceDue = row.getValue('maintenanceDue');
+        if (!maintenanceDue) return <span className="text-muted-foreground italic">N/A</span>;
+
+        try {
+          const dueDate = new Date(maintenanceDue as string);
+          const today = new Date();
+          const isOverdue = dueDate < today;
+
+          return (
+            <div className={`flex items-center gap-2 ${isOverdue ? 'text-destructive' : 'text-amber-600'}`}>
+              <Wrench className="h-4 w-4" />
+              <span className={isOverdue ? 'font-semibold' : ''}>
+                {dueDate.toLocaleDateString()}
+                {isOverdue && ' (Overdue)'}
+              </span>
+            </div>
+          );
+        } catch {
+          return <span className="text-muted-foreground">Invalid date</span>;
+        }
+      }
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const equipment = row.original;
+        return (
+          <div className="flex gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditClick(equipment)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit equipment</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(equipment)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Delete equipment</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        );
+      },
+    }
+  ];
 
   const table = useReactTable({
     data: equipment,
@@ -528,18 +799,6 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
       columnVisibility,
     },
   });
-
-  const handleAddEquipment = (newEquipment: Equipment) => {
-    // Add the new equipment to the beginning of the list
-    setEquipment(prev => [newEquipment, ...prev]);
-    
-    // Trigger a refetch to ensure data consistency
-    setRefetchTrigger(prev => prev + 1);
-  };
-
-  const handleRefresh = () => {
-    setRefetchTrigger(prev => prev + 1);
-  };
 
   if (loading) {
     return (
@@ -570,16 +829,10 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
               <p className="text-sm text-muted-foreground mt-1">{error}</p>
             </div>
             <div className="flex gap-2 justify-center">
-              <Button 
-                variant="outline" 
-                onClick={handleRefresh}
-              >
+              <Button variant="outline" onClick={handleRefresh}>
                 Retry
               </Button>
-              <Button 
-                variant="default"
-                onClick={() => setIsAddDialogOpen(true)}
-              >
+              <Button variant="default" onClick={() => setIsAddDialogOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add First Item
               </Button>
@@ -599,12 +852,7 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
               <CardTitle className="font-headline text-2xl">Equipment Inventory</CardTitle>
               <CardDescription>Track all high-value academy assets.</CardDescription>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              className="gap-2"
-            >
+            <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-2">
               <span className="text-sm">⟳</span>
               Refresh
             </Button>
@@ -638,13 +886,13 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
                       Add new equipment to the inventory. Fields marked with * are required.
                     </DialogDescription>
                   </DialogHeader>
-                  <AddEquipmentForm 
+                  <AddEquipmentForm
                     onClose={() => setIsAddDialogOpen(false)}
                     onSuccess={handleAddEquipment}
                   />
                 </DialogContent>
               </Dialog>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -662,16 +910,16 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
                         checked={column.getIsVisible()}
                         onCheckedChange={(value) => column.toggleVisibility(!!value)}
                       >
-                        {column.id === 'assignedTo' ? 'Assigned To' : 
-                         column.id === 'maintenanceDue' ? 'Next Maintenance' :
-                         column.id}
+                        {column.id === 'assignedTo' ? 'Assigned To' :
+                          column.id === 'maintenanceDue' ? 'Next Maintenance' :
+                          column.id}
                       </DropdownMenuCheckboxItem>
                     ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
-          
+
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -690,8 +938,8 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
-                    <TableRow 
-                      key={row.id} 
+                    <TableRow
+                      key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                       className="hover:bg-muted/50 transition-colors"
                     >
@@ -715,10 +963,7 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
                             Get started by adding your first item
                           </p>
                         </div>
-                        <Button
-                          onClick={() => setIsAddDialogOpen(true)}
-                          className="mt-2"
-                        >
+                        <Button onClick={() => setIsAddDialogOpen(true)} className="mt-2">
                           <PlusCircle className="mr-2 h-4 w-4" />
                           Add Equipment
                         </Button>
@@ -729,7 +974,7 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
               </TableBody>
             </Table>
           </div>
-          
+
           {table.getRowModel().rows?.length > 0 && (
             <div className="flex items-center justify-between py-4">
               <div className="text-sm text-muted-foreground">
@@ -760,6 +1005,50 @@ export function EquipmentTable({ equipment: propEquipment }: { equipment?: Equip
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Edit Equipment</DialogTitle>
+            <DialogDescription>
+              Update the equipment details. Fields marked with * are required.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEquipment && (
+            <EditEquipmentForm
+              equipment={selectedEquipment}
+              onClose={() => setIsEditDialogOpen(false)}
+              onSuccess={handleEditEquipment}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete{' '}
+              <span className="font-semibold">{selectedEquipment?.name}</span> from the inventory.
+              {selectedEquipment?.assignedTo && (
+                <> It is currently assigned to <span className="font-semibold">{selectedEquipment.assignedTo}</span>.</>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteEquipment}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
