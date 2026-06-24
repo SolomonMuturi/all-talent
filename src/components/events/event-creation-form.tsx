@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,15 +23,15 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import { Loader2, Calendar as CalendarIcon, UploadCloud } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar } from '../ui/calendar';
+import { useState, useRef } from 'react';
+import { Loader2, Calendar as CalendarIcon, UploadCloud, X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import Image from 'next/image';
 
 const formSchema = z.object({
-  // These field names MUST match what your API expects
   title: z.string().min(1, { message: "Event name is required." }),
   subtitle: z.string().optional(),
   organizer: z.string().min(1, { message: "Organizer name is required." }),
@@ -53,6 +52,9 @@ export function EventCreationForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,27 +76,55 @@ export function EventCreationForm() {
     },
   });
 
+  async function uploadLogo(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload logo');
+    }
+
+    const result = await response.json();
+    return result.url;
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data with all fields
+      let logo_url = '';
+
+      // Upload logo if exists
+      if (logoFile) {
+        setIsUploading(true);
+        try {
+          logo_url = await uploadLogo(logoFile);
+        } catch (error) {
+          toast({
+            title: 'Logo Upload Failed',
+            description: 'Failed to upload the logo. Please try again.',
+            variant: 'destructive',
+          });
+          setIsUploading(false);
+          setIsSubmitting(false);
+          return;
+        }
+        setIsUploading(false);
+      }
+
       const formData = {
         ...values,
         event_date: format(values.event_date, 'yyyy-MM-dd'),
         team_count: values.team_count || 0,
         tournament_type: values.tournament_type || 'N/A',
         lineup_squad: values.lineup_squad || [],
+        logo_url: logo_url, // This will be empty string if no logo
       };
-
-      // If there's a logo file, you might want to upload it first
-      let logo_url = '';
-      if (logoFile) {
-        // Here you would typically upload the file to your storage
-        // For now, we'll just simulate it
-        logo_url = `/uploads/${logoFile.name}`;
-        formData.logo_url = logo_url;
-      }
 
       const response = await fetch('/api/events', {
         method: 'POST',
@@ -114,6 +144,12 @@ export function EventCreationForm() {
         });
         form.reset();
         setLogoFile(null);
+        setLogoPreview(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        // Redirect or refresh
+        window.location.href = '/events';
       } else {
         throw new Error(result.error || 'Failed to create event');
       }
@@ -132,11 +168,46 @@ export function EventCreationForm() {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid File',
+          description: 'Please upload an image file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'File Too Large',
+          description: 'Please upload an image smaller than 5MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       setLogoFile(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
       toast({
-        title: 'Logo Uploaded',
-        description: `${file.name} has been selected.`,
+        title: 'Logo Selected',
+        description: `${file.name} (${(file.size / 1024).toFixed(1)} KB)`,
       });
+    }
+  };
+
+  const removeLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -150,7 +221,6 @@ export function EventCreationForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Organizer Name - maps to 'organizer' in API */}
               <FormField
                 control={form.control}
                 name="organizer"
@@ -165,7 +235,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Event Name - maps to 'title' in API */}
               <FormField
                 control={form.control}
                 name="title"
@@ -180,7 +249,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Event Subtitle - maps to 'subtitle' in API */}
               <FormField
                 control={form.control}
                 name="subtitle"
@@ -195,7 +263,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Event Date - maps to 'event_date' in API */}
               <FormField
                 control={form.control}
                 name="event_date"
@@ -236,7 +303,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Event Category - maps to 'category' in API */}
               <FormField
                 control={form.control}
                 name="category"
@@ -263,7 +329,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Venue - maps to 'venue' in API */}
               <FormField
                 control={form.control}
                 name="venue"
@@ -278,7 +343,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Location - maps to 'location' in API */}
               <FormField
                 control={form.control}
                 name="location"
@@ -293,7 +357,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Country - maps to 'country' in API */}
               <FormField
                 control={form.control}
                 name="country"
@@ -308,7 +371,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Game Type - maps to 'game_type' in API */}
               <FormField
                 control={form.control}
                 name="game_type"
@@ -335,7 +397,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Tournament Type - maps to 'tournament_type' in API */}
               <FormField
                 control={form.control}
                 name="tournament_type"
@@ -361,7 +422,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Team Count - maps to 'team_count' in API */}
               <FormField
                 control={form.control}
                 name="team_count"
@@ -381,7 +441,6 @@ export function EventCreationForm() {
                 )}
               />
               
-              {/* Lineup Formation - maps to 'lineup_formation' in API */}
               <FormField
                 control={form.control}
                 name="lineup_formation"
@@ -409,7 +468,6 @@ export function EventCreationForm() {
               />
             </div>
             
-            {/* Description - maps to 'description' in API */}
             <FormField
               control={form.control}
               name="description"
@@ -428,37 +486,57 @@ export function EventCreationForm() {
               )}
             />
             
-            {/* Logo Upload */}
+            {/* Logo Upload with Preview */}
             <div className="space-y-2">
               <FormLabel>Event Logo/Flyer (Optional)</FormLabel>
               <div className="flex items-center justify-center w-full">
-                <label htmlFor="logo-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/75">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <UploadCloud className="w-8 h-8 mb-2 text-muted-foreground" />
-                    <p className="mb-2 text-sm text-muted-foreground">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG or SVG</p>
-                    {logoFile && (
-                      <p className="mt-2 text-sm text-green-600">
-                        Selected: {logoFile.name}
-                      </p>
-                    )}
+                {logoPreview ? (
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-primary">
+                    <Image
+                      src={logoPreview}
+                      alt="Logo preview"
+                      fill
+                      className="object-contain"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={removeLogo}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Input 
-                    id="logo-upload" 
-                    type="file" 
-                    className="hidden" 
-                    accept=".png,.jpg,.jpeg,.svg"
-                    onChange={handleLogoUpload}
-                  />
-                </label>
+                ) : (
+                  <label htmlFor="logo-upload" className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/75 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
+                      <p className="mb-2 text-sm text-muted-foreground">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG or SVG (Max 5MB)</p>
+                    </div>
+                    <Input 
+                      id="logo-upload" 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      ref={fileInputRef}
+                    />
+                  </label>
+                )}
               </div>
             </div>
             
-            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSubmitting ? 'Creating Event...' : 'Create Event'}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || isUploading} 
+              className="w-full md:w-auto"
+            >
+              {(isSubmitting || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isUploading ? 'Uploading Logo...' : isSubmitting ? 'Creating Event...' : 'Create Event'}
             </Button>
           </form>
         </Form>
