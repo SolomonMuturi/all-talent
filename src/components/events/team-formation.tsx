@@ -1,14 +1,13 @@
 'use client';
 
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
-// Define player interface
 interface Player {
   id?: string;
   name?: string;
   position?: string;
   number?: number;
-  [key: string]: any; // Allow additional properties
+  [key: string]: any;
 }
 
 interface TeamFormationProps {
@@ -30,7 +29,6 @@ const PlayerMarker = ({ number = 0, name = "Player" }: { number?: number, name?:
 );
 
 export function TeamFormation({ lineup }: TeamFormationProps) {
-  // Handle null/undefined lineup
   if (!lineup) {
     return (
       <div className="p-4 bg-muted rounded-lg text-center">
@@ -39,23 +37,19 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
     );
   }
 
-  // Safely get formation and squad
   const formation = lineup.formation || '4-4-2';
   
-  // Safely handle squad data - ensure it's an array
   let squad: Player[] = [];
   try {
     if (Array.isArray(lineup.squad)) {
       squad = lineup.squad;
     } else if (lineup.squad && typeof lineup.squad === 'object') {
-      // If it's an object, try to convert to array
       squad = Object.values(lineup.squad);
     }
   } catch (error) {
     console.error('Error processing squad data:', error);
   }
 
-  // Check if we have valid squad data
   if (!Array.isArray(squad) || squad.length === 0) {
     return (
       <div className="p-4 bg-muted rounded-lg text-center">
@@ -64,7 +58,6 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
     );
   }
 
-  // Safely filter players by position
   const safeFilterByPosition = (positionKeywords: string[]) => {
     return squad.filter(player => {
       if (!player || typeof player !== 'object') return false;
@@ -87,7 +80,6 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
         <Badge variant="secondary" className="text-base">Formation: {formation}</Badge>
       </div>
       
-      {/* Player count summary */}
       <div className="flex justify-center gap-4 mb-4 text-sm flex-wrap">
         <span className="text-muted-foreground">Total Players: {squad.length}</span>
         {goalkeepers.length > 0 && <span>GK: {goalkeepers.length}</span>}
@@ -96,23 +88,19 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
         {forwards.length > 0 && <span>FWD: {forwards.length}</span>}
       </div>
 
-      {/* Only show pitch if we have players */}
       {(goalkeepers.length + defenders.length + midfielders.length + forwards.length) > 0 && (
         <div className="relative aspect-[7/5] bg-green-600/80 rounded-lg overflow-hidden border-4 border-green-400/50 mb-4">
-          {/* Pitch markings */}
           <div className="absolute inset-0 border-[3px] border-green-400/50"></div>
           <div className="absolute top-1/2 left-0 w-full h-[3px] bg-green-400/50 -translate-y-1/2"></div>
           <div className="absolute top-1/2 left-1/2 w-20 h-20 border-[3px] border-green-400/50 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-green-400/50 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           
-          {/* Goal Areas */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 h-3/5 w-16 border-y-[3px] border-r-[3px] border-green-400/50 rounded-r-lg"></div>
           <div className="absolute left-0 top-1/2 -translate-y-1/2 h-2/5 w-8 border-y-[3px] border-r-[3px] border-green-400/50 rounded-r-lg"></div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 h-3/5 w-16 border-y-[3px] border-l-[3px] border-green-400/50 rounded-l-lg"></div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 h-2/5 w-8 border-y-[3px] border-l-[3px] border-green-400/50 rounded-l-lg"></div>
 
           <div className="relative w-full h-full z-10 flex flex-col justify-around">
-            {/* Goalkeeper */}
             {goalkeepers.length > 0 && (
               <div className="flex justify-center items-center" style={{ width: '100%' }}>
                 {goalkeepers.map((player, index) => (
@@ -126,7 +114,6 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
               </div>
             )}
             
-            {/* Defenders */}
             {defenders.length > 0 && (
               <div className="flex justify-around items-center" style={{ width: '100%', paddingLeft: '10%', paddingRight: '10%' }}>
                 {defenders.map((player, index) => (
@@ -140,7 +127,6 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
               </div>
             )}
             
-            {/* Midfielders */}
             {midfielders.length > 0 && (
               <div className="flex justify-around items-center" style={{ width: '100%', paddingLeft: '5%', paddingRight: '5%' }}>
                 {midfielders.map((player, index) => (
@@ -154,7 +140,6 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
               </div>
             )}
             
-            {/* Forwards */}
             {forwards.length > 0 && (
               <div className="flex justify-around items-center" style={{ width: '100%', paddingLeft: '25%', paddingRight: '25%' }}>
                 {forwards.map((player, index) => (
@@ -171,7 +156,6 @@ export function TeamFormation({ lineup }: TeamFormationProps) {
         </div>
       )}
 
-      {/* Player list */}
       <div className="mt-4">
         <h4 className="font-semibold mb-2">Player Roster ({squad.length})</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
